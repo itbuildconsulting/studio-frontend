@@ -1,0 +1,15 @@
+.table_locale_adm tr td:nth-child(1){
+    width: 35%;
+}
+
+.table_locale_adm tr td:nth-child(2){
+    width: 65%;
+}
+
+.product_type_adm tr td:nth-child(1){
+    width: 35%;
+}
+
+.product_type_adm tr td:nth-child(2){
+    width: 65%;
+}

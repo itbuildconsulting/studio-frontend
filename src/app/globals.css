@@ -1,0 +1,149 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --primary: #003D58;
+  --secondary: #70E000;
+  --shadow: #003D5880;
+  --primaryHover: #062D40;
+  --secondaryHover: #548F22;
+  --backgroundColor: #FBFBFB;
+}
+
+html {
+  font-size: 16px;
+}
+
+body {
+  background-color: #F0F3F7;
+  color: var(--primary);
+}
+
+h1 {
+  font-size: 4rem;
+  font-weight: 600;
+  line-height: 110%;
+}
+
+h2 {
+  font-size: 3rem;
+  font-weight: 600;
+  line-height: 120%;
+}
+
+h3 {
+  font-size: 2rem;
+  font-weight: 600;
+  line-height: 120%;
+}
+
+h4 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  line-height: 150%;
+}
+
+p, span {
+  font-size: 1rem;
+  font-weight: 400;
+  line-height: 150%;
+}
+
+a {
+  font-weight: 600;
+  line-height: 125%;
+}
+
+a:hover {
+  color: var(--primaryHover);
+}
+
+small {
+  font-size: .75rem;
+  font-weight: 400;
+  line-height: 150%;
+}
+
+label {
+  font-size: 1rem;
+  font-weight: 700;
+  line-height: 150%;
+  color: var(--primary);
+  margin-bottom: 4px;
+}
+
+input {
+  height: 56px;
+  border-radius: 4px;
+  border: 1px solid var(--primary);
+  padding: 14px 20px;
+  color: var(--primary);
+  font-size: 1rem;
+  font-weight: 500;
+  margin-bottom: 2rem;
+  background-color: var(--backgroundColor);
+}
+
+button {
+  height: 56px;
+  border-radius: 4px;
+  font-size: 1rem;
+  font-weight: 700;
+  line-height: 150%;
+}
+
+hr {
+  border-color: #AEAEAE;
+}
+
+.bg-white {
+  background-color: var(--backgroundColor);
+}
+
+.btn-primary {
+  background-color: var(--primary);
+  border: 1px solid var(--primary);
+  color: #FFFFFF;
+}
+
+.btn-primary:hover {
+  background-color: var(--primaryHover);
+  border: 1px solid var(--primaryHover);
+  color: #FFFFFF;
+}
+
+.btn-outline-primary {
+  background-color: #FFFFFF;
+  border: 1px solid var(--primary);
+  color: var(--primary);
+}
+
+.btn-outline-primary:hover {
+  background-color: var(--primaryHover);
+  border: 1px solid var(--primaryHover);
+  color: #FFFFFF;
+}
+
+
+.btn-secondary {
+  background-color: var(--secondary);
+  border: 1px solid var(--secondary);
+  color: #FFFFFF;
+}
+
+.btn-secondary:hover {
+  background-color: var(--secondaryHover);
+  border: 1px solid var(--secondaryHover);
+  color: #FFFFFF;
+}
+
+/* Estado de ativo do menu */
+.active {
+  background-color: #F0F3F7;
+}
+/* END - Estado de ativo do menu */
+
+.container-content {
+  padding: 2rem;
+}

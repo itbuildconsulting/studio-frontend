@@ -1,0 +1,53 @@
+.bg_login {
+    background-image: url(../../public/images/fundo-studio.jpg);
+    background-position: center center;
+    background-repeat: no-repeat;
+    background-size: cover;
+    border-radius: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+}
+
+.bg_login img {
+    max-width: 480px;
+    width: 100%;
+}
+
+.form_login {
+    max-width: 575px;
+    width: 100%;
+    margin: 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.form_login button {
+    width: 100%;
+    height: 56px;
+}
+
+.subtitle_login {
+    font-weight: 500;
+    line-height: 21px;
+    margin-bottom: 4rem;
+}
+
+.forgotPassword_login {
+    font-weight: 500;
+    line-height: 20px;
+    text-align: center;
+}
+
+@media (max-width: 1440px) {
+    .bg_login img {
+        max-width: 400px;
+        padding: 2rem;
+    }
+
+    .form_login {
+        max-width: 480px;
+    }
+}

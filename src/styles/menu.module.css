@@ -1,0 +1,37 @@
+.bg_menu {
+    max-width: 210px;
+    width: 100%;
+    background-color: var(--backgroundColor);
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.bg_menu img {
+    width: 100%;
+    padding: .75rem .75rem 1rem;
+    border-bottom: 1px solid #EFF4F6;
+    margin-bottom: 3rem;
+}
+
+.bg_menu li {
+    height: 56px;
+}
+
+.bg_menu a {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    padding-left: 2rem
+}
+
+.bg_menu li:hover {
+    background-color: #F0F3F7;
+    cursor: pointer;
+}
+
+.bg_menu li a span {
+    font-weight: 500;
+}

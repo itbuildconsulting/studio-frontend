@@ -1,0 +1,11 @@
+.bg_card {
+    background-color: var(--backgroundColor);
+    border-radius: 16px;
+    padding: 24px;
+    height: 100%;
+}
+
+.bg_card button {
+    height: 33px;
+    width: 131px;
+}

@@ -1,0 +1,59 @@
+.bg_header {
+    height: 80px;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+}
+
+.user_header {
+    padding: 0 36px 0 24px;
+    border-left: 2px solid var(--primary);
+    height: 100%;
+    display: flex;
+    align-items: center;
+    margin-left: 36px;
+}
+
+.user_icon_header {
+    background-color: var(--primary);
+    height: 52px;
+    width: 52px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 48px;
+}
+
+.user_name_header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.user_name_header span {
+    font-weight: 500;
+}
+
+.notification_header {
+    position: relative;
+}
+
+.bagde_notification_header {
+    position: absolute;
+    top: -8px;
+    right: -6px;
+    background-color: #F03D3D;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+}
+
+.bagde_notification_header span {
+    font-size: 12px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: #FFFFFF;
+    height: 100%;
+}
