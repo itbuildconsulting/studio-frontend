@@ -46,8 +46,12 @@
 @media (max-width: 767px) {
     .modal {
         width: 100%;
-        max-width: 480px;
-        padding: 0 1rem;
+        max-width: 100%;
+        padding: 1.5rem;
         position: relative;
+    }
+
+    .modal_fade {
+        padding: 2rem;
     }
 }

@@ -7,26 +7,33 @@ import PageDefault from "@/components/template/default";
 import styles from '../../styles/administrative.module.css';
 import Modal from "@/components/Modal/Modal";
 import { useState } from "react";
+import AuthInput from "@/components/auth/AuthInput";
 
 export default function Administrative() {
     const [modalLocaleShow, setModalLocaleShow] = useState<boolean>(false);
     const [modalTypeProductShow, setModalTypeProductShow] = useState<boolean>(false);
 
-/*     const changeStatus = (cell: any, row: any) => {
-        return (
-            <>
-                {cell ? "Ativo" : "Inativo"}
-            </>
-        )
-    }
+    const [localeName, setLocaleName] = useState<string>("");
+    const [addressName, setAdressName] = useState<string>("");
 
-    const convertDate = (cell: any, row: any) => {
-        return (
-            <>
-                {cell.split("-").reverse().join("/")}
-            </>
-        )
-    } */
+    const [typeName, setTypeName] = useState<string>("");
+    const [productLocaleName, setProductLocaleName] = useState<string>("");
+
+    /*     const changeStatus = (cell: any, row: any) => {
+            return (
+                <>
+                    {cell ? "Ativo" : "Inativo"}
+                </>
+            )
+        }
+    
+        const convertDate = (cell: any, row: any) => {
+            return (
+                <>
+                    {cell.split("-").reverse().join("/")}
+                </>
+            )
+        } */
 
     let info: any = {
         rows: [
@@ -85,7 +92,10 @@ export default function Administrative() {
     ];
 
     function onSubmitLocale() {
-        console.log("Cadastrei");
+        setModalLocaleShow(false);
+
+        setLocaleName("");
+        setAdressName("");
     }
 
     function onSubmitTypeProduct() {
@@ -95,7 +105,7 @@ export default function Administrative() {
     return (
         <PageDefault title={"Administrativo"}>
             <div className="grid grid-cols-12 gap-8">
-                <div className="col-span-6">
+                <div className="col-span-12 lg:col-span-6">
                     <Card
                         title="Locais"
                         hasButton={true}
@@ -108,7 +118,7 @@ export default function Administrative() {
                         />
                     </Card>
                 </div>
-                <div className="col-span-6">
+                <div className="col-span-12 lg:col-span-6">
                     <Card
                         title="Tipos de Produtos"
                         hasButton={true}
@@ -123,7 +133,7 @@ export default function Administrative() {
                 </div>
             </div>
 
-            <Modal 
+            <Modal
                 title={"Adicionar Local"}
                 btnClose={true}
                 setShowModal={setModalLocaleShow}
@@ -131,10 +141,29 @@ export default function Administrative() {
                 hasFooter={true}
                 onSubmit={onSubmitLocale}
             >
-                Hello World
+                <div>
+                    <div>
+                        <AuthInput
+                            label="Local"
+                            value={localeName}
+                            type='text'
+                            changeValue={setLocaleName}
+                            required
+                        />
+                    </div>
+                    <div>
+                        <AuthInput
+                            label="Endereço"
+                            value={addressName}
+                            type='text'
+                            changeValue={setAdressName}
+                            required
+                        />
+                    </div>
+                </div>
             </Modal>
 
-            <Modal 
+            <Modal
                 title={"Adicionar Tipo de Produto"}
                 btnClose={true}
                 setShowModal={setModalTypeProductShow}
@@ -142,7 +171,26 @@ export default function Administrative() {
                 hasFooter={true}
                 onSubmit={onSubmitTypeProduct}
             >
-                Hello World
+                <div>
+                    <div>
+                        <AuthInput
+                            label="Nome do tipo"
+                            value={typeName}
+                            type='text'
+                            changeValue={setTypeName}
+                            required
+                        />
+                    </div>
+                    <div>
+                        <AuthInput
+                            label="Local"
+                            value={productLocaleName}
+                            type='text'
+                            changeValue={setProductLocaleName}
+                            required
+                        />
+                    </div>
+                </div>
             </Modal>
         </PageDefault>
     )

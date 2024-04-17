@@ -73,7 +73,7 @@ label {
   margin-bottom: 4px;
 }
 
-input {
+input, select {
   height: 56px;
   border-radius: 4px;
   border: 1px solid var(--primary);
