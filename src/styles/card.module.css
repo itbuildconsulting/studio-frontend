@@ -9,3 +9,16 @@
     height: 33px;
     width: 131px;
 }
+
+.footer_card {
+    display: flex;
+    justify-content: flex-end;
+    gap: 2rem;
+    margin-top: 2.5rem;
+}
+
+.footer_card button {
+    height: 56px;
+    max-width: 220px;
+    width: 100%;
+}

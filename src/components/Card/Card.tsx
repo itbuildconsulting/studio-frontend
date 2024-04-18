@@ -8,7 +8,9 @@ interface TitleProps {
     children: any,
     hasButton?: boolean,
     setShowModal?: any,
-    url?: any
+    url?: any,
+    hasFooter?: boolean,
+    eventsButton?: any
 }
 
 export default function Card(props: TitleProps) {
@@ -22,6 +24,18 @@ export default function Card(props: TitleProps) {
                 {props.hasButton && <button className="btn-outline-primary" onClick={() => props.setShowModal ? props.setShowModal(true) : router.push(props.url)}><p>Adicionar</p></button>}
             </div>
             {props.children}
+            {
+                props.hasFooter &&
+                <div className={`${styles.footer_card}`}>
+                    {
+                        props.eventsButton.map((btn: any) => {
+                            return (
+                                <button key={btn.name} className={btn.class} onClick={() => btn.function()}>{btn.name}</button>
+                            )
+                        })
+                    }
+                </div>
+            }
         </div>
     )
 }

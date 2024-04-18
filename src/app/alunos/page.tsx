@@ -11,6 +11,10 @@ import AuthInput from "@/components/auth/AuthInput";
 export default function Students() {
     const [modalStudentsAdd, setModalStudentsAdd] = useState<boolean>(false);
 
+    const [name, setName] = useState<string>("");
+    const [document, setDocument] = useState<string>("");
+    const [email, setEmail] = useState<string>("");
+
     const convertPhone = (cell: any, row: any) => {
         let phoneNumber = cell.replace(/\D/g, '');
         let formattedNumber = '(' + phoneNumber.substring(0, 2) + ') ' + phoneNumber.substring(2, 7) + '-' + phoneNumber.substring(7);
@@ -85,12 +89,64 @@ export default function Students() {
         }
     ];
 
+    const clear = () => {
+        console.log("Limpei")
+    }
+
+    const onSubmit = () => {
+        console.log("Cadastrei")
+    }
+
+    const eventButton = [
+        {
+            name: "Limpar",
+            function: clear,
+            class: "btn-outline-primary"
+        },
+        {
+            name: "Pesquisar",
+            function: onSubmit,
+            class: "btn-primary"
+        },
+    ];
+
     return (
         <PageDefault title={"Alunos"}>
             <div className="grid grid-cols-12 gap-8">
                 <div className="col-span-12">
-                    <Card>
-                        Hello World
+                    <Card
+                        hasFooter={true}
+                        eventsButton={eventButton}
+                    >
+                        <div className="grid grid-cols-12 gap-x-8">
+                            <div className="col-span-3">
+                                <AuthInput
+                                    label="Nome"
+                                    value={name}
+                                    type='text'
+                                    changeValue={setName}
+                                    required
+                                />
+                            </div>
+                            <div className="col-span-3">
+                                <AuthInput
+                                    label="CPF"
+                                    value={document}
+                                    type='text'
+                                    changeValue={setDocument}
+                                    required
+                                />
+                            </div>
+                            <div className="col-span-3">
+                                <AuthInput
+                                    label="Email"
+                                    value={email}
+                                    type='text'
+                                    changeValue={setEmail}
+                                    required
+                                />
+                            </div>
+                        </div>
                     </Card>
                 </div>
                 <div className="col-span-12">
