@@ -15,6 +15,7 @@ export default function Products() {
 
     const [productName, setProductName] = useState<string>("");
     const [creditValue, setCreditValue] = useState<string>("");
+    const [validity, setValidity] = useState<string>("");
     const [typeProduct, setTypeProduct] = useState<string>("");
     const [localeName, setLocaleName] = useState<string>("");
     const [value, setValue] = useState<string | number>("");
@@ -140,7 +141,7 @@ export default function Products() {
                 hasFooter={true}
                 onSubmit={onSubmitProductAdd}
             >
-                <div className="grid grid-cols-12 gap-6">
+                <div className="grid grid-cols-12 gap-x-6">
                     <div className="col-span-6">
                         <AuthInput
                             label="Nome do Produto"
@@ -156,6 +157,15 @@ export default function Products() {
                             value={creditValue}
                             type='text'
                             changeValue={setCreditValue}
+                            required
+                        />
+                    </div>
+                    <div className="col-span-6">
+                        <AuthInput
+                            label="Validade"
+                            value={validity}
+                            type='text'
+                            changeValue={setValidity}
                             required
                         />
                     </div>

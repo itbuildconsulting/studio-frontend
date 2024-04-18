@@ -1,7 +1,90 @@
+'use client'
+
 import Card from "@/components/Card/Card";
 import PageDefault from "@/components/template/default";
 
+import styles from '../../styles/students.module.css';
+import Table from "@/components/Table/Table";
+import { useState } from "react";
+import AuthInput from "@/components/auth/AuthInput";
+
 export default function Students() {
+    const [modalStudentsAdd, setModalStudentsAdd] = useState<boolean>(false);
+
+    const convertPhone = (cell: any, row: any) => {
+        let phoneNumber = cell.replace(/\D/g, '');
+        let formattedNumber = '(' + phoneNumber.substring(0, 2) + ') ' + phoneNumber.substring(2, 7) + '-' + phoneNumber.substring(7);
+
+        return formattedNumber;
+    }
+
+    const convertDate = (cell: any, row: any) => {
+        return cell.split("-").reverse().join("/");
+    }
+
+    const convertStatus = (cell: any, row: any) => {
+        return cell ? "Ativo" : "Inativo";
+    }
+
+    let info: any = {
+        rows: [
+            {
+                nome: "Pedro Henrique Kevin Assunção",
+                email: "pedro-assuncao86@grupoannaprado.com.br",
+                telefone: "62987591829",
+                checkin: "2023-12-12",
+                status: true,
+            },
+            {
+                nome: "Pedro Henrique Kevin Assunção",
+                email: "pedro-assuncao86@grupoannaprado.com.br",
+                telefone: "62987591829",
+                checkin: "2023-12-12",
+                status: false,
+            },
+            {
+                nome: "Pedro Henrique Kevin Assunção",
+                email: "pedro-assuncao86@grupoannaprado.com.br",
+                telefone: "62987591829",
+                checkin: "2023-12-12",
+                status: false,
+            },
+            {
+                nome: "Pedro Henrique Kevin Assunção",
+                email: "pedro-assuncao86@grupoannaprado.com.br",
+                telefone: "62987591829",
+                checkin: "2023-12-12",
+                status: true,
+            }
+        ]
+    }
+
+    const columns = [
+        {
+            dataField: 'nome',
+            text: `Nome`,
+        },
+        {
+            dataField: 'email',
+            text: `Email`,
+        },
+        {
+            dataField: 'telefone',
+            text: `Telefone`,
+            formatter: convertPhone
+        },
+        {
+            dataField: 'checkin',
+            text: `Último Check-in`,
+            formatter: convertDate
+        },
+        {
+            dataField: 'status',
+            text: `Status`,
+            formatter: convertStatus
+        }
+    ];
+
     return (
         <PageDefault title={"Alunos"}>
             <div className="grid grid-cols-12 gap-8">
@@ -11,8 +94,16 @@ export default function Students() {
                     </Card>
                 </div>
                 <div className="col-span-12">
-                    <Card title="Lista de Alunos">
-                        Hello World
+                    <Card
+                        title="Lista de Alunos"
+                        hasButton={true}
+                        url={"/alunos/cadastrar"}
+                    >
+                        <Table
+                            data={info.rows}
+                            columns={columns}
+                            class={styles.table_students}
+                        />
                     </Card>
                 </div>
             </div>
