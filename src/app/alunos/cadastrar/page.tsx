@@ -47,7 +47,7 @@ export default function Students() {
     ];
 
     return (
-        <PageDefault title={"Alunos"}>
+        <PageDefault title={"Cadastrar Alunos"}>
             <div className="grid grid-cols-12">
                 <div className="col-span-12">
                     <Card

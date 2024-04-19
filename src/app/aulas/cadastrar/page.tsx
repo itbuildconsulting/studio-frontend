@@ -10,20 +10,16 @@ import { useState } from "react";
 export default function Students() {
     const router = useRouter();
 
-    const [name, setName] = useState<string>("");
-    const [document, setDocument] = useState<string>("");
-    const [email, setEmail] = useState<string>("");
-    const [validity, setValidity] = useState<string>("");
-    const [phone, setPhone] = useState<string>("");
-    const [status, setStatus] = useState<boolean>(true);
-    const [heigth, setHeigth] = useState<string>("");
-    const [weight, setWeight] = useState<string>("");
-    const [shoes, setShoes] = useState<string>("");
-    const [password, setPassword] = useState<string>("");
-    const [confirmPass, setConfirmPass] = useState<string>("");
-    const [contract, setContract] = useState<string>("");
-    const [frequency, setFrequency] = useState<string>("");
-    const [classValue, setClassValue] = useState<string>("");
+    const [date, setDate] = useState<string>("");
+    const [time, setTime] = useState<string>("");
+    const [typeProduct, setTypeProduct] = useState<string>("");
+    const [product, setProduct] = useState<string>("");
+    const [teacher, setTeacher] = useState<string>("");
+    const [qtdStudents, setQtdStudents] = useState<string>("");
+    const [canCommission, setCanCommission] = useState<string>("");
+    const [students, setStudents] = useState<string>("");
+    const [commissionRules, setCommissionRules] = useState<string>("");
+    const [commissionValue, setCommissionValue] = useState<string>("");
 
     const clear = () => {
         router.push("/alunos");
@@ -47,7 +43,7 @@ export default function Students() {
     ];
 
     return (
-        <PageDefault title={"Alunos"}>
+        <PageDefault title={"Cadastrar Aulas"}>
             <div className="grid grid-cols-12">
                 <div className="col-span-12">
                     <Card
@@ -57,64 +53,47 @@ export default function Students() {
                         <div className="grid grid-cols-12 gap-x-8">
                             <div className="col-span-4">
                                 <AuthInput
-                                    label="Nome"
-                                    value={name}
+                                    label="Data"
+                                    value={date}
                                     type='text'
-                                    changeValue={setName}
+                                    changeValue={setDate}
+                                    required
+                                />
+                            </div>
+                            <div className="col-span-4 grid-rows-4">
+                                <AuthInput
+                                    label="Hora"
+                                    value={time}
+                                    type='text'
+                                    changeValue={setTime}
+                                    required
+                                />
+                            </div>
+                            <div className="grid-rows-4"></div>
+                            <div className="col-span-4">
+                                <AuthInput
+                                    label="Tipo de Produto"
+                                    value={typeProduct}
+                                    type='text'
+                                    changeValue={setTypeProduct}
                                     required
                                 />
                             </div>
                             <div className="col-span-4">
                                 <AuthInput
-                                    label="CPF"
-                                    value={document}
+                                    label="Produto"
+                                    value={product}
                                     type='text'
-                                    changeValue={setDocument}
+                                    changeValue={setProduct}
                                     required
                                 />
                             </div>
                             <div className="col-span-4">
                                 <AuthInput
-                                    label="Email"
-                                    value={email}
+                                    label="Professor"
+                                    value={teacher}
                                     type='text'
-                                    changeValue={setEmail}
-                                    required
-                                />
-                            </div>
-                            <div className="col-span-4">
-                                <AuthInput
-                                    label="Validade"
-                                    value={validity}
-                                    type='text'
-                                    changeValue={setValidity}
-                                    required
-                                />
-                            </div>
-                            <div className="col-span-4">
-                                <AuthInput
-                                    label="Telefone"
-                                    value={phone}
-                                    type='text'
-                                    changeValue={setPhone}
-                                    required
-                                />
-                            </div>
-                            <div className="col-span-4">
-                                <AuthSelect
-                                    label="Status"
-                                    options={[
-                                        {
-                                            value: true,
-                                            label: "Ativo"
-                                        },
-                                        {
-                                            value: false,
-                                            label: "Inativo"
-                                        }
-                                    ]}
-                                    value={status}
-                                    changeValue={setStatus}
+                                    changeValue={setTeacher}
                                     required
                                 />
                             </div>
@@ -123,76 +102,52 @@ export default function Students() {
                         <div className="grid grid-cols-12 gap-x-8">
                             <div className="col-span-4">
                                 <AuthInput
-                                    label="Altura"
-                                    value={heigth}
+                                    label="Quantidade de alunos"
+                                    value={qtdStudents}
                                     type='text'
-                                    changeValue={setHeigth}
+                                    changeValue={setQtdStudents}
                                     required
                                 />
                             </div>
                             <div className="col-span-4">
                                 <AuthInput
-                                    label="Peso"
-                                    value={weight}
+                                    label="Possiu comissão?"
+                                    value={canCommission}
                                     type='text'
-                                    changeValue={setWeight}
+                                    changeValue={setCanCommission}
                                     required
                                 />
                             </div>
+                            <div className="grid-rows-4"></div>
                             <div className="col-span-4">
                                 <AuthInput
-                                    label="Sapato"
-                                    value={shoes}
+                                    label="Alunos"
+                                    value={students}
                                     type='text'
-                                    changeValue={setShoes}
+                                    changeValue={setStudents}
                                     required
                                 />
                             </div>
-                            <div className="col-span-4">
-                                <AuthInput
-                                    label="Senha"
-                                    value={password}
-                                    type='text'
-                                    changeValue={setPassword}
-                                    required
-                                />
-                            </div>
-                            <div className="col-span-4">
-                                <AuthInput
-                                    label="Confirmar Senha"
-                                    value={confirmPass}
-                                    type='text'
-                                    changeValue={setConfirmPass}
-                                    required
-                                />
-                            </div>
+                            <div className="grid-rows-4"></div>
+                            <div className="grid-rows-4"></div>
                         </div>
                         <hr className="mt-3 mb-5 pb-3" style={{ borderColor: "#F4F5F6" }} />
                         <div className="grid grid-cols-12 gap-x-8">
                             <div className="col-span-4">
                                 <AuthInput
-                                    label="Contrato"
-                                    value={contract}
+                                    label="Regra de Comissão"
+                                    value={commissionRules}
                                     type='text'
-                                    changeValue={setContract}
+                                    changeValue={setCommissionRules}
                                     required
                                 />
                             </div>
                             <div className="col-span-4">
                                 <AuthInput
-                                    label="Frequência"
-                                    value={frequency}
+                                    label="Valor da Comissão"
+                                    value={commissionValue}
                                     type='text'
-                                    changeValue={setFrequency}
-                                    required
-                                />
-                            </div>
-                            <div className="col-span-4">
-                                <AuthInput
-                                    label="Aula"
-                                    value={classValue}
-                                    type='text'
-                                    changeValue={setClassValue}
+                                    changeValue={setCommissionValue}
                                     required
                                 />
                             </div>

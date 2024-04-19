@@ -118,7 +118,7 @@ export default function Class() {
     ];
 
     return (
-        <PageDefault title={"Alunos"}>
+        <PageDefault title={"Aulas"}>
             <div className="grid grid-cols-12 gap-8">
                 <div className="col-span-12">
                     <Card
@@ -158,9 +158,9 @@ export default function Class() {
                 </div>
                 <div className="col-span-12">
                     <Card
-                        title="Lista de Alunos"
+                        title="Lista de Aulas"
                         hasButton={true}
-                        url={"/alunos/cadastrar"}
+                        url={"/aulas/cadastrar"}
                     >
                         <Table
                             data={info.rows}
