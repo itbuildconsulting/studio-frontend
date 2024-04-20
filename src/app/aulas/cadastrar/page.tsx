@@ -7,7 +7,7 @@ import PageDefault from "@/components/template/default";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
-export default function Students() {
+export default function AddClass() {
     const router = useRouter();
 
     const [date, setDate] = useState<string>("");
@@ -22,7 +22,7 @@ export default function Students() {
     const [commissionValue, setCommissionValue] = useState<string>("");
 
     const clear = () => {
-        router.push("/alunos");
+        router.push("/aulas");
     }
 
     const onSubmit = () => {

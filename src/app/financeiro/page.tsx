@@ -13,15 +13,15 @@ export default function Financial() {
     const [date, setDate] = useState<string>("");
     const [student, setStudent] = useState<string>("");
 
-    const convertValue = (cell: any, row: any) => {
+    const convertValue = (cell: number) => {
         return cell.toLocaleString('pt-br', { style: 'currency', currency: 'BRL' })
     }
 
-    const convertDate = (cell: any, row: any) => {
+    const convertDate = (cell: string) => {
         return cell.split("-").reverse().join("/");
     }
 
-    const convertStatus = (cell: any, row: any) => {
+    const convertStatus = (cell: number) => {
 
         return cell === 1 ? "Pago" : cell === 2 ? "Pendente" : cell === 3 ? "Cancelado" : "Não Registrado";
     }
