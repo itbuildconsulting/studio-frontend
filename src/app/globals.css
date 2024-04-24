@@ -147,3 +147,33 @@ hr {
 .container-content {
   padding: 2rem;
 }
+
+.border_secondary_class td:nth-child(1) {
+  border-left: 4px solid var(--secondary);
+}
+
+.border_primary_class td:nth-child(1) {
+  border-left: 4px solid var(--primary);
+}
+
+.border_purple_class td:nth-child(1) {
+  border-left: 4px solid #C905FA;
+}
+
+.borderInternal_secondary_class td:nth-child(2) div {
+  border-left: 5px solid var(--secondary);
+  padding-left: 14px;
+  height: 45px;
+}
+
+.borderInternal_primary_class td:nth-child(2) div {
+  border-left: 5px solid var(--primary);
+  padding-left: 14px;
+  height: 45px;
+}
+
+.borderInternal_purple_class td:nth-child(2) div {
+  border-left: 5px solid #C905FA;
+  padding-left: 14px;
+  height: 45px;
+}

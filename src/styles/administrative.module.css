@@ -1,5 +1,6 @@
 .table_locale_adm tr td:nth-child(1){
     width: 35%;
+    font-size: 20px;
 }
 
 .table_locale_adm tr td:nth-child(2){

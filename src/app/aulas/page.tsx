@@ -9,18 +9,9 @@ import { useState } from "react";
 import AuthInput from "@/components/auth/AuthInput";
 
 export default function Class() {
-    const [modalStudentsAdd, setModalStudentsAdd] = useState<boolean>(false);
-
     const [date, setDate] = useState<string>("");
     const [type, setType] = useState<string>("");
     const [teacher, setTeacher] = useState<string>("");
-
-    const convertPhone = (cell: any, row: any) => {
-        let phoneNumber = cell.replace(/\D/g, '');
-        let formattedNumber = '(' + phoneNumber.substring(0, 2) + ') ' + phoneNumber.substring(2, 7) + '-' + phoneNumber.substring(7);
-
-        return formattedNumber;
-    }
 
     const convertDate = (cell: any, row: any) => {
         return cell.split("T")[0].split("-").reverse().join("/") + " - " + cell.split("T")[1];
@@ -97,11 +88,11 @@ export default function Class() {
     ];
 
     const clear = () => {
-        console.log("Limpei")
+        console.log("Limpei");
     }
 
     const onSubmit = () => {
-        console.log("Cadastrei")
+        console.log("Cadastrei");
     }
 
     const eventButton = [
@@ -116,6 +107,16 @@ export default function Class() {
             class: "btn-primary"
         },
     ];
+
+    const rowClasses = (row: any) => {
+        if (row.tipoAula === "Aula Coletiva") {
+            return "border_secondary_class";
+        } else if (row.tipoAula === "Bike Coletiva") {
+            return "border_purple_class";
+        } else {
+            return "border_primary_class";
+        }
+    }
 
     return (
         <PageDefault title={"Aulas"}>
@@ -166,6 +167,7 @@ export default function Class() {
                             data={info.rows}
                             columns={columns}
                             class={styles.table_students}
+                            rowClasses={rowClasses}
                         />
                     </Card>
                 </div>

@@ -3,25 +3,27 @@ import styles from '../../styles/table.module.css';
 interface TableProps {
     data: any,
     columns: any,
-    class?: any
+    class?: any,
+    rowClasses?: any
 }
 
 export default function Table(props: TableProps) {
-
     return (
         <>
-            <table className={`${styles.bg_table} ${props.class} w-full`}>
+            <table className={`${styles.bg_table} ${props.class || ""} w-full`}>
                 <tbody>
                     {
                         props.data.map((item: any, index: any) => {
                             return (
-                                <tr key={index}>
+                                <tr key={index} className={`${props?.rowClasses && props?.rowClasses(item)}`}>
                                     {
                                         props.columns.map((col: any, indexHeader: any) => {
                                             return (
                                                 <td key={indexHeader}>
-                                                    <small>{col.text}</small>
-                                                    <p>{!col.formatter ? item[col.dataField] : col.formatter(item[col.dataField], item)}</p>
+                                                    <div className='flex flex-col justify-center'>
+                                                        {col.text && <small>{col.text}</small>}
+                                                        {!col.formatter ? <p>{item[col.dataField]}</p> : col.formatter(item[col.dataField], item)}
+                                                    </div>
                                                 </td>
                                             )
                                         })

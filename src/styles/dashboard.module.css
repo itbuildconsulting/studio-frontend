@@ -1,0 +1,16 @@
+.table_dashboard tr td:nth-child(1){
+    width: 20%;
+}
+
+.table_dashboard tr td:nth-child(1) p {
+    font-size: 20px;
+    font-weight: 700;
+}
+
+.table_dashboard tr td:nth-child(2){
+    width: 70%;
+}
+
+.table_dashboard tr td:nth-child(3){
+    width: 10%;
+}
