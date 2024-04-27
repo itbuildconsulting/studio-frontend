@@ -74,18 +74,18 @@ export default function Home() {
 
     return (
         <PageDefault title={"Bem-vindo, Fulano"}>
-            <div className="grid grid-rows-2 grid-cols-12 gap-8">
-                <div className="col-span-4">
+            <div className="grid grid-rows-2 grid-cols-12 gap-6 lg:gap-8">
+                <div className="col-span-12 lg:col-span-4">
                     <Card title="Frequência de alunos">
                         Hello World
                     </Card>
                 </div>
-                <div className="col-span-4">
+                <div className="col-span-12 lg:col-span-4">
                     <Card title="Total de Vendas">
                         Hello World
                     </Card>
                 </div>
-                <div className="row-span-2 col-span-4">
+                <div className="row-span-2 col-span-12 lg:col-span-4">
                     <Card title="Calendário de Aulas">
                         <h5>01 de Janeiro de 2025</h5>
                         <Table
@@ -96,7 +96,7 @@ export default function Home() {
                         />
                     </Card>
                 </div>
-                <div className="col-span-8">
+                <div className="col-span-12 lg:col-span-8 mb-8 lg:mb-0">
                     <Card title="Notícias Recentes">
                         Hello World
                     </Card>

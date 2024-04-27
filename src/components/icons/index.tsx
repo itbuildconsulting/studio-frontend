@@ -66,3 +66,18 @@ export const IconArrowBack = (
     </svg>
 )
 
+export const IconMenuHamburguer = (sizeW: any, sizeH: any, color: any) => (
+    <svg xmlns="http://www.w3.org/2000/svg" width={sizeW} height={sizeH} viewBox="0 0 66 37" fill="none">
+        <path d="M3 3H63" stroke={color} strokeWidth="5" strokeLinecap="round" />
+        <path d="M3 18.5H63" stroke={color} strokeWidth="5" strokeLinecap="round" />
+        <path d="M3 34.5H63" stroke={color} strokeWidth="5" strokeLinecap="round" />
+    </svg>
+);
+
+export const IconClose = (sizeW: any, sizeH: any, color: any) => (
+    <svg xmlns="http://www.w3.org/2000/svg" width={sizeW} height={sizeH} viewBox="0 0 48 49" fill="none">
+        <path d="M3 3.42639L45.4264 45.8528" stroke={color} strokeWidth="5" strokeLinecap="round" />
+        <path d="M3 45.4264L45.4264 2.99999" stroke={color} strokeWidth="5" strokeLinecap="round" />
+    </svg>
+);
+

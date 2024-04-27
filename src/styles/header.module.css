@@ -1,7 +1,7 @@
 .bg_header {
     height: 80px;
     display: flex;
-    justify-content: flex-end;
+    justify-content: space-between;
     align-items: center;
 }
 
@@ -56,4 +56,45 @@
     align-items: center;
     color: #FFFFFF;
     height: 100%;
+}
+
+.header_menu {
+    display: none;
+}
+
+@media (max-width: 1024px) {
+    .bg_header {
+        margin-left: 2rem;
+    }
+
+    .user_header {
+        padding: 0 32px 0 24px;
+    }
+
+    .user_icon_header {
+        margin-right: 0;
+    }
+
+    .user_name_header span {
+        display: none;
+    }
+
+    .header_menu {
+        display: block;
+        cursor: pointer;
+    }
+
+    .header_menu:hover {
+        opacity: .75;
+    }
+}
+
+@media (max-width: 767px) {
+    .bg_header {
+        margin-left: 16px;
+    }
+
+    .user_header {
+        padding: 0 16px 0 24px;
+    }
 }

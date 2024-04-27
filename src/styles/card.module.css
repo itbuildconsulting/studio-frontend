@@ -1,7 +1,7 @@
 .bg_card {
     background-color: var(--backgroundColor);
     border-radius: 16px;
-    padding: 24px;
+    padding: 1.5rem;
     height: 100%;
 }
 

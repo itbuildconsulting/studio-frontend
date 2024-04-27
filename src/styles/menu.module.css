@@ -1,6 +1,5 @@
 .bg_menu {
-    max-width: 210px;
-    width: 100%;
+    width: 210px;
     background-color: var(--backgroundColor);
     height: 100vh;
     display: flex;
@@ -36,4 +35,69 @@
 
 .bg_menu li a span {
     font-weight: 500;
+}
+
+.close_menu {
+    display: none;
+}
+
+@media (max-width: 1024px) {
+    .bg_menu {
+        position: fixed;
+        top: 0;
+        left: -300px;
+        width: 300px;
+        height: 100vh;
+        background-repeat: no-repeat;
+        background-size: cover;
+        background-position: center center;
+        z-index: 9999;
+        transition: .2s linear;
+    }
+
+    .bg_menu img {
+        max-width: 210px;
+    }
+    
+    .bg_menu_mobile_open {
+        left: 0 !important;
+    }
+
+    .close_menu {
+        display: block;
+        position: relative;
+        top: 16px;
+        right: 16px;
+        height: 16px;
+        width: 16px;
+        cursor: pointer;
+    }
+
+    .close_menu:hover {
+        opacity: .75;
+    }
+
+    .shadow_menu {
+        content: "";
+        background-color: var(--shadow);
+        width: 100vw;
+        height: 100vh;
+        position: absolute;
+        z-index: 0;
+    }
+}
+
+@media (max-width: 767px) {
+    .bg_menu {
+        left: -100%;
+        width: 100%;
+    }
+
+    .bg_menu::before {
+        content: none;
+    }
+
+    .shadow_menu {
+        display: none;
+    }
 }
