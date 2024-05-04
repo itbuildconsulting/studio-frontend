@@ -1,5 +1,5 @@
 .bg_menu {
-    width: 210px;
+    min-width: 210px;
     background-color: var(--backgroundColor);
     height: 100vh;
     display: flex;

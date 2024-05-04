@@ -21,7 +21,7 @@ export default function Header(props: HeaderProps) {
                 </div>
                 <div className={`${styles.user_header}`}>
                     <div className={`${styles.user_icon_header}`}>
-                        {IconPeople}
+                        {IconPeople('16px', '16px', "var(--secondary)")}
                     </div>
                     <div className={`${styles.user_name_header}`}>
                         <span>Olá, Fulano de Tal</span>
