@@ -16,7 +16,7 @@ export default function PageDefault(props: any) {
 
     /* Evita o menu ficar aberto ao renderizar o tamanho da tela */
     useEffect(() => {
-        if(size.width < 1200) {
+        if (size.width < 1200) {
             setMenuMobileOpen(false);
         }
     }, [size.width])

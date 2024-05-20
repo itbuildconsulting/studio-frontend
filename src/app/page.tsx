@@ -6,18 +6,39 @@ import AuthInput from "@/components/auth/AuthInput";
 import LogoStudio from "../../public/images/logo_studio.png";
 
 import styles from '../styles/login.module.css';
-import { useState } from "react";
+import { useState, Key } from "react";
 import Link from "next/link";
 
 import { useRouter } from "next/navigation";
 
-export default function Login() {
+import useAuthData from '../data/hooks/useAuthData';
+
+export default function Auth() {
+  const { login, loginError, msgError } = useAuthData();
+
+  const [error, setError] = useState<any>();
   const [username, setUsername] = useState<string>('');
   const [password, setPassword] = useState<string>('');
   const router = useRouter();
 
-  const onSubmit = () => {
-    router.push("/dashboard");
+  function showErro(msg: string, time = 5) {
+    setError(msg);
+    setTimeout(() => setError(null), time * 1000)
+
+  }
+
+  async function handleSubmit() {
+    if (login) {
+      try {
+        await login(username, password);
+      } catch (e) {
+        setError(['Erro desconhecido - Entre em contato com o Suporte']);
+        showErro('Erro desconhecido');
+      }
+    } else {
+      setError(['Erro desconhecido - Entre em contato com o Suporte']);
+      showErro('Erro desconhecido');
+    }
   }
 
   return (
@@ -40,7 +61,8 @@ export default function Login() {
                   <AuthInput
                     label="Usuário"
                     value={username}
-                    type='text'
+                    type='email'
+                    maxLength={60}
                     changeValue={setUsername}
                     required
                   />
@@ -55,10 +77,27 @@ export default function Login() {
                   />
                 </div>
                 <div>
-                  <button className="btn-primary" onClick={() => onSubmit()}>Entrar</button>
+                  <button className="btn-primary" onClick={handleSubmit}>Entrar</button>
                 </div>
+                {loginError ? (
+
+                  msgError?.map((err: any, index: Key) => (
+                    <div className={` 
+              bg-red-400 text-white py-1 px-2 my-3 
+              border border-red-500 rounded-md
+              flex flex-row items-center
+              `} key={index}>
+                      {/* {IconWarning} */}
+                      <span className='ml-2 text-sm'>{err}</span>
+                    </div>
+                  ))
+
+
+                ) :
+                  false
+                }
                 <div className="px-8">
-                  <hr className="my-8"/>
+                  <hr className="my-8" />
                   <p className={`${styles.forgotPassword_login}`}>Você esqueceu sua senha? <Link href={"#"}>Recuperar senha</Link></p>
                 </div>
               </div>
