@@ -72,7 +72,7 @@ export function AuthProvider(props: any) {
                 {
                     method: 'POST',
                     headers: {
-                        'Content-Type': 'application/json',
+                        'Content-Type': 'application/json'
                     },
                     body: JSON.stringify(req),
                 }
@@ -80,11 +80,8 @@ export function AuthProvider(props: any) {
             setLoad(true)
             if (resp.status === 200) {
                 const authResp: any = await resp.json();
-
-                console.log(authResp.data)
                 await sessionConfig(authResp.data);
-                perfil(authResp.data.token)
-
+                //perfil(authResp.data.token)
             } else if (resp.status === 500) {
                 setLoginError(true);
                 setMsgError(['Erro desconhecido - Entre em contato com o Suporte']);
@@ -103,7 +100,7 @@ export function AuthProvider(props: any) {
         }
     }
 
-    async function perfil(token: string) {
+    /* async function perfil(token: string) {
 
         const config = {
             method: 'GET',
@@ -139,7 +136,7 @@ export function AuthProvider(props: any) {
         }
 
 
-    }
+    } */
 
     async function cadastrar(email: string, password: string) {
         try {
