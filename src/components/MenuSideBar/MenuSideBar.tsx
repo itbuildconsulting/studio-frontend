@@ -6,6 +6,7 @@ import LogoShort from '../../../public/images/logo_sudio_short.png'
 
 import MenuItem from './MenuItem';
 import { usePathname } from 'next/navigation';
+import useAuthData from '@/data/hooks/useAuthData';
 
 interface MenuSideBarProps {
     menuMobileOpen: boolean,
@@ -15,7 +16,7 @@ interface MenuSideBarProps {
 export default function MenuSideBar(props: MenuSideBarProps) {
     const pathname = usePathname();
 
-    //const { logout } = useAuthData();
+    const { logout } = useAuthData();
 
     return (
         <>
@@ -45,7 +46,7 @@ export default function MenuSideBar(props: MenuSideBarProps) {
                         <MenuItem
                             text="Sair"
                             icon={IconLeave}
-                        //onClick={logout} 
+                            onClick={logout} 
                         />
                     </ul>
                 </div>

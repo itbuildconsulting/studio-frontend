@@ -53,7 +53,7 @@ export default function AddTeachers() {
                         eventsButton={eventButton}
                     >
                         <div className="grid grid-cols-12 gap-x-8">
-                            <div className="col-span-4">
+                            <div className="col-span-12 sm:col-span-6 xl:col-span-4">
                                 <AuthInput
                                     label="Nome"
                                     value={name}
@@ -62,7 +62,7 @@ export default function AddTeachers() {
                                     required
                                 />
                             </div>
-                            <div className="col-span-4">
+                            <div className="col-span-12 sm:col-span-6 xl:col-span-4">
                                 <AuthInput
                                     label="CPF"
                                     value={document}
@@ -71,7 +71,7 @@ export default function AddTeachers() {
                                     required
                                 />
                             </div>
-                            <div className="col-span-4">
+                            <div className="col-span-12 sm:col-span-6 xl:col-span-4">
                                 <AuthInput
                                     label="Email"
                                     value={email}
@@ -80,7 +80,7 @@ export default function AddTeachers() {
                                     required
                                 />
                             </div>
-                            <div className="col-span-4">
+                            <div className="col-span-12 sm:col-span-6 xl:col-span-4">
                                 <AuthInput
                                     label="Validade"
                                     value={validity}
@@ -89,7 +89,7 @@ export default function AddTeachers() {
                                     required
                                 />
                             </div>
-                            <div className="col-span-4">
+                            <div className="col-span-12 sm:col-span-6 xl:col-span-4">
                                 <AuthInput
                                     label="Telefone"
                                     value={phone}
@@ -98,7 +98,7 @@ export default function AddTeachers() {
                                     required
                                 />
                             </div>
-                            <div className="col-span-4">
+                            <div className="col-span-12 sm:col-span-6 xl:col-span-4">
                                 <AuthSelect
                                     label="Status"
                                     options={[
@@ -119,7 +119,7 @@ export default function AddTeachers() {
                         </div>
                         <hr className="mt-3 mb-5 pb-3" style={{ borderColor: "#F4F5F6" }} />
                         <div className="grid grid-cols-12 gap-x-8">
-                            <div className="col-span-4">
+                            <div className="col-span-12 sm:col-span-6 xl:col-span-4">
                                 <AuthInput
                                     label="Altura"
                                     value={heigth}
@@ -128,7 +128,7 @@ export default function AddTeachers() {
                                     required
                                 />
                             </div>
-                            <div className="col-span-4">
+                            <div className="col-span-12 sm:col-span-6 xl:col-span-4">
                                 <AuthInput
                                     label="Peso"
                                     value={weight}
@@ -137,7 +137,7 @@ export default function AddTeachers() {
                                     required
                                 />
                             </div>
-                            <div className="col-span-4">
+                            <div className="col-span-12 sm:col-span-6 xl:col-span-4">
                                 <AuthInput
                                     label="Sapato"
                                     value={shoes}
@@ -146,7 +146,7 @@ export default function AddTeachers() {
                                     required
                                 />
                             </div>
-                            <div className="col-span-4">
+                            <div className="col-span-12 sm:col-span-6 xl:col-span-4">
                                 <AuthInput
                                     label="Senha"
                                     value={password}
@@ -155,7 +155,7 @@ export default function AddTeachers() {
                                     required
                                 />
                             </div>
-                            <div className="col-span-4">
+                            <div className="col-span-12 sm:col-span-6 xl:col-span-4">
                                 <AuthInput
                                     label="Confirmar Senha"
                                     value={confirmPass}
@@ -167,7 +167,7 @@ export default function AddTeachers() {
                         </div>
                         <hr className="mt-3 mb-5 pb-3" style={{ borderColor: "#F4F5F6" }} />
                         <div className="grid grid-cols-12 gap-x-8">
-                            <div className="col-span-4">
+                            <div className="col-span-12 sm:col-span-6 xl:col-span-4">
                                 <AuthInput
                                     label="Nível"
                                     value={level}

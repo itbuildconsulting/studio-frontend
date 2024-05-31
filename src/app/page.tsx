@@ -14,18 +14,19 @@ import { useRouter } from "next/navigation";
 import useAuthData from '../data/hooks/useAuthData';
 
 export default function Auth() {
-  const { login, loginError, msgError } = useAuthData();
+  const { login, loginError, msgError, load } = useAuthData();
 
   const [error, setError] = useState<any>();
   const [username, setUsername] = useState<string>('');
   const [password, setPassword] = useState<string>('');
   const router = useRouter();
 
-  function showErro(msg: string, time = 5) {
+  /* function showErro(msg: string, time = 5) {
     setError(msg);
     setTimeout(() => setError(null), time * 1000)
+  } */
 
-  }
+  console.log(load)
 
   async function handleSubmit() {
     if (login) {
@@ -33,11 +34,11 @@ export default function Auth() {
         await login(username, password);
       } catch (e) {
         setError(['Erro desconhecido - Entre em contato com o Suporte']);
-        showErro('Erro desconhecido');
+        //showErro('Erro desconhecido');
       }
     } else {
       setError(['Erro desconhecido - Entre em contato com o Suporte']);
-      showErro('Erro desconhecido');
+      //showErro('Erro desconhecido');
     }
   }
 
@@ -77,22 +78,23 @@ export default function Auth() {
                   />
                 </div>
                 <div>
-                  <button className="btn-primary" onClick={handleSubmit}>Entrar</button>
+                  {
+                    load
+                      ?
+                      <button className="btn-primary">
+                        <div className="load" />
+                      </button>
+                      :
+                      <button className="btn-primary" onClick={handleSubmit}>Entrar</button>
+                  }
                 </div>
                 {loginError ? (
-
                   msgError?.map((err: any, index: Key) => (
-                    <div className={` 
-              bg-red-400 text-white py-1 px-2 my-3 
-              border border-red-500 rounded-md
-              flex flex-row items-center
-              `} key={index}>
+                    <div className={`error-message`} key={index}>
                       {/* {IconWarning} */}
                       <span className='ml-2 text-sm'>{err}</span>
                     </div>
                   ))
-
-
                 ) :
                   false
                 }

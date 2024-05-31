@@ -119,7 +119,7 @@ export default function Teachers() {
                         eventsButton={eventButton}
                     >
                         <div className="grid grid-cols-12 gap-x-8">
-                            <div className="col-span-3">
+                            <div className="col-span-12 md:col-span-3">
                                 <AuthInput
                                     label="Nome"
                                     value={name}
@@ -128,7 +128,7 @@ export default function Teachers() {
                                     required
                                 />
                             </div>
-                            <div className="col-span-3">
+                            <div className="col-span-12 md:col-span-3">
                                 <AuthInput
                                     label="CPF"
                                     value={document}
@@ -137,7 +137,7 @@ export default function Teachers() {
                                     required
                                 />
                             </div>
-                            <div className="col-span-3">
+                            <div className="col-span-12 md:col-span-3">
                                 <AuthInput
                                     label="Email"
                                     value={email}

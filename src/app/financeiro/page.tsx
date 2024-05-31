@@ -116,7 +116,7 @@ export default function Financial() {
                         eventsButton={eventButton}
                     >
                         <div className="grid grid-cols-12 gap-x-8">
-                            <div className="col-span-3">
+                            <div className="col-span-12 md:col-span-3">
                                 <AuthInput
                                     label="Produto"
                                     value={product}
@@ -125,7 +125,7 @@ export default function Financial() {
                                     required
                                 />
                             </div>
-                            <div className="col-span-3">
+                            <div className="col-span-12 md:col-span-3">
                                 <AuthInput
                                     label="Data"
                                     value={date}
@@ -134,7 +134,7 @@ export default function Financial() {
                                     required
                                 />
                             </div>
-                            <div className="col-span-3">
+                            <div className="col-span-12 md:col-span-3">
                                 <AuthInput
                                     label="Aluno"
                                     value={student}
