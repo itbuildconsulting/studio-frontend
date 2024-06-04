@@ -13,6 +13,7 @@ import PlaceCollecion from "../../../core/Place";
 import PlaceRepository from "../../../core/PlaceRepository";
 import ProductTypeCollecion from "../../../core/ProductType";
 import ProductTypeRepository from "../../../core/ProductTypeRepository";
+import Loading from "@/components/loading/Loading";
 
 export default function Administrative() {
     const repo: PlaceRepository = new PlaceCollecion();
@@ -26,6 +27,12 @@ export default function Administrative() {
 
     const [typeName, setTypeName] = useState<string>("");
     const [productLocaleName, setProductLocaleName] = useState<string>("");
+
+    const [modalSuccess, setModalSuccess] = useState<any>(false);
+    const [log, setLog] = useState<number | null>(null);
+    const [loading, setLoading] = useState<any>(false);
+    const [errorMessage, setErrorMessage] = useState<any>(null);
+    //const [successMessage, setSuccessMessage] = useState<any>(null);
 
     /*     const changeStatus = (cell: any, row: any) => {
             return (
@@ -99,22 +106,66 @@ export default function Administrative() {
         }
     ];
 
+    const LoadingStatus = () => {
+        return (
+            <div className="flex flex-col items-center  ">
+
+                <Loading />
+                <h5>Carregando...</h5>
+
+            </div>
+        )
+    }
+
+    const SuccessStatus = () => {
+        return (
+            <div className="flex flex-col items-center gap-4">
+
+                {log === 0 ?
+                    <svg className="mt-4 pb-2" width="135" height="135" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1} stroke={"var(--primary)"}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    :
+                    <svg className="mt-4 pb-2" width="135" height="135" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1} stroke={"var(--primary)"}>
+                        <path stroke-linecap="round" stroke-linejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                    </svg>
+                }
+
+                <h5 className="text-gray-700">{log === 0 ? "Cadastrado realizado com sucesso!" : errorMessage}</h5>
+
+                <button className="w-auto bg-white border border-slate-400 text-gray-700 rounded-md mt-5 px-5 py-1 float-right hover:bg-green-900 hover:border-green-900 hover:text-white">
+                    Fechar
+                </button>
+
+            </div>
+        )
+    };
+
     function onSubmitLocale() {
-        repo.create(`${localeName} - ${addressName}`, true).then((result: any) => {
+        setModalSuccess(true);
+        setLoading(true);
+
+        repo?.create(`${localeName} - ${addressName}`, true).then((result: any) => {
+            console.log(result)
             if (result instanceof Error) {
-                //setLog(1);
+                setLoading(false);
+                setLog(1);
                 const message = JSON.parse(result.message)
                 //setModalMessage(message?.title || 'Erro ao processar operação!')
                 console.log("Error:", message?.errors);
             } else {
+                setLoading(false);
+                //setModalSuccess(true);
                 setModalLocaleShow(false);
                 setLocaleName("");
                 setAdressName("");
-                //setLog(0);
+                setLog(0);
                 //setModalMessage(result?.response || "Operação realizada com sucesso");
             }
         }).catch((error) => {
-            //setLog(1);
+            setLoading(false);
+            //setModalSuccess(true);
+            setLog(1);
             //setModalMessage("Erro ao processar operação!");
             console.error("Error:", error);
         });
@@ -128,7 +179,7 @@ export default function Administrative() {
     }, [modalLocaleShow]);
 
     function onSubmitTypeProduct() {
-        repoType.create(`${typeName}`, true).then((result: any) => {
+        repoType?.create(`${typeName}`, true).then((result: any) => {
             if (result instanceof Error) {
                 //setLog(1);
                 const message = JSON.parse(result.message)
@@ -244,6 +295,26 @@ export default function Administrative() {
                         />
                     </div>
                 </div>
+            </Modal>
+
+            <Modal
+                btnClose={false}
+                showModal={modalSuccess}
+                setShowModal={setModalSuccess}
+                hrefClose={'/proprietarios'}
+                isModalStatus={true}
+            >
+                <div
+                    className={`rounded-lg bg-white w-full py-10 px-10 flex flex-col m-auto`}
+                >
+
+                    {loading ? <LoadingStatus /> : <SuccessStatus />}
+
+                    <div className="">
+
+                    </div>
+                </div>
+
             </Modal>
         </PageDefault>
     )

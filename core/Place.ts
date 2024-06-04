@@ -24,7 +24,7 @@ async function conectAPI(req: object | null, url: string, method: string) {
             config
         );
 
-        if (resp.status === 200) {
+        if (resp.status === 201) {
             const authResp: any = await resp.json();
 
             return authResp.data;
@@ -46,6 +46,6 @@ export default class PlaceRepository implements PlaceRepository {
             name,
             active
         };
-        return conectAPI(req, "/place", "POST");
+        return conectAPI(req, "/places", "POST");
     }
 }
