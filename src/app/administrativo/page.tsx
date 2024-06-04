@@ -6,10 +6,18 @@ import PageDefault from "@/components/template/default";
 
 import styles from '../../styles/administrative.module.css';
 import Modal from "@/components/Modal/Modal";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import AuthInput from "@/components/auth/AuthInput";
 
+import PlaceCollecion from "../../../core/Place";
+import PlaceRepository from "../../../core/PlaceRepository";
+import ProductTypeCollecion from "../../../core/ProductType";
+import ProductTypeRepository from "../../../core/ProductTypeRepository";
+
 export default function Administrative() {
+    const repo: PlaceRepository = new PlaceCollecion();
+    const repoType: ProductTypeRepository = new ProductTypeCollecion();
+
     const [modalLocaleShow, setModalLocaleShow] = useState<boolean>(false);
     const [modalTypeProductShow, setModalTypeProductShow] = useState<boolean>(false);
 
@@ -92,15 +100,60 @@ export default function Administrative() {
     ];
 
     function onSubmitLocale() {
-        setModalLocaleShow(false);
-
-        setLocaleName("");
-        setAdressName("");
+        repo.create(`${localeName} - ${addressName}`, true).then((result: any) => {
+            if (result instanceof Error) {
+                //setLog(1);
+                const message = JSON.parse(result.message)
+                //setModalMessage(message?.title || 'Erro ao processar operação!')
+                console.log("Error:", message?.errors);
+            } else {
+                setModalLocaleShow(false);
+                setLocaleName("");
+                setAdressName("");
+                //setLog(0);
+                //setModalMessage(result?.response || "Operação realizada com sucesso");
+            }
+        }).catch((error) => {
+            //setLog(1);
+            //setModalMessage("Erro ao processar operação!");
+            console.error("Error:", error);
+        });
     }
+
+    useEffect(() => {
+        if (!modalLocaleShow) {
+            setLocaleName("");
+            setAdressName("");
+        }
+    }, [modalLocaleShow]);
 
     function onSubmitTypeProduct() {
-        console.log("Cadastrei");
+        repoType.create(`${typeName}`, true).then((result: any) => {
+            if (result instanceof Error) {
+                //setLog(1);
+                const message = JSON.parse(result.message)
+                //setModalMessage(message?.title || 'Erro ao processar operação!')
+                console.log("Error:", message?.errors);
+            } else {
+                setModalTypeProductShow(false);
+                setTypeName("");
+                setProductLocaleName("");
+                //setLog(0);
+                //setModalMessage(result?.response || "Operação realizada com sucesso");
+            }
+        }).catch((error) => {
+            //setLog(1);
+            //setModalMessage("Erro ao processar operação!");
+            console.error("Error:", error);
+        });
     }
+
+    useEffect(() => {
+        if (!modalTypeProductShow) {
+            setTypeName("");
+            setProductLocaleName("");
+        }
+    }, [modalTypeProductShow]);
 
     return (
         <PageDefault title={"Administrativo"}>

@@ -88,7 +88,7 @@ const AuthInput = (props: AuthInputProps) => {
                 <input
                     type={props.type ?? 'text'}
                     value={props.value}
-                    maxLength={props.maxLength !== undefined ? props.maxLength : 25}
+                    maxLength={props.maxLength !== undefined ? props.maxLength : 50}
                     onChange={e => props.changeValue?.(applyMask(e.target.value, props.maskType))}
                     required={props.required}
                     className={`focus: outline-none`}
