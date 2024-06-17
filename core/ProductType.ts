@@ -39,7 +39,7 @@ async function conectAPI(req: object | null, url: string, method: string) {
 
 export default class ProductTypeRepository implements ProductTypeRepository {
     async create(
-        name: string,
+        name: string | null,
         active: boolean
     ): Promise<[]> {
         const req: any = {

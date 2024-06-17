@@ -2,7 +2,7 @@ import ProductType from "./ProductType";
 
 export default interface ProductTypeRepository {
     create(
-        name: string,
+        name: string | null,
         active: boolean
     ): Promise<ProductType[]>;
 }

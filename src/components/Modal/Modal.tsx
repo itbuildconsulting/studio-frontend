@@ -25,7 +25,15 @@ export default function Modal(props: any) {
                             {
                                 props.hasFooter &&
                                 <div className={`${styles.footer_modal}`}>
-                                    <button className='btn-primary' onClick={() => props.onSubmit()}>Cadastrar</button>
+                                    {
+                                        props.loading
+                                            ?
+                                            <button className="btn-primary">
+                                                <div className="load" />
+                                            </button>
+                                            :
+                                            <button className='btn-primary' onClick={() => props.onSubmit()}>Cadastrar</button>
+                                    }
                                     <button className='btn-outline-primary' onClick={() => props.setShowModal(false)}>Cancelar</button>
                                 </div>
                             }

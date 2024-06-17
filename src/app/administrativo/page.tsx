@@ -22,17 +22,16 @@ export default function Administrative() {
     const [modalLocaleShow, setModalLocaleShow] = useState<boolean>(false);
     const [modalTypeProductShow, setModalTypeProductShow] = useState<boolean>(false);
 
-    const [localeName, setLocaleName] = useState<string>("");
-    const [addressName, setAdressName] = useState<string>("");
+    const [localeName, setLocaleName] = useState<string | null>(null);
+    const [addressName, setAdressName] = useState<string | null>(null);
 
-    const [typeName, setTypeName] = useState<string>("");
-    const [productLocaleName, setProductLocaleName] = useState<string>("");
+    const [typeName, setTypeName] = useState<string | null>(null);
+    const [productLocaleName, setProductLocaleName] = useState<string | null>(null);
 
     const [modalSuccess, setModalSuccess] = useState<any>(false);
     const [log, setLog] = useState<number | null>(null);
     const [loading, setLoading] = useState<any>(false);
     const [errorMessage, setErrorMessage] = useState<any>(null);
-    //const [successMessage, setSuccessMessage] = useState<any>(null);
 
     /*     const changeStatus = (cell: any, row: any) => {
             return (
@@ -133,7 +132,7 @@ export default function Administrative() {
 
                 <h5 className="text-gray-700">{log === 0 ? "Cadastrado realizado com sucesso!" : errorMessage}</h5>
 
-                <button className="w-auto bg-white border border-slate-400 text-gray-700 rounded-md mt-5 px-5 py-1 float-right hover:bg-green-900 hover:border-green-900 hover:text-white">
+                <button className="btn-outline-primary px-5 mt-5" onClick={() => setModalSuccess(false)}>
                     Fechar
                 </button>
 
@@ -142,67 +141,74 @@ export default function Administrative() {
     };
 
     function onSubmitLocale() {
-        setModalSuccess(true);
         setLoading(true);
 
-        repo?.create(`${localeName} - ${addressName}`, true).then((result: any) => {
-            console.log(result)
+        repo?.create(localeName, true).then((result: any) => {
             if (result instanceof Error) {
                 setLoading(false);
                 setLog(1);
-                const message = JSON.parse(result.message)
-                //setModalMessage(message?.title || 'Erro ao processar operação!')
-                console.log("Error:", message?.errors);
+                setErrorMessage(result.message);
+                setTimeout(() => {
+                    setErrorMessage(null);
+                }, 2500);
             } else {
+                setModalSuccess(true);
                 setLoading(false);
-                //setModalSuccess(true);
                 setModalLocaleShow(false);
-                setLocaleName("");
-                setAdressName("");
+                setLocaleName(null);
+                setAdressName(null);
                 setLog(0);
-                //setModalMessage(result?.response || "Operação realizada com sucesso");
             }
-        }).catch((error) => {
+        }).catch((error: any) => {
+            setErrorMessage(error.message);
+            setTimeout(() => {
+                setErrorMessage(null);
+            }, 2500);
             setLoading(false);
-            //setModalSuccess(true);
             setLog(1);
-            //setModalMessage("Erro ao processar operação!");
-            console.error("Error:", error);
         });
     }
 
     useEffect(() => {
         if (!modalLocaleShow) {
-            setLocaleName("");
-            setAdressName("");
+            setLocaleName(null);
+            setAdressName(null);
         }
     }, [modalLocaleShow]);
 
     function onSubmitTypeProduct() {
-        repoType?.create(`${typeName}`, true).then((result: any) => {
+        setLoading(true);
+
+        repoType?.create(typeName, true).then((result: any) => {
             if (result instanceof Error) {
-                //setLog(1);
-                const message = JSON.parse(result.message)
-                //setModalMessage(message?.title || 'Erro ao processar operação!')
-                console.log("Error:", message?.errors);
+                setLoading(false);
+                setLog(1);
+                setErrorMessage(result.message);
+                setTimeout(() => {
+                    setErrorMessage(null);
+                }, 2500);
             } else {
+                setModalSuccess(true);
+                setLoading(false);
                 setModalTypeProductShow(false);
-                setTypeName("");
-                setProductLocaleName("");
-                //setLog(0);
-                //setModalMessage(result?.response || "Operação realizada com sucesso");
+                setTypeName(null);
+                setProductLocaleName(null);
+                setLog(0);
             }
         }).catch((error) => {
-            //setLog(1);
-            //setModalMessage("Erro ao processar operação!");
-            console.error("Error:", error);
+            setErrorMessage(error.message);
+            setTimeout(() => {
+                setErrorMessage(null);
+            }, 2500);
+            setLog(1);
+            setLoading(false);
         });
     }
 
     useEffect(() => {
         if (!modalTypeProductShow) {
-            setTypeName("");
-            setProductLocaleName("");
+            setTypeName(null);
+            setProductLocaleName(null);
         }
     }, [modalTypeProductShow]);
 
@@ -244,6 +250,7 @@ export default function Administrative() {
                 showModal={modalLocaleShow}
                 hasFooter={true}
                 onSubmit={onSubmitLocale}
+                loading={loading}
             >
                 <div>
                     <div>
@@ -264,6 +271,18 @@ export default function Administrative() {
                             required
                         />
                     </div>
+                    <div className="grid grid-cols-12">
+                        {errorMessage === null ? false :
+                            <div className={` 
+                                        bg-red-400 text-white py-1 px-2
+                                        border border-red-500 rounded-md
+                                        flex flex-row items-center col-span-12
+                                        `}>
+                                {/* {IconWarning} */}
+                                <span className='ml-2 text-sm'>{errorMessage}</span>
+                            </div>
+                        }
+                    </div>
                 </div>
             </Modal>
 
@@ -274,6 +293,7 @@ export default function Administrative() {
                 showModal={modalTypeProductShow}
                 hasFooter={true}
                 onSubmit={onSubmitTypeProduct}
+                loading={loading}
             >
                 <div>
                     <div>
@@ -295,6 +315,18 @@ export default function Administrative() {
                         />
                     </div>
                 </div>
+                <div className="grid grid-cols-12">
+                        {errorMessage === null ? false :
+                            <div className={` 
+                                        bg-red-400 text-white py-1 px-2
+                                        border border-red-500 rounded-md
+                                        flex flex-row items-center col-span-12
+                                        `}>
+                                {/* {IconWarning} */}
+                                <span className='ml-2 text-sm'>{errorMessage}</span>
+                            </div>
+                        }
+                    </div>
             </Modal>
 
             <Modal

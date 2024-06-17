@@ -26,20 +26,21 @@ async function conectAPI(req: object | null, url: string, method: string) {
 
         if (resp.status === 201) {
             const authResp: any = await resp.json();
-
+            
             return authResp.data;
         } else {
-            const error = await resp.json();
+            const error = await resp?.json();
             throw new Error(JSON.stringify(error));
         }
-    } catch (error) {
+    } catch (error: any) {
+        //console.log(error.message)
         return error;
     }
 }
 
 export default class PlaceRepository implements PlaceRepository {
     async create(
-        name: string,
+        name: string | null,
         active: boolean
     ): Promise<[]> {
         const req: any = {
