@@ -1,11 +1,15 @@
+import Cookies from 'js-cookie';
+
 async function conectAPI(req: object | null, url: string, method: string) {
     let config = {};
+    const token = Cookies.get('admin-user-sci-auth');
 
     if (req === null) {
         config = {
             method,
             headers: {
                 "Content-Type": "application/json",
+                'Authorization': `Bearer ${token}`
             },
         };
     } else {
@@ -24,12 +28,14 @@ async function conectAPI(req: object | null, url: string, method: string) {
             config
         );
 
-        if (resp.status === 201) {
+        if (resp.status === 201) { // Created
             const authResp: any = await resp.json();
-
             return authResp.data;
+        } else if (resp.status === 200) { // List
+            const authResp: any = await resp.json();
+            return authResp;
         } else {
-            const error = await resp.json();
+            const error = await resp?.json();
             throw new Error(JSON.stringify(error));
         }
     } catch (error) {
@@ -47,5 +53,9 @@ export default class ProductTypeRepository implements ProductTypeRepository {
             active
         };
         return conectAPI(req, "/productTypes", "POST");
+    }
+
+    async list(): Promise<[]> {
+        return conectAPI(null, "/productTypes", "GET");
     }
 }

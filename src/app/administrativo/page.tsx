@@ -6,7 +6,7 @@ import PageDefault from "@/components/template/default";
 
 import styles from '../../styles/administrative.module.css';
 import Modal from "@/components/Modal/Modal";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import AuthInput from "@/components/auth/AuthInput";
 
 import PlaceCollecion from "../../../core/Place";
@@ -14,104 +14,67 @@ import PlaceRepository from "../../../core/PlaceRepository";
 import ProductTypeCollecion from "../../../core/ProductType";
 import ProductTypeRepository from "../../../core/ProductTypeRepository";
 import Loading from "@/components/loading/Loading";
+import { text } from "stream/consumers";
 
 export default function Administrative() {
-    const repo: PlaceRepository = new PlaceCollecion();
-    const repoType: ProductTypeRepository = new ProductTypeCollecion();
+    const repo = useMemo(() => new PlaceCollecion(), []);
+    const repoType = useMemo(() =>  new ProductTypeCollecion(), []);
 
     const [modalLocaleShow, setModalLocaleShow] = useState<boolean>(false);
     const [modalTypeProductShow, setModalTypeProductShow] = useState<boolean>(false);
 
     const [localeName, setLocaleName] = useState<string | null>(null);
     const [addressName, setAdressName] = useState<string | null>(null);
+    const [listLocales, setListLocales] = useState<string[]>([]);
 
     const [typeName, setTypeName] = useState<string | null>(null);
     const [productLocaleName, setProductLocaleName] = useState<string | null>(null);
+    const [listProductType, setListProductType] = useState<string[]>([]);
 
     const [modalSuccess, setModalSuccess] = useState<any>(false);
     const [log, setLog] = useState<number | null>(null);
     const [loading, setLoading] = useState<any>(false);
     const [errorMessage, setErrorMessage] = useState<any>(null);
 
-    /*     const changeStatus = (cell: any, row: any) => {
-            return (
-                <>
-                    {cell ? "Ativo" : "Inativo"}
-                </>
-            )
-        }
-    
-        const convertDate = (cell: any, row: any) => {
-            return (
-                <>
-                    {cell.split("-").reverse().join("/")}
-                </>
-            )
-        } */
-
-    let info: any = {
-        rows: [
-            {
-                local: "Studio Raphael Oliveira",
-                endereço: "Estr. Caetano Monteiro, 1650, sl 104 - Pendotiba"
-            },
-            {
-                local: "Bike Raphael Oliveira",
-                endereço: "Estr. Caetano Monteiro, 1650, sl 104 - Pendotiba"
-            },
-            {
-                local: "Studio Barra da Tijuca",
-                endereço: "Av. das Américas, 7700 - Barra da Tijuca"
-            }
-        ]
-    }
-
-    let info2: any = {
-        rows: [
-            {
-                tipo: "Aula Coletiva",
-                local: "Studio Raphael Oliveira",
-            },
-            {
-                tipo: "Aula Individual",
-                local: "Studio Raphael Oliveira",
-            },
-            {
-                tipo: "Bike Coletiva",
-                local: "Bike Raphael Oliveira",
-            }
-        ]
+    const actionButtonLocale = () => {
+        return <>Hello</>
     }
 
     const columns = [
         {
-            dataField: 'local',
+            dataField: 'name',
             text: `Local`,
         },
         {
-            dataField: 'endereço',
+            dataField: 'address',
             text: `Endereço`,
+        },
+        {
+            dataField: 'id',
+            formatter: actionButtonLocale
         }
     ];
 
     const columns2 = [
         {
-            dataField: 'tipo',
+            dataField: 'name',
             text: `Tipo`,
         },
         {
-            dataField: 'local',
+            dataField: 'placeId',
             text: `Local`,
         }
     ];
 
+    const handleClosed = () => {
+        setModalSuccess(false);
+    }
+
     const LoadingStatus = () => {
         return (
             <div className="flex flex-col items-center  ">
-
                 <Loading />
                 <h5>Carregando...</h5>
-
             </div>
         )
     }
@@ -132,7 +95,7 @@ export default function Administrative() {
 
                 <h5 className="text-gray-700">{log === 0 ? "Cadastrado realizado com sucesso!" : errorMessage}</h5>
 
-                <button className="btn-outline-primary px-5 mt-5" onClick={() => setModalSuccess(false)}>
+                <button className="btn-outline-primary px-5 mt-5" onClick={() => handleClosed()}>
                     Fechar
                 </button>
 
@@ -143,11 +106,12 @@ export default function Administrative() {
     function onSubmitLocale() {
         setLoading(true);
 
-        repo?.create(localeName, true).then((result: any) => {
+        repo?.create(localeName, addressName, true).then((result: any) => {
             if (result instanceof Error) {
+                const message: any = JSON.parse(result.message);
+                setErrorMessage(message.error);
                 setLoading(false);
                 setLog(1);
-                setErrorMessage(result.message);
                 setTimeout(() => {
                     setErrorMessage(null);
                 }, 2500);
@@ -181,9 +145,10 @@ export default function Administrative() {
 
         repoType?.create(typeName, true).then((result: any) => {
             if (result instanceof Error) {
+                const message: any = JSON.parse(result.message);
+                setErrorMessage(message.error);
                 setLoading(false);
                 setLog(1);
-                setErrorMessage(result.message);
                 setTimeout(() => {
                     setErrorMessage(null);
                 }, 2500);
@@ -212,6 +177,36 @@ export default function Administrative() {
         }
     }, [modalTypeProductShow]);
 
+    const listGeneral = () => {
+        repo.list().then((result: any) => {
+            if (result instanceof Error) {
+                console.log("erro");
+            } else {
+                setListLocales(result);
+            }
+        }).catch((error: any) => {
+
+        });
+    }
+
+    const listGeneralProductType = () => {
+        repoType.list().then((result: any) => {
+            if (result instanceof Error) {
+                console.log("erro");
+            } else {
+                setListProductType(result);
+            }
+        }).catch((error: any) => {
+
+        });
+    }
+
+    useEffect(() => {
+        listGeneral();
+        listGeneralProductType();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [])
+
     return (
         <PageDefault title={"Administrativo"}>
             <div className="grid grid-cols-12 gap-8">
@@ -222,7 +217,7 @@ export default function Administrative() {
                         setShowModal={setModalLocaleShow}
                     >
                         <Table
-                            data={info.rows}
+                            data={listLocales}
                             columns={columns}
                             class={styles.table_locale_adm}
                         />
@@ -235,7 +230,7 @@ export default function Administrative() {
                         setShowModal={setModalTypeProductShow}
                     >
                         <Table
-                            data={info2.rows}
+                            data={listProductType}
                             columns={columns2}
                             class={styles.product_type_adm}
                         />

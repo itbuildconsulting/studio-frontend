@@ -5,4 +5,6 @@ export default interface ProductTypeRepository {
         name: string | null,
         active: boolean
     ): Promise<ProductType[]>;
+
+    list(): Promise<ProductType[]>;
 }
