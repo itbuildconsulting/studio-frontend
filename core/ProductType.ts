@@ -58,4 +58,8 @@ export default class ProductTypeRepository implements ProductTypeRepository {
     async list(): Promise<[]> {
         return conectAPI(null, "/productTypes", "GET");
     }
+
+    async details(id: number): Promise<[]> {
+        return conectAPI(null, `/productTypes/${id}`, "GET");
+    }
 }

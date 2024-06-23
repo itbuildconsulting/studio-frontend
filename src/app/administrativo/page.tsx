@@ -15,10 +15,12 @@ import ProductTypeCollecion from "../../../core/ProductType";
 import ProductTypeRepository from "../../../core/ProductTypeRepository";
 import Loading from "@/components/loading/Loading";
 import { text } from "stream/consumers";
+import DropDown from "@/components/dropdown/DropDown";
+import Link from "next/link";
 
 export default function Administrative() {
     const repo = useMemo(() => new PlaceCollecion(), []);
-    const repoType = useMemo(() =>  new ProductTypeCollecion(), []);
+    const repoType = useMemo(() => new ProductTypeCollecion(), []);
 
     const [modalLocaleShow, setModalLocaleShow] = useState<boolean>(false);
     const [modalTypeProductShow, setModalTypeProductShow] = useState<boolean>(false);
@@ -36,8 +38,36 @@ export default function Administrative() {
     const [loading, setLoading] = useState<any>(false);
     const [errorMessage, setErrorMessage] = useState<any>(null);
 
-    const actionButtonLocale = () => {
-        return <>Hello</>
+    const actionButtonLocale = (cell: any, row: any) => {
+        return (
+            <DropDown style={'bg-white'} styleHeader={'bg-white'} className="nav-link">
+                <>...</>
+
+                <Link href={"#"} onClick={() => detailsLocale(cell)}>
+                    Editar
+                </Link>
+                <Link href={'#'} onClick={() => deleteLocale(cell)}>
+                    Excluir
+                </Link>
+
+            </DropDown>
+        )
+    }
+
+    const actionButtonProductType = (cell: any, row: any) => {
+        return (
+            <DropDown style={'bg-white'} styleHeader={'bg-white'} className="nav-link">
+                <>...</>
+
+                <Link href={"#"} onClick={() => detailsProductType(cell)}>
+                    Editar
+                </Link>
+                <Link href={'#'}>
+                    Excluir
+                </Link>
+
+            </DropDown>
+        )
     }
 
     const columns = [
@@ -63,6 +93,10 @@ export default function Administrative() {
         {
             dataField: 'placeId',
             text: `Local`,
+        },
+        {
+            dataField: 'id',
+            formatter: actionButtonProductType
         }
     ];
 
@@ -105,6 +139,7 @@ export default function Administrative() {
 
     function onSubmitLocale() {
         setLoading(true);
+        setErrorMessage(null);
 
         repo?.create(localeName, addressName, true).then((result: any) => {
             if (result instanceof Error) {
@@ -142,6 +177,7 @@ export default function Administrative() {
 
     function onSubmitTypeProduct() {
         setLoading(true);
+        setErrorMessage(null);
 
         repoType?.create(typeName, true).then((result: any) => {
             if (result instanceof Error) {
@@ -204,9 +240,64 @@ export default function Administrative() {
     useEffect(() => {
         listGeneral();
         listGeneralProductType();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [])
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
 
+    const detailsLocale = (id: number) => {
+        setModalLocaleShow(true);
+        setErrorMessage(null);
+
+        repo.details(id).then((result: any) => {
+            if (result instanceof Error) {
+                console.log("erro");
+            } else {
+                setListLocales(result);
+            }
+        }).catch((error: any) => {
+
+        });
+    }
+
+    const detailsProductType = (id: number) => {
+        setModalTypeProductShow(true);
+        setErrorMessage(null);
+
+        repoType.details(id).then((result: any) => {
+            if (result instanceof Error) {
+                console.log("erro");
+            } else {
+                setListProductType(result);
+            }
+        }).catch((error: any) => {
+
+        });
+    }
+
+    const deleteLocale = (id: number) => {
+        setModalSuccess(true);
+        setLoading(true);
+
+        repo.delete(id).then((result: any) => {
+            if (result instanceof Error) {
+                const message: any = JSON.parse(result.message);
+                setErrorMessage(message.error);
+                setLoading(false);
+                setLog(1);
+            } else {
+                setModalSuccess(true);
+                setLoading(false);
+                setModalLocaleShow(false);
+                setLocaleName(null);
+                setAdressName(null);
+                setLog(0);
+            }
+        }).catch((error: any) => {
+            setErrorMessage(error.message);
+            setLog(1);
+            setLoading(false);
+        });
+    }
+    
     return (
         <PageDefault title={"Administrativo"}>
             <div className="grid grid-cols-12 gap-8">
@@ -311,17 +402,17 @@ export default function Administrative() {
                     </div>
                 </div>
                 <div className="grid grid-cols-12">
-                        {errorMessage === null ? false :
-                            <div className={` 
+                    {errorMessage === null ? false :
+                        <div className={` 
                                         bg-red-400 text-white py-1 px-2
                                         border border-red-500 rounded-md
                                         flex flex-row items-center col-span-12
                                         `}>
-                                {/* {IconWarning} */}
-                                <span className='ml-2 text-sm'>{errorMessage}</span>
-                            </div>
-                        }
-                    </div>
+                            {/* {IconWarning} */}
+                            <span className='ml-2 text-sm'>{errorMessage}</span>
+                        </div>
+                    }
+                </div>
             </Modal>
 
             <Modal

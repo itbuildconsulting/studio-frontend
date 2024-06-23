@@ -61,4 +61,25 @@ export default class PlaceRepository implements PlaceRepository {
     async list(): Promise<[]> {
         return conectAPI(null, "/places", "GET");
     }
+
+    async details(id: number): Promise<[]> {
+        return conectAPI(null, `/places/${id}`, "GET");
+    }
+
+    async edit(
+        name: string | null,
+        address: string | null,
+        active: boolean
+    ): Promise<[]> {
+        const req: any = {
+            name,
+            address,
+            active
+        };
+        return conectAPI(req, `/places`, "PUT");
+    }
+
+    async delete(id: number): Promise<[]> {
+        return conectAPI(null, `/places/${id}`, "DELETE");
+    }
 }

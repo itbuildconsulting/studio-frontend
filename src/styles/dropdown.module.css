@@ -1,0 +1,35 @@
+.menu {
+    position: relative;
+    cursor: pointer;
+    width: 1.5rem;
+}
+
+.item {
+    box-sizing: border-box;
+    cursor: pointer;
+    position: relative;
+    text-align: left;
+    transition: background-color 0.05s ease-in-out;
+    z-index: 1;
+    padding: 0px 10px;
+}
+
+.item>* {
+    display: block;
+    width: 100%;
+    padding: 10px;
+}
+
+.item:hover {
+    color: white;
+    background-color: var(--primary);
+}
+
+.open {
+    position: absolute;
+    top: 100%;
+    /*   width: 100%; */
+    box-shadow: 0px 0px 5px 0px rgba(0, 0, 0, 0.3);
+    z-index: 10;
+    right: 0;
+}

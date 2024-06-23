@@ -7,4 +7,5 @@ export default interface ProductTypeRepository {
     ): Promise<ProductType[]>;
 
     list(): Promise<ProductType[]>;
+    details(id: number): Promise<ProductType[]>
 }
