@@ -32,7 +32,7 @@ export default function Modal(props: any) {
                                                 <div className="load" />
                                             </button>
                                             :
-                                            <button className='btn-primary' onClick={() => props.onSubmit()}>Cadastrar</button>
+                                            <button className='btn-primary' onClick={() => props.onSubmit()}>{props.edit ? "Atualizar" : "Cadastrar"}</button>
                                     }
                                     <button className='btn-outline-primary' onClick={() => props.setShowModal(false)}>Cancelar</button>
                                 </div>

@@ -38,6 +38,8 @@ export default function Administrative() {
     const [loading, setLoading] = useState<any>(false);
     const [errorMessage, setErrorMessage] = useState<any>(null);
 
+    const [edit, setEdit] = useState<boolean>(false);
+
     const actionButtonLocale = (cell: any, row: any) => {
         return (
             <DropDown style={'bg-white'} styleHeader={'bg-white'} className="nav-link">
@@ -168,13 +170,6 @@ export default function Administrative() {
         });
     }
 
-    useEffect(() => {
-        if (!modalLocaleShow) {
-            setLocaleName(null);
-            setAdressName(null);
-        }
-    }, [modalLocaleShow]);
-
     function onSubmitTypeProduct() {
         setLoading(true);
         setErrorMessage(null);
@@ -205,13 +200,6 @@ export default function Administrative() {
             setLoading(false);
         });
     }
-
-    useEffect(() => {
-        if (!modalTypeProductShow) {
-            setTypeName(null);
-            setProductLocaleName(null);
-        }
-    }, [modalTypeProductShow]);
 
     const listGeneral = () => {
         repo.list().then((result: any) => {
@@ -244,6 +232,7 @@ export default function Administrative() {
     }, []);
 
     const detailsLocale = (id: number) => {
+        setEdit(true);
         setModalLocaleShow(true);
         setErrorMessage(null);
 
@@ -251,7 +240,8 @@ export default function Administrative() {
             if (result instanceof Error) {
                 console.log("erro");
             } else {
-                setListLocales(result);
+                setLocaleName(result.name);
+                setAdressName(result.address);
             }
         }).catch((error: any) => {
 
@@ -259,6 +249,7 @@ export default function Administrative() {
     }
 
     const detailsProductType = (id: number) => {
+        setEdit(true);
         setModalTypeProductShow(true);
         setErrorMessage(null);
 
@@ -266,7 +257,8 @@ export default function Administrative() {
             if (result instanceof Error) {
                 console.log("erro");
             } else {
-                setListProductType(result);
+                setProductLocaleName(result.placeId);
+                setTypeName(result.name);
             }
         }).catch((error: any) => {
 
@@ -296,8 +288,24 @@ export default function Administrative() {
             setLog(1);
             setLoading(false);
         });
-    }
-    
+    };
+
+    useEffect(() => {
+        if (!modalLocaleShow) {
+            setEdit(false);
+            setLocaleName(null);
+            setAdressName(null);
+        }
+    }, [modalLocaleShow]);
+
+    useEffect(() => {
+        if (!modalTypeProductShow) {
+            setEdit(false);
+            setProductLocaleName(null);
+            setTypeName(null);
+        }
+    }, [modalTypeProductShow])
+
     return (
         <PageDefault title={"Administrativo"}>
             <div className="grid grid-cols-12 gap-8">
@@ -330,13 +338,14 @@ export default function Administrative() {
             </div>
 
             <Modal
-                title={"Adicionar Local"}
+                title={edit ? "Editar Local" : "Adicionar Local"}
                 btnClose={true}
                 setShowModal={setModalLocaleShow}
                 showModal={modalLocaleShow}
                 hasFooter={true}
                 onSubmit={onSubmitLocale}
                 loading={loading}
+                edit={edit}
             >
                 <div>
                     <div>
@@ -373,13 +382,14 @@ export default function Administrative() {
             </Modal>
 
             <Modal
-                title={"Adicionar Tipo de Produto"}
+                title={edit ? "Editar Tipo de Produto" : "Adicionar Tipo de Produto"}
                 btnClose={true}
                 setShowModal={setModalTypeProductShow}
                 showModal={modalTypeProductShow}
                 hasFooter={true}
                 onSubmit={onSubmitTypeProduct}
                 loading={loading}
+                edit={edit}
             >
                 <div>
                     <div>

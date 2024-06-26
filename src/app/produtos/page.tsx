@@ -34,6 +34,7 @@ export default function Products() {
     const [errorMessage, setErrorMessage] = useState<any>(null);
 
     const [listProduct, setListProduct] = useState<string[]>([]);
+    const [edit, setEdit] = useState<boolean>(false);
 
     const convertValue = (cell: any, row: any) => {
         return cell.toLocaleString('pt-br', { style: 'currency', currency: 'BRL' })
@@ -108,6 +109,7 @@ export default function Products() {
             } else {
                 setModalSuccess(true);
                 setLoading(false);
+                setModalProductAdd(false);
                 setLog(0);
             }
         }).catch((error) => {
@@ -175,6 +177,7 @@ export default function Products() {
     }, []);
 
     const detailsProduct = (id: number) => {
+        setEdit(true);
         setModalProductAdd(true);
         setErrorMessage(null);
 
@@ -182,7 +185,13 @@ export default function Products() {
             if (result instanceof Error) {
                 console.log("erro");
             } else {
-                setListProduct(result);
+                setProductName(result.name);
+                setCreditValue(result.credit);
+                setValidity(result.validateDate);
+                setTypeProduct(result.productTypeId);
+                setLocaleName(result.placeId);
+                setValue(result.value);
+                setStatus(result.active);
             }
         }).catch((error: any) => {
 
@@ -211,6 +220,19 @@ export default function Products() {
         });
     };
 
+    useEffect(() => {
+        if (!modalProductAdd) {
+            setEdit(false);
+            setProductName(null);
+            setCreditValue(null);
+            setValidity(null);
+            setTypeProduct(null);
+            setLocaleName(null);
+            setValue(null);
+            setStatus(true);
+        }
+    }, [modalProductAdd]);
+
     return (
         <PageDefault title={"Produtos"}>
             <div className="grid grid-cols-12 gap-8">
@@ -230,12 +252,14 @@ export default function Products() {
             </div>
 
             <Modal
-                title={"Adicionar Produto"}
+                title={edit ? "Editar Produto" : "Adicionar Produto"}
                 btnClose={true}
                 setShowModal={setModalProductAdd}
                 showModal={modalProductAdd}
                 hasFooter={true}
                 onSubmit={onSubmitProductAdd}
+                loading={loading}
+                edit={edit}
             >
                 <div className="grid grid-cols-12 gap-x-6">
                     <div className="col-span-6">
