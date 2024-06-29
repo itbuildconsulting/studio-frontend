@@ -11,7 +11,8 @@ export default interface PlaceRepository {
     edit(
         name: string | null,
         address: string | null,
-        active: boolean
+        active: boolean,
+        ide: number
     ): Promise<Place[]>;
     delete(id: number): Promise<Place[]>
 }

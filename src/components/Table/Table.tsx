@@ -17,7 +17,7 @@ export default function Table(props: TableProps) {
                 <table className={`${styles.bg_table} ${props.class || ""} w-full`}>
                     <tbody>
                         {
-                            props.data.map((item: any, index: any) => {
+                            props.data.length > 0 ? props.data.map((item: any, index: any) => {
                                 return (
                                     <tr key={index} className={`${props?.rowClasses && props?.rowClasses(item)}`}>
                                         {
@@ -35,6 +35,14 @@ export default function Table(props: TableProps) {
                                     </tr>
                                 )
                             })
+                            :
+                            <div className='flex flex-col gap-4'>
+                                <div className='animated-background' style={{ height: "73px", borderRadius: "16px"}}></div>
+                                <div className='animated-background' style={{ height: "73px", borderRadius: "16px"}}></div>
+                                <div className='animated-background' style={{ height: "73px", borderRadius: "16px"}}></div>
+                                <div className='animated-background' style={{ height: "73px", borderRadius: "16px"}}></div>
+                                <div className='animated-background' style={{ height: "73px", borderRadius: "16px"}}></div>
+                            </div>
                         }
                     </tbody>
                 </table>

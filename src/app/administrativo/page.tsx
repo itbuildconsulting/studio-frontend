@@ -13,12 +13,15 @@ import PlaceCollecion from "../../../core/Place";
 import PlaceRepository from "../../../core/PlaceRepository";
 import ProductTypeCollecion from "../../../core/ProductType";
 import ProductTypeRepository from "../../../core/ProductTypeRepository";
+import DropDownsCollection from "../../../core/DropDowns";
 import Loading from "@/components/loading/Loading";
 import { text } from "stream/consumers";
 import DropDown from "@/components/dropdown/DropDown";
 import Link from "next/link";
+import AuthSelect from "@/components/auth/AuthSelect";
 
 export default function Administrative() {
+    const repoDrop = useMemo(() => new DropDownsCollection(), []);
     const repo = useMemo(() => new PlaceCollecion(), []);
     const repoType = useMemo(() => new ProductTypeCollecion(), []);
 
@@ -28,21 +31,32 @@ export default function Administrative() {
     const [localeName, setLocaleName] = useState<string | null>(null);
     const [addressName, setAdressName] = useState<string | null>(null);
     const [listLocales, setListLocales] = useState<string[]>([]);
+    const [idLocales, setIdLocales] = useState<number>(0);
+    const [dropdownPlace, setDropdownPlace] = useState<string[]>([]);
 
     const [typeName, setTypeName] = useState<string | null>(null);
-    const [productLocaleName, setProductLocaleName] = useState<string | null>(null);
+    const [productLocaleName, setProductLocaleName] = useState<number | null>(null);
     const [listProductType, setListProductType] = useState<string[]>([]);
+    const [idProductType, setIdProductType] = useState<number>(0);
 
     const [modalSuccess, setModalSuccess] = useState<any>(false);
     const [log, setLog] = useState<number | null>(null);
     const [loading, setLoading] = useState<any>(false);
+    const [successMessage, setSuccessMessage] = useState<any>(null);
     const [errorMessage, setErrorMessage] = useState<any>(null);
 
     const [edit, setEdit] = useState<boolean>(false);
 
+    function convertArray(array: any) {
+        return array.map((item: any) => {
+            const { name, address, id, ...rest } = item;
+            return { label: `${name} - ${address}`, value: id, ...rest };
+        });
+    }
+
     const actionButtonLocale = (cell: any, row: any) => {
         return (
-            <DropDown style={'bg-white'} styleHeader={'bg-white'} className="nav-link">
+            <DropDown style={'bg-white'} className="nav-link">
                 <>...</>
 
                 <Link href={"#"} onClick={() => detailsLocale(cell)}>
@@ -58,13 +72,12 @@ export default function Administrative() {
 
     const actionButtonProductType = (cell: any, row: any) => {
         return (
-            <DropDown style={'bg-white'} styleHeader={'bg-white'} className="nav-link">
+            <DropDown style={'bg-white'} className="nav-link">
                 <>...</>
-
                 <Link href={"#"} onClick={() => detailsProductType(cell)}>
                     Editar
                 </Link>
-                <Link href={'#'}>
+                <Link href={'#'} onClick={() => deleteProductType(cell)}>
                     Excluir
                 </Link>
 
@@ -108,9 +121,10 @@ export default function Administrative() {
 
     const LoadingStatus = () => {
         return (
-            <div className="flex flex-col items-center  ">
+            <div className="flex flex-col items-center gap-4">
                 <Loading />
                 <h5>Carregando...</h5>
+                <div style={{ height: "56px" }}></div>
             </div>
         )
     }
@@ -129,7 +143,7 @@ export default function Administrative() {
                     </svg>
                 }
 
-                <h5 className="text-gray-700">{log === 0 ? "Cadastrado realizado com sucesso!" : errorMessage}</h5>
+                <h5 className="text-gray-700">{log === 0 ? successMessage : errorMessage}</h5>
 
                 <button className="btn-outline-primary px-5 mt-5" onClick={() => handleClosed()}>
                     Fechar
@@ -143,7 +157,7 @@ export default function Administrative() {
         setLoading(true);
         setErrorMessage(null);
 
-        repo?.create(localeName, addressName, true).then((result: any) => {
+        (edit ? repo?.edit(localeName, addressName, true, idLocales) : repo?.create(localeName, addressName, true)).then((result: any) => {
             if (result instanceof Error) {
                 const message: any = JSON.parse(result.message);
                 setErrorMessage(message.error);
@@ -153,12 +167,14 @@ export default function Administrative() {
                     setErrorMessage(null);
                 }, 2500);
             } else {
+                setSuccessMessage(edit ? "Edição realizada com sucesso!" : "Cadastro realizado com sucesso!")
                 setModalSuccess(true);
                 setLoading(false);
                 setModalLocaleShow(false);
                 setLocaleName(null);
                 setAdressName(null);
                 setLog(0);
+                listGeneral();
             }
         }).catch((error: any) => {
             setErrorMessage(error.message);
@@ -174,7 +190,7 @@ export default function Administrative() {
         setLoading(true);
         setErrorMessage(null);
 
-        repoType?.create(typeName, true).then((result: any) => {
+        (edit ? repoType?.edit(typeName, Number(productLocaleName), true, idProductType) : repoType?.create(typeName, Number(productLocaleName), true)).then((result: any) => {
             if (result instanceof Error) {
                 const message: any = JSON.parse(result.message);
                 setErrorMessage(message.error);
@@ -184,12 +200,14 @@ export default function Administrative() {
                     setErrorMessage(null);
                 }, 2500);
             } else {
+                setSuccessMessage(edit ? "Edição realizada com sucesso!" : "Cadastro realizado com sucesso!")
                 setModalSuccess(true);
                 setLoading(false);
                 setModalTypeProductShow(false);
                 setTypeName(null);
                 setProductLocaleName(null);
                 setLog(0);
+                listGeneralProductType();
             }
         }).catch((error) => {
             setErrorMessage(error.message);
@@ -242,6 +260,7 @@ export default function Administrative() {
             } else {
                 setLocaleName(result.name);
                 setAdressName(result.address);
+                setIdLocales(result.id);
             }
         }).catch((error: any) => {
 
@@ -259,6 +278,7 @@ export default function Administrative() {
             } else {
                 setProductLocaleName(result.placeId);
                 setTypeName(result.name);
+                setIdProductType(result.id);
             }
         }).catch((error: any) => {
 
@@ -276,12 +296,41 @@ export default function Administrative() {
                 setLoading(false);
                 setLog(1);
             } else {
+                setSuccessMessage("Item removido com sucesso!");
                 setModalSuccess(true);
                 setLoading(false);
                 setModalLocaleShow(false);
                 setLocaleName(null);
                 setAdressName(null);
                 setLog(0);
+                listGeneral();
+            }
+        }).catch((error: any) => {
+            setErrorMessage(error.message);
+            setLog(1);
+            setLoading(false);
+        });
+    };
+
+    const deleteProductType = (id: number) => {
+        setModalSuccess(true);
+        setLoading(true);
+
+        repoType.delete(id).then((result: any) => {
+            if (result instanceof Error) {
+                const message: any = JSON.parse(result.message);
+                setErrorMessage(message.error);
+                setLoading(false);
+                setLog(1);
+            } else {
+                setSuccessMessage("Item removido com sucesso!");
+                setModalSuccess(true);
+                setLoading(false);
+                setModalTypeProductShow(false);
+                setTypeName(null);
+                setProductLocaleName(null);
+                setLog(0);
+                listGeneralProductType();
             }
         }).catch((error: any) => {
             setErrorMessage(error.message);
@@ -303,8 +352,10 @@ export default function Administrative() {
             setEdit(false);
             setProductLocaleName(null);
             setTypeName(null);
+        } else {
+            repoDrop.dropdown('places').then(setDropdownPlace);
         }
-    }, [modalTypeProductShow])
+    }, [modalTypeProductShow, repoDrop]);
 
     return (
         <PageDefault title={"Administrativo"}>
@@ -402,10 +453,10 @@ export default function Administrative() {
                         />
                     </div>
                     <div>
-                        <AuthInput
-                            label="Local"
+                        <AuthSelect
+                            label='Local'
                             value={productLocaleName}
-                            type='text'
+                            options={convertArray(dropdownPlace)}
                             changeValue={setProductLocaleName}
                             required
                         />

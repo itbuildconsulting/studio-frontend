@@ -17,6 +17,7 @@ async function conectAPI(req: object | null, url: string, method: string) {
             method,
             headers: {
                 "Content-Type": "application/json",
+                'Authorization': `Bearer ${token}`
             },
             body: JSON.stringify(req),
         };
@@ -69,14 +70,15 @@ export default class PlaceRepository implements PlaceRepository {
     async edit(
         name: string | null,
         address: string | null,
-        active: boolean
+        active: boolean,
+        id: number
     ): Promise<[]> {
         const req: any = {
             name,
             address,
             active
         };
-        return conectAPI(req, `/places`, "PUT");
+        return conectAPI(req, `/places/${id}`, "PUT");
     }
 
     async delete(id: number): Promise<[]> {

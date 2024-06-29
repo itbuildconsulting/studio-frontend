@@ -46,10 +46,12 @@ async function conectAPI(req: object | null, url: string, method: string) {
 export default class ProductTypeRepository implements ProductTypeRepository {
     async create(
         name: string | null,
+        placeId: number | null,
         active: boolean
     ): Promise<[]> {
         const req: any = {
             name,
+            placeId,
             active
         };
         return conectAPI(req, "/productTypes", "POST");
@@ -61,5 +63,23 @@ export default class ProductTypeRepository implements ProductTypeRepository {
 
     async details(id: number): Promise<[]> {
         return conectAPI(null, `/productTypes/${id}`, "GET");
+    }
+
+    async edit(
+        name: string | null,
+        placeId: number | null,
+        active: boolean,
+        id: number
+    ): Promise<[]> {
+        const req: any = {
+            name,
+            placeId,
+            active
+        };
+        return conectAPI(req, `/productTypes/${id}`, "PUT");
+    }
+
+    async delete(id: number): Promise<[]> {
+        return conectAPI(null, `/productTypes/${id}`, "DELETE");
     }
 }
