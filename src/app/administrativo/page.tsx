@@ -80,7 +80,6 @@ export default function Administrative() {
                 <Link href={'#'} onClick={() => deleteProductType(cell)}>
                     Excluir
                 </Link>
-
             </DropDown>
         )
     }
@@ -405,6 +404,7 @@ export default function Administrative() {
                             value={localeName}
                             type='text'
                             changeValue={setLocaleName}
+                            edit={edit}
                             required
                         />
                     </div>
@@ -414,6 +414,7 @@ export default function Administrative() {
                             value={addressName}
                             type='text'
                             changeValue={setAdressName}
+                            edit={edit}
                             required
                         />
                     </div>
@@ -449,6 +450,7 @@ export default function Administrative() {
                             value={typeName}
                             type='text'
                             changeValue={setTypeName}
+                            edit={edit}
                             required
                         />
                     </div>
@@ -458,6 +460,7 @@ export default function Administrative() {
                             value={productLocaleName}
                             options={convertArray(dropdownPlace)}
                             changeValue={setProductLocaleName}
+                            edit={edit}
                             required
                         />
                     </div>

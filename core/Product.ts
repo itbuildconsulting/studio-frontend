@@ -47,7 +47,7 @@ export default class ProductRepository implements ProductRepository {
     async create(
         name: string | null,
         credit: number | null,
-        validateDate: string | null,
+        validateDate: number | null,
         value: number | null,
         productTypeId: number | null,
         placeId: number | null,
@@ -76,7 +76,7 @@ export default class ProductRepository implements ProductRepository {
     async edit(
         name: string | null,
         credit: number | null,
-        validateDate: string | null,
+        validateDate: number | null,
         value: number | null,
         productTypeId: number | null,
         placeId: number | null,

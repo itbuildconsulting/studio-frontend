@@ -4,7 +4,7 @@ export default interface ProductRepository {
     create(
         name: string | null,
         credit: number | null,
-        validateDate: string | null,
+        validateDate: number | null,
         value: number | null,
         productTypeId: number | null,
         placeId: number | null,
@@ -15,7 +15,7 @@ export default interface ProductRepository {
     edit(
         name: string | null,
         credit: number | null,
-        validateDate: string | null,
+        validateDate: number | null,
         value: number | null,
         productTypeId: number | null,
         placeId: number | null,
