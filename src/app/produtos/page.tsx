@@ -246,6 +246,7 @@ export default function Products() {
                             data={listProduct}
                             columns={columns}
                             class={styles.table_locale_adm}
+                            loading={loading}
                         />
                     </Card>
                 </div>

@@ -220,14 +220,16 @@ export default function Administrative() {
     }
 
     const listGeneral = () => {
+        setLoading(true);
         repo.list().then((result: any) => {
             if (result instanceof Error) {
-                console.log("erro");
+                setLoading(false);
             } else {
+                setLoading(false);
                 setListLocales(result);
             }
         }).catch((error: any) => {
-
+            setLoading(false);
         });
     }
 
@@ -370,6 +372,7 @@ export default function Administrative() {
                             data={listLocales}
                             columns={columns}
                             class={styles.table_locale_adm}
+                            loading={loading}
                         />
                     </Card>
                 </div>
@@ -383,6 +386,7 @@ export default function Administrative() {
                             data={listProductType}
                             columns={columns2}
                             class={styles.product_type_adm}
+                            loading={loading}
                         />
                     </Card>
                 </div>
