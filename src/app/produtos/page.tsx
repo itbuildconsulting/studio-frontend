@@ -218,14 +218,16 @@ export default function Products() {
     };
 
     const listGeneralProduct = () => {
+        setLoading(true);
         repo.list().then((result: any) => {
             if (result instanceof Error) {
-                console.log("erro");
+                setLoading(false);
             } else {
                 setListProduct(result);
+                setLoading(false);
             }
         }).catch((error: any) => {
-
+            setLoading(false);
         });
     }
 
