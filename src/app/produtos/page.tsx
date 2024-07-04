@@ -11,30 +11,86 @@ import styles from '../../styles/products.module.css';
 import AuthSelect from "@/components/auth/AuthSelect";
 
 import ProductCollecion from "../../../core/Product";
+import DropDownsCollection from "../../../core/DropDowns";
 import Loading from "@/components/loading/Loading";
 import DropDown from "@/components/dropdown/DropDown";
 import Link from "next/link";
 
 export default function Products() {
+    const repoDrop = useMemo(() => new DropDownsCollection(), []);
     const repo = useMemo(() => new ProductCollecion(), []);
 
     const [modalProductAdd, setModalProductAdd] = useState<boolean>(false);
 
     const [productName, setProductName] = useState<string | null>(null);
     const [creditValue, setCreditValue] = useState<number | null>(null);
-    const [validity, setValidity] = useState<string | null>(null);
+    const [validity, setValidity] = useState<number | null>(null);
     const [typeProduct, setTypeProduct] = useState<number | null>(null);
     const [localeName, setLocaleName] = useState<number | null>(null);
     const [value, setValue] = useState<number | null>(null);
     const [status, setStatus] = useState<boolean>(true);
 
+    const [dropdownPlace, setDropdownPlace] = useState<string[]>([]);
+    const [dropdownType, setDropdownType] = useState<string[]>([]);
+
     const [modalSuccess, setModalSuccess] = useState<any>(false);
     const [log, setLog] = useState<number | null>(null);
+    const [successMessage, setSuccessMessage] = useState<any>(null);
     const [loading, setLoading] = useState<any>(false);
     const [errorMessage, setErrorMessage] = useState<any>(null);
 
     const [listProduct, setListProduct] = useState<string[]>([]);
     const [edit, setEdit] = useState<boolean>(false);
+
+    const [dropdownValidate] = useState<any>(
+        [
+            {
+                name: '10 dias',
+                id: 10
+            },
+            {
+                name: '15 dias',
+                id: 15
+            },
+            {
+                name: '20 dias',
+                id: 20
+            },
+            {
+                name: '25 dias',
+                id: 25
+            },
+            {
+                name: '30 dias',
+                id: 30
+            },
+            {
+                name: '45 dias',
+                id: 45
+            },
+            {
+                name: '60 dias',
+                id: 60
+            }
+            ,
+            {
+                name: '120 dias',
+                id: 120
+            }
+            ,
+            {
+                name: '365 dias',
+                id: 365
+            }
+        ]
+    );
+
+    function convertArray(array: any) {
+        return array.map((item: any) => {
+            const { name, id, ...rest } = item;
+            return { label: name, value: id, ...rest };
+        });
+    }
 
     const convertValue = (cell: any, row: any) => {
         return cell.toLocaleString('pt-br', { style: 'currency', currency: 'BRL' })
@@ -97,7 +153,7 @@ export default function Products() {
         setLoading(true);
         setErrorMessage(null);
 
-        repo?.create(productName, Number(creditValue), validity, Number(value), typeProduct, localeName, true).then((result: any) => {
+        (edit ? repo?.edit(productName, Number(creditValue), Number(validity), Number(value), typeProduct, localeName, status) : repo?.create(productName, Number(creditValue), Number(validity), Number(value), typeProduct, localeName, status)).then((result: any) => {
             if (result instanceof Error) {
                 const message: any = JSON.parse(result.message);
                 setErrorMessage(message.error);
@@ -110,6 +166,7 @@ export default function Products() {
                 setModalSuccess(true);
                 setLoading(false);
                 setModalProductAdd(false);
+                setSuccessMessage(edit ? "Edição realizada com sucesso!" : "Cadastro realizado com sucesso!");
                 setLog(0);
             }
         }).catch((error) => {
@@ -128,9 +185,10 @@ export default function Products() {
 
     const LoadingStatus = () => {
         return (
-            <div className="flex flex-col items-center  ">
+            <div className="flex flex-col items-center gap-4">
                 <Loading />
                 <h5>Carregando...</h5>
+                <div style={{ height: "56px" }}></div>
             </div>
         )
     }
@@ -149,7 +207,7 @@ export default function Products() {
                     </svg>
                 }
 
-                <h5 className="text-gray-700">{log === 0 ? "Cadastrado realizado com sucesso!" : errorMessage}</h5>
+                <h5 className="text-gray-700">{log === 0 ? successMessage : errorMessage}</h5>
 
                 <button className="btn-outline-primary px-5 mt-5" onClick={() => handleClosed()}>
                     Fechar
@@ -209,6 +267,7 @@ export default function Products() {
                 setLoading(false);
                 setLog(1);
             } else {
+                setSuccessMessage("Item removido com sucesso!");
                 setModalSuccess(true);
                 setLoading(false);
                 setLog(0);
@@ -224,12 +283,15 @@ export default function Products() {
         if (!modalProductAdd) {
             setEdit(false);
             setProductName(null);
-            setCreditValue(null);
             setValidity(null);
+            setCreditValue(null);
             setTypeProduct(null);
             setLocaleName(null);
             setValue(null);
             setStatus(true);
+        } else {
+            repoDrop.dropdown('places').then(setDropdownPlace);
+            repoDrop.dropdown('productTypes').then(setDropdownType);
         }
     }, [modalProductAdd]);
 
@@ -269,6 +331,7 @@ export default function Products() {
                             value={productName}
                             type='text'
                             changeValue={setProductName}
+                            edit={edit}
                             required
                         />
                     </div>
@@ -276,35 +339,39 @@ export default function Products() {
                         <AuthInput
                             label="Créditos"
                             value={creditValue}
-                            type='text'
+                            type='number'
                             changeValue={setCreditValue}
+                            edit={edit}
                             required
                         />
                     </div>
                     <div className="col-span-6">
-                        <AuthInput
+                        <AuthSelect
                             label="Validade"
+                            options={convertArray(dropdownValidate)}
                             value={validity}
-                            type='text'
                             changeValue={setValidity}
+                            edit={edit}
                             required
                         />
                     </div>
                     <div className="col-span-6">
-                        <AuthInput
-                            label="Tipo de Produto"
+                        <AuthSelect
+                            label='Tipo de Produto'
                             value={typeProduct}
-                            type='text'
+                            options={convertArray(dropdownType)}
                             changeValue={setTypeProduct}
+                            edit={edit}
                             required
                         />
                     </div>
                     <div className="col-span-6">
-                        <AuthInput
-                            label="Local"
+                        <AuthSelect
+                            label='Local'
                             value={localeName}
-                            type='text'
+                            options={convertArray(dropdownPlace)}
                             changeValue={setLocaleName}
+                            edit={edit}
                             required
                         />
                     </div>
@@ -312,8 +379,9 @@ export default function Products() {
                         <AuthInput
                             label="Valor"
                             value={value}
-                            type='text'
+                            type='number'
                             changeValue={setValue}
+                            edit={edit}
                             required
                         />
                     </div>
@@ -332,6 +400,7 @@ export default function Products() {
                             ]}
                             value={status}
                             changeValue={setStatus}
+                            edit={edit}
                             required
                         />
                     </div>
@@ -354,6 +423,7 @@ export default function Products() {
                 setShowModal={setModalSuccess}
                 hrefClose={'/proprietarios'}
                 isModalStatus={true}
+                edit={edit}
             >
                 <div
                     className={`rounded-lg bg-white w-full py-10 px-10 flex flex-col m-auto`}

@@ -17,6 +17,7 @@ async function conectAPI(req: object | null, url: string, method: string) {
             method,
             headers: {
                 "Content-Type": "application/json",
+                'Authorization': `Bearer ${token}`
             },
             body: JSON.stringify(req),
         };
@@ -43,58 +44,86 @@ async function conectAPI(req: object | null, url: string, method: string) {
     }
 }
 
-export default class ProductRepository implements ProductRepository {
+export default class PersonsRepository implements PersonsRepository {
     async create(
         name: string | null,
-        credit: number | null,
-        validateDate: number | null,
-        value: number | null,
-        productTypeId: number | null,
-        placeId: number | null,
+        identity: string | null,
+        email: string | null,
+        phone: string | null,
+        birthday: string | null,
+        height: number | null,
+        weight: number | null,
+        other: string | null,
+        password: string | null,
+        rule: string | null,
+        frequency: string | null,
+        employee: boolean,
+        employee_level: string | null,
         active: boolean
     ): Promise<[]> {
         const req: any = {
             name,
-            credit,
-            validateDate,
-            value,
-            productTypeId,
-            placeId,
+            identity,
+            email,
+            phone,
+            birthday,
+            height,
+            weight,
+            other,
+            password,
+            rule,
+            frequency,
+            employee,
+            employee_level,
             active
         };
-        return conectAPI(req, "/products", "POST");
+        return conectAPI(req, "/persons", "POST");
     }
 
     async list(): Promise<[]> {
-        return conectAPI(null, "/products", "GET");
+        return conectAPI(null, "/persons", "GET");
     }
 
     async details(id: number): Promise<[]> {
-        return conectAPI(null, `/products/${id}`, "GET");
+        return conectAPI(null, `/persons/${id}`, "GET");
     }
 
     async edit(
         name: string | null,
-        credit: number | null,
-        validateDate: number | null,
-        value: number | null,
-        productTypeId: number | null,
-        placeId: number | null,
+        identity: string | null,
+        email: string | null,
+        phone: string | null,
+        birthday: string | null,
+        height: number | null,
+        weight: number | null,
+        other: string | null,
+        password: string | null,
+        rule: string | null,
+        frequency: string | null,
+        employee: boolean,
+        employee_level: string | null,
         active: boolean
     ): Promise<[]> {
         const req: any = {
             name,
-            credit,
-            validateDate,
-            value,
-            productTypeId,
-            placeId,
+            identity,
+            email,
+            phone,
+            birthday,
+            height,
+            weight,
+            other,
+            password,
+            rule,
+            frequency,
+            employee,
+            employee_level,
             active
         };
-        return conectAPI(req, `/products`, "PUT");
+        return conectAPI(req, `/persons`, "PUT");
     }
 
     async delete(id: number): Promise<[]> {
-        return conectAPI(null, `/products/${id}`, "DELETE");
+        return conectAPI(null, `/persons/${id}`, "DELETE");
     }
 }

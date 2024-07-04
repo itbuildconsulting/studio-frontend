@@ -75,7 +75,9 @@ label {
 }
 
 input,
-select {
+select,
+.loading-input,
+.rmdp-container input  {
   height: 56px;
   border-radius: 4px;
   border: 1px solid var(--primary);
@@ -85,6 +87,49 @@ select {
   font-weight: 500;
   margin-bottom: 2rem;
   background-color: var(--backgroundColor);
+}
+
+.rmdp-container {
+  width: 100%;
+}
+
+.rmdp-calendar {
+  width: 375px;
+  max-width: 375px;
+}
+
+.rmdp-day.rmdp-selected span:not(.highlight) {
+  background-color: var(--primary) !important;
+}
+
+.rmdp-week-day {
+  color: var(--primary) !important;
+  font-weight: 600 !important;
+}
+
+.rmdp-arrow {
+  border: solid var(--primary) !important;
+  border-width: 0 2px 2px 0 !important;
+  margin-top: 6.5px !important;
+}
+
+.rmdp-arrow-container:hover {
+  background-color: var(--primary) !important;
+  box-shadow: 0 0 3px #8798ad;
+}
+
+.rmdp-arrow-container:hover .rmdp-arrow {
+  border: solid #FFFFFF !important;
+  border-width: 0 2px 2px 0 !important;
+}
+
+.rmdp-day-picker {
+  display: block !important;
+}
+
+.rmdp-arrow-container {
+  width: 20px !important;
+  height: 20px !important;
 }
 
 button {
@@ -199,6 +244,26 @@ hr {
   height: 1.5rem;
   margin: 0 auto;
   border: solid 4px #fff;
+  border-radius: 50%;
+  border-right-color: transparent;
+  border-bottom-color: transparent;
+  -webkit-transition: all 0.5s ease-in;
+  -webkit-animation-name: rotate;
+  -webkit-animation-duration: 1s;
+  -webkit-animation-iteration-count: infinite;
+  -webkit-animation-timing-function: linear;
+  transition: all 0.5s ease-in;
+  animation-name: rotate;
+  animation-duration: 1s;
+  animation-iteration-count: infinite;
+  animation-timing-function: linear;
+}
+
+.load.load-input {
+  width: 1.25rem;
+  height: 1.25rem;
+  margin: 0 0 !important;
+  border: solid 3px var(--primary);
   border-radius: 50%;
   border-right-color: transparent;
   border-bottom-color: transparent;
