@@ -1,0 +1,45 @@
+
+.middle{
+  height: 100px;
+  width: 100px;
+  margin:auto;
+  position: relative;
+  margin: 40px;
+  border-radius: 50%;
+  background-image: linear-gradient(150deg, transparent 50%, var(--primary) 50%),linear-gradient(90deg, var(--primary) 50%, white 50%);
+  animation: rotation 1200ms infinite linear;
+  -webkit-animation: rotation 1200ms infinite linear;
+  transform-origin: 50% 50%;
+  animation-timing-function: ease;
+}
+.inner{
+  background: white;
+  height: 88px;
+  width: 88px;
+  margin:auto;
+  position: relative;
+  top:6px;
+  border-radius: 50%;
+}
+
+@-webkit-keyframes rotation {
+from {
+  -webkit-transform: rotate(270deg);
+  transform: rotate(270deg);
+}
+to{
+  -webkit-transform: rotate(630deg);
+  transform: rotate(630deg);
+  }
+}
+
+@keyframes rotation {
+  from {
+    -webkit-transform: rotate(270deg);
+    transform: rotate(270deg);
+  }
+  to{
+    -webkit-transform: rotate(630deg);
+    transform: rotate(630deg);
+    }
+  }

@@ -5,15 +5,30 @@ import PageDefault from "@/components/template/default";
 
 import styles from '../../styles/teachers.module.css';
 import Table from "@/components/Table/Table";
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import AuthInput from "@/components/auth/AuthInput";
 
+import PersonsCollecion from "../../../core/Persons";
+import DropDown from "@/components/dropdown/DropDown";
+import Link from "next/link";
+import Modal from "@/components/Modal/Modal";
+import Loading from "@/components/loading/Loading";
+
 export default function Teachers() {
+    const repo = useMemo(() => new PersonsCollecion(), []);
     const [modalStudentsAdd, setModalStudentsAdd] = useState<boolean>(false);
 
     const [name, setName] = useState<string>("");
     const [document, setDocument] = useState<string>("");
     const [email, setEmail] = useState<string>("");
+
+    const [modalSuccess, setModalSuccess] = useState<any>(false);
+    const [log, setLog] = useState<number | null>(null);
+    const [successMessage, setSuccessMessage] = useState<any>(null);
+    const [loading, setLoading] = useState<any>(false);
+    const [errorMessage, setErrorMessage] = useState<any>(null);
+
+    const [listPersons, setListPersons] = useState<string[]>([]);
 
     const convertPhone = (cell: any, row: any) => {
         let phoneNumber = cell.replace(/\D/g, '');
@@ -30,42 +45,25 @@ export default function Teachers() {
         return cell ? "Ativo" : "Inativo";
     }
 
-    let info: any = {
-        rows: [
-            {
-                nome: "Pedro Henrique Kevin Assunção",
-                email: "pedro-assuncao86@grupoannaprado.com.br",
-                telefone: "62987591829",
-                checkin: "2023-12-12",
-                status: true,
-            },
-            {
-                nome: "Pedro Henrique Kevin Assunção",
-                email: "pedro-assuncao86@grupoannaprado.com.br",
-                telefone: "62987591829",
-                checkin: "2023-12-12",
-                status: false,
-            },
-            {
-                nome: "Pedro Henrique Kevin Assunção",
-                email: "pedro-assuncao86@grupoannaprado.com.br",
-                telefone: "62987591829",
-                checkin: "2023-12-12",
-                status: false,
-            },
-            {
-                nome: "Pedro Henrique Kevin Assunção",
-                email: "pedro-assuncao86@grupoannaprado.com.br",
-                telefone: "62987591829",
-                checkin: "2023-12-12",
-                status: true,
-            }
-        ]
+    const actionButtonProduct = (cell: any, row: any) => {
+        return (
+            <DropDown style={'bg-white'} styleHeader={'bg-white'} className="nav-link">
+                <>...</>
+
+                <Link href={`/funcionarios/editar/${cell}`}>
+                    Editar
+                </Link>
+                <Link href={'#'} onClick={() => deletePersons(cell)}>
+                    Excluir
+                </Link>
+
+            </DropDown>
+        )
     }
 
     const columns = [
         {
-            dataField: 'nome',
+            dataField: 'name',
             text: `Nome`,
         },
         {
@@ -73,19 +71,23 @@ export default function Teachers() {
             text: `Email`,
         },
         {
-            dataField: 'telefone',
+            dataField: 'phone',
             text: `Telefone`,
             formatter: convertPhone
         },
         {
-            dataField: 'checkin',
+            dataField: 'updatedAt',
             text: `Último Check-in`,
             formatter: convertDate
         },
         {
-            dataField: 'status',
+            dataField: 'active',
             text: `Status`,
             formatter: convertStatus
+        },
+        {
+            dataField: 'id',
+            formatter: actionButtonProduct
         }
     ];
 
@@ -110,6 +112,86 @@ export default function Teachers() {
         },
     ];
 
+    const handleClosed = () => {
+        setModalSuccess(false);
+    }
+
+    const LoadingStatus = () => {
+        return (
+            <div className="flex flex-col items-center gap-4">
+                <Loading />
+                <h5>Carregando...</h5>
+                <div style={{ height: "56px" }}></div>
+            </div>
+        )
+    }
+
+    const SuccessStatus = () => {
+        return (
+            <div className="flex flex-col items-center gap-4">
+
+                {log === 0 ?
+                    <svg className="mt-4 pb-2" width="135" height="135" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1} stroke={"var(--primary)"}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    :
+                    <svg className="mt-4 pb-2" width="135" height="135" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1} stroke={"var(--primary)"}>
+                        <path stroke-linecap="round" stroke-linejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                    </svg>
+                }
+
+                <h5 className="text-gray-700">{log === 0 ? successMessage : errorMessage}</h5>
+
+                <button className="btn-outline-primary px-5 mt-5" onClick={() => handleClosed()}>
+                    Fechar
+                </button>
+
+            </div>
+        )
+    };
+
+    const listGeneralTeachers = () => {
+        setLoading(true);
+        repo.list().then((result: any) => {
+            if (result instanceof Error) {
+                setLoading(false);
+            } else {
+                setListPersons(result);
+                setLoading(false);
+            }
+        }).catch((error: any) => {
+            setLoading(false);
+        });
+    }
+
+    useEffect(() => {
+        listGeneralTeachers();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
+
+    const deletePersons = (id: number) => {
+        setModalSuccess(true);
+        setLoading(true);
+
+        repo.delete(id).then((result: any) => {
+            if (result instanceof Error) {
+                const message: any = JSON.parse(result.message);
+                setErrorMessage(message.error);
+                setLoading(false);
+                setLog(1);
+            } else {
+                setSuccessMessage("Item removido com sucesso!");
+                setModalSuccess(true);
+                setLoading(false);
+                setLog(0);
+            }
+        }).catch((error: any) => {
+            setErrorMessage(error.message);
+            setLog(1);
+            setLoading(false);
+        });
+    };
+
     return (
         <PageDefault title={"Professor"}>
             <div className="grid grid-cols-12 gap-8">
@@ -119,7 +201,7 @@ export default function Teachers() {
                         eventsButton={eventButton}
                     >
                         <div className="grid grid-cols-12 gap-x-8">
-                            <div className="col-span-3">
+                            <div className="col-span-12 md:col-span-3">
                                 <AuthInput
                                     label="Nome"
                                     value={name}
@@ -128,7 +210,7 @@ export default function Teachers() {
                                     required
                                 />
                             </div>
-                            <div className="col-span-3">
+                            <div className="col-span-12 md:col-span-3">
                                 <AuthInput
                                     label="CPF"
                                     value={document}
@@ -137,7 +219,7 @@ export default function Teachers() {
                                     required
                                 />
                             </div>
-                            <div className="col-span-3">
+                            <div className="col-span-12 md:col-span-3">
                                 <AuthInput
                                     label="Email"
                                     value={email}
@@ -156,13 +238,35 @@ export default function Teachers() {
                         url={"/funcionarios/cadastrar"}
                     >
                         <Table
-                            data={info.rows}
+                            data={listPersons}
                             columns={columns}
                             class={styles.table_students}
+                            loading={loading}
                         />
                     </Card>
                 </div>
             </div>
+
+            <Modal
+                btnClose={false}
+                showModal={modalSuccess}
+                setShowModal={setModalSuccess}
+                hrefClose={'/proprietarios'}
+                isModalStatus={true}
+                //edit={edit}
+            >
+                <div
+                    className={`rounded-lg bg-white w-full py-10 px-10 flex flex-col m-auto`}
+                >
+
+                    {loading ? <LoadingStatus /> : <SuccessStatus />}
+
+                    <div className="">
+
+                    </div>
+                </div>
+
+            </Modal>
         </PageDefault>
     )
 }

@@ -1,8 +1,9 @@
-import React, { createContext, useEffect, useState } from 'react'
-import Cookies from 'js-cookie'
-import User from '../../model/User'
-import Router from 'next/router'
-import { stringify } from 'querystring'
+import React, { createContext, useEffect, useState } from 'react';
+import Cookies from 'js-cookie';
+import User from '../../model/User';
+import Router from 'next/router';
+import { stringify } from 'querystring';
+import { useRouter } from "next/navigation";
 
 interface AuthContextProps {
     user?: User | null | undefined,
@@ -34,22 +35,30 @@ function managementCookie(logado: boolean, expireAt: string, token: string) {
             expires: data
         })
     } else {
-        Cookies.remove('admin-template-sci-auth')
+        Cookies.remove('admin-template-sci-auth');
     }
 }
 
 
 export function AuthProvider(props: any) {
-    const [load, setLoad] = useState(true);
+    const [load, setLoad] = useState(false);
     const [user, setUser] = useState<User | null | undefined>();
     const [loginError, setLoginError] = useState<boolean>(false);
     const [msgError, setMsgError] = useState<Array<{}>>([]);
+
+    const router = useRouter();
+
+    function showErro(msg: string, time = 5) {
+        setMsgError([msg]);
+        setLoginError(true);
+        setTimeout(() => {setMsgError([]); setLoginError(false)}, time * 1000)
+    }
 
     async function sessionConfig(sistemUser: any) {
         if (sistemUser?.token) {
             //const user = await normalizeUser(firebaseUser)
             setUser(user);
-            managementCookie(true, sistemUser?.expireAt, sistemUser?.token);
+            managementCookie(true, sistemUser?.expiresIn, sistemUser?.token);
             setLoad(false);
             //return user.email
         } else {
@@ -61,6 +70,9 @@ export function AuthProvider(props: any) {
     }
 
     async function login(email: string, password: string) {
+        console.log("Aquiii")
+        setLoad(true);
+
         const req: any = {
             "email": email,
             "password": password
@@ -77,66 +89,65 @@ export function AuthProvider(props: any) {
                     body: JSON.stringify(req),
                 }
             );
-            setLoad(true)
             if (resp.status === 200) {
+                router.push("/dashboard");
                 const authResp: any = await resp.json();
-                await sessionConfig(authResp.data);
-                //perfil(authResp.data.token)
+                await sessionConfig(authResp);
+                setLoad(false);
             } else if (resp.status === 500) {
-                setLoginError(true);
-                setMsgError(['Erro desconhecido - Entre em contato com o Suporte']);
+                setLoad(false);
+                showErro('Erro desconhecido - Entre em contato com o Suporte');
             } else {
-                setLoginError(true);
+                setLoad(false);
                 const authResp: any = await resp.json();
-                setMsgError(authResp.errors)
+                showErro(authResp.error);
             }
         } catch {
             setLoad(false);
-            setLoginError(true);
-            setMsgError(['Erro desconhecido - Entre em contato com o Suporte']);
+            showErro('Erro desconhecido - Entre em contato com o Suporte');
         } finally {
             setLoad(false);
             return true;
         }
     }
 
-    /* async function perfil(token: string) {
-
-        const config = {
-            method: 'GET',
-            headers: { 'Authorization': `Bearer ${token}` },
-        };
-
-        try {
-            const resp: any = await fetch(
-                `${process.env.NEXT_PUBLIC_SERVER_URL_API}/auth/profile`,
-                config
-            );
-            setLoad(true)
-            if (resp.status === 200) {
-                const authResp: any = await resp.json();
-
-                console.log(authResp.data)
-
-                Cookies.set('admin-user-sci-info', JSON.stringify(authResp.data), {
-                    expires: 1
-                })
-                console.log('AQUIII')
-                Router.push('/construcao');
-
-            } else {
-                setLoginError(true);
-                const authResp: any = await resp.json();
-                setMsgError(authResp.errors)
+    /*     async function perfil(token: string) {
+    
+            const config = {
+                method: 'GET',
+                headers: { 'Authorization': `Bearer ${token}` },
+            };
+    
+            try {
+                const resp: any = await fetch(
+                    `${process.env.NEXT_PUBLIC_SERVER_URL_API}/auth/profile`,
+                    config
+                );
+                setLoad(true)
+                if (resp.status === 200) {
+                    const authResp: any = await resp.json();
+    
+                    console.log(authResp.data)
+    
+                    Cookies.set('admin-user-sci-info', JSON.stringify(authResp.data), {
+                        expires: 1
+                    })
+                    console.log('AQUIII')
+                    Router.push('/construcao');
+    
+                } else {
+                    setLoginError(true);
+                    const authResp: any = await resp.json();
+                    setMsgError(authResp.errors)
+                }
+    
+            } finally {
+                setLoad(false);
+                return true;
             }
-
-        } finally {
-            setLoad(false);
-            return true;
-        }
-
-
-    } */
+    
+    
+        } */
 
     async function cadastrar(email: string, password: string) {
         try {
@@ -154,7 +165,7 @@ export function AuthProvider(props: any) {
         try {
             setLoad(true)
             //await firebase.auth().signOut()
-            //await sessionConfig(null)
+            // await sessionConfig(null);
             return 'Test';
         } finally {
             setLoad(false)

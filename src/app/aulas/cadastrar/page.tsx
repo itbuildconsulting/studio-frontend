@@ -51,7 +51,7 @@ export default function AddClass() {
                         eventsButton={eventButton}
                     >
                         <div className="grid grid-cols-12 gap-x-8">
-                            <div className="col-span-4">
+                            <div className="col-span-12 sm:col-span-6 xl:col-span-4">
                                 <AuthInput
                                     label="Data"
                                     value={date}
@@ -60,7 +60,7 @@ export default function AddClass() {
                                     required
                                 />
                             </div>
-                            <div className="col-span-4 grid-rows-4">
+                            <div className="col-span-12 sm:col-span-6 xl:col-span-4 xl:grid-rows-4">
                                 <AuthInput
                                     label="Hora"
                                     value={time}
@@ -69,8 +69,8 @@ export default function AddClass() {
                                     required
                                 />
                             </div>
-                            <div className="grid-rows-4"></div>
-                            <div className="col-span-4">
+                            <div className="hidden xl:flex xl:grid-rows-4"></div>
+                            <div className="col-span-12 sm:col-span-6 xl:col-span-4">
                                 <AuthInput
                                     label="Tipo de Produto"
                                     value={typeProduct}
@@ -79,7 +79,7 @@ export default function AddClass() {
                                     required
                                 />
                             </div>
-                            <div className="col-span-4">
+                            <div className="col-span-12 sm:col-span-6 xl:col-span-4">
                                 <AuthInput
                                     label="Produto"
                                     value={product}
@@ -88,7 +88,7 @@ export default function AddClass() {
                                     required
                                 />
                             </div>
-                            <div className="col-span-4">
+                            <div className="col-span-12 sm:col-span-6 xl:col-span-4">
                                 <AuthInput
                                     label="Professor"
                                     value={teacher}
@@ -100,7 +100,7 @@ export default function AddClass() {
                         </div>
                         <hr className="mt-3 mb-5 pb-3" style={{ borderColor: "#F4F5F6" }} />
                         <div className="grid grid-cols-12 gap-x-8">
-                            <div className="col-span-4">
+                            <div className="col-span-12 sm:col-span-6 xl:col-span-4">
                                 <AuthInput
                                     label="Quantidade de alunos"
                                     value={qtdStudents}
@@ -109,7 +109,7 @@ export default function AddClass() {
                                     required
                                 />
                             </div>
-                            <div className="col-span-4">
+                            <div className="col-span-12 sm:col-span-6 xl:col-span-4">
                                 <AuthInput
                                     label="Possiu comissão?"
                                     value={canCommission}
@@ -118,8 +118,8 @@ export default function AddClass() {
                                     required
                                 />
                             </div>
-                            <div className="grid-rows-4"></div>
-                            <div className="col-span-4">
+                            <div className="hidden xl:flex xl:grid-rows-4"></div>
+                            <div className="col-span-12 sm:col-span-6 xl:col-span-4">
                                 <AuthInput
                                     label="Alunos"
                                     value={students}
@@ -128,12 +128,12 @@ export default function AddClass() {
                                     required
                                 />
                             </div>
-                            <div className="grid-rows-4"></div>
-                            <div className="grid-rows-4"></div>
+                            <div className="hidden xl:flex xl:grid-rows-4"></div>
+                            <div className="hidden xl:flex xl:grid-rows-4"></div>
                         </div>
                         <hr className="mt-3 mb-5 pb-3" style={{ borderColor: "#F4F5F6" }} />
                         <div className="grid grid-cols-12 gap-x-8">
-                            <div className="col-span-4">
+                            <div className="col-span-12 sm:col-span-6 xl:col-span-4">
                                 <AuthInput
                                     label="Regra de Comissão"
                                     value={commissionRules}
@@ -142,7 +142,7 @@ export default function AddClass() {
                                     required
                                 />
                             </div>
-                            <div className="col-span-4">
+                            <div className="col-span-12 sm:col-span-6 xl:col-span-4">
                                 <AuthInput
                                     label="Valor da Comissão"
                                     value={commissionValue}

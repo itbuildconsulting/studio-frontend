@@ -8,11 +8,12 @@ interface AuthInputProps {
     required?: boolean,
     noRender?: boolean,
     maxLength?: number,
-    type?: 'text' | 'email' | 'password' | 'date',
+    type?: 'text' | 'email' | 'password' | 'date' | 'number',
     disabled?: boolean,
     maskType?: 'cnpj' | 'cpf' | 'telefone' | 'metros' | 'hora' | 'none',
     changeValue: (novoValor: any) => void,
     tooltipMessage?: string,
+    edit?: boolean
 }
 
 const AuthInput = (props: AuthInputProps) => {
@@ -85,15 +86,22 @@ const AuthInput = (props: AuthInputProps) => {
                 ?
                 <></>
                 :
-                <input
-                    type={props.type ?? 'text'}
-                    value={props.value}
-                    maxLength={props.maxLength !== undefined ? props.maxLength : 25}
-                    onChange={e => props.changeValue?.(applyMask(e.target.value, props.maskType))}
-                    required={props.required}
-                    className={`focus: outline-none`}
-                    disabled={props.disabled}
-                />
+                props.edit === true && props.value === null ?
+                    <div
+                        className={`flex justify-start items-center loading-input focus: outline-none`}
+                    >
+                        <div className='load load-input'></div>
+                    </div>
+                    :
+                    <input
+                        type={props.type ?? 'text'}
+                        value={props.value}
+                        maxLength={props.maxLength !== undefined ? props.maxLength : 50}
+                        onChange={e => props.changeValue?.(applyMask(e.target.value, props.maskType))}
+                        required={props.required}
+                        className={`focus: outline-none`}
+                        disabled={props.disabled}
+                    />
             }
         </div>
     )

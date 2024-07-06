@@ -3,12 +3,12 @@
 @tailwind utilities;
 
 :root {
-  --primary: #003D58;
-  --secondary: #70E000;
-  --shadow: #003D5880;
-  --primaryHover: #062D40;
-  --secondaryHover: #548F22;
-  --backgroundColor: #FBFBFB;
+  --primary: #003d58;
+  --secondary: #70e000;
+  --shadow: #003d5880;
+  --primaryHover: #062d40;
+  --secondaryHover: #548f22;
+  --backgroundColor: #fbfbfb;
 }
 
 html {
@@ -16,7 +16,7 @@ html {
 }
 
 body {
-  background-color: #F0F3F7;
+  background-color: #f0f3f7;
   color: var(--primary);
 }
 
@@ -44,7 +44,8 @@ h4 {
   line-height: 150%;
 }
 
-p, span {
+p,
+span {
   font-size: 1rem;
   font-weight: 400;
   line-height: 150%;
@@ -60,7 +61,7 @@ a:hover {
 }
 
 small {
-  font-size: .75rem;
+  font-size: 0.75rem;
   font-weight: 400;
   line-height: 150%;
 }
@@ -73,7 +74,10 @@ label {
   margin-bottom: 4px;
 }
 
-input, select {
+input,
+select,
+.loading-input,
+.rmdp-container input  {
   height: 56px;
   border-radius: 4px;
   border: 1px solid var(--primary);
@@ -85,6 +89,49 @@ input, select {
   background-color: var(--backgroundColor);
 }
 
+.rmdp-container {
+  width: 100%;
+}
+
+.rmdp-calendar {
+  width: 375px;
+  max-width: 375px;
+}
+
+.rmdp-day.rmdp-selected span:not(.highlight) {
+  background-color: var(--primary) !important;
+}
+
+.rmdp-week-day {
+  color: var(--primary) !important;
+  font-weight: 600 !important;
+}
+
+.rmdp-arrow {
+  border: solid var(--primary) !important;
+  border-width: 0 2px 2px 0 !important;
+  margin-top: 6.5px !important;
+}
+
+.rmdp-arrow-container:hover {
+  background-color: var(--primary) !important;
+  box-shadow: 0 0 3px #8798ad;
+}
+
+.rmdp-arrow-container:hover .rmdp-arrow {
+  border: solid #FFFFFF !important;
+  border-width: 0 2px 2px 0 !important;
+}
+
+.rmdp-day-picker {
+  display: block !important;
+}
+
+.rmdp-arrow-container {
+  width: 20px !important;
+  height: 20px !important;
+}
+
 button {
   height: 56px;
   border-radius: 4px;
@@ -94,7 +141,7 @@ button {
 }
 
 hr {
-  border-color: #AEAEAE;
+  border-color: #aeaeae;
 }
 
 .bg-white {
@@ -104,17 +151,17 @@ hr {
 .btn-primary {
   background-color: var(--primary);
   border: 1px solid var(--primary);
-  color: #FFFFFF;
+  color: #ffffff;
 }
 
 .btn-primary:hover {
   background-color: var(--primaryHover);
   border: 1px solid var(--primaryHover);
-  color: #FFFFFF;
+  color: #ffffff;
 }
 
 .btn-outline-primary {
-  background-color: #FFFFFF;
+  background-color: #ffffff;
   border: 1px solid var(--primary);
   color: var(--primary);
 }
@@ -122,25 +169,24 @@ hr {
 .btn-outline-primary:hover {
   background-color: var(--primaryHover);
   border: 1px solid var(--primaryHover);
-  color: #FFFFFF;
+  color: #ffffff;
 }
-
 
 .btn-secondary {
   background-color: var(--secondary);
   border: 1px solid var(--secondary);
-  color: #FFFFFF;
+  color: #ffffff;
 }
 
 .btn-secondary:hover {
   background-color: var(--secondaryHover);
   border: 1px solid var(--secondaryHover);
-  color: #FFFFFF;
+  color: #ffffff;
 }
 
 /* Estado de ativo do menu */
 .active {
-  background-color: #F0F3F7;
+  background-color: #f0f3f7;
 }
 /* END - Estado de ativo do menu */
 
@@ -157,7 +203,7 @@ hr {
 }
 
 .border_purple_class td:nth-child(1) {
-  border-left: 4px solid #C905FA;
+  border-left: 4px solid #c905fa;
 }
 
 .borderInternal_secondary_class td:nth-child(2) div {
@@ -173,9 +219,105 @@ hr {
 }
 
 .borderInternal_purple_class td:nth-child(2) div {
-  border-left: 5px solid #C905FA;
+  border-left: 5px solid #c905fa;
   padding-left: 14px;
   height: 45px;
+}
+
+.error-message {
+  background-color: #f03d3d;
+  color: #f7f7f7;
+  border-radius: 4px;
+  padding: 4px;
+  margin-top: 12px;
+  display: flex;
+  align-items: center;
+}
+
+.error-message span {
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.load {
+  width: 1.5rem;
+  height: 1.5rem;
+  margin: 0 auto;
+  border: solid 4px #fff;
+  border-radius: 50%;
+  border-right-color: transparent;
+  border-bottom-color: transparent;
+  -webkit-transition: all 0.5s ease-in;
+  -webkit-animation-name: rotate;
+  -webkit-animation-duration: 1s;
+  -webkit-animation-iteration-count: infinite;
+  -webkit-animation-timing-function: linear;
+  transition: all 0.5s ease-in;
+  animation-name: rotate;
+  animation-duration: 1s;
+  animation-iteration-count: infinite;
+  animation-timing-function: linear;
+}
+
+.load.load-input {
+  width: 1.25rem;
+  height: 1.25rem;
+  margin: 0 0 !important;
+  border: solid 3px var(--primary);
+  border-radius: 50%;
+  border-right-color: transparent;
+  border-bottom-color: transparent;
+  -webkit-transition: all 0.5s ease-in;
+  -webkit-animation-name: rotate;
+  -webkit-animation-duration: 1s;
+  -webkit-animation-iteration-count: infinite;
+  -webkit-animation-timing-function: linear;
+  transition: all 0.5s ease-in;
+  animation-name: rotate;
+  animation-duration: 1s;
+  animation-iteration-count: infinite;
+  animation-timing-function: linear;
+}
+
+@keyframes placeHolderShimmer {
+  0% {
+    background-position: -468px 0;
+  }
+  100% {
+    background-position: 468px 0;
+  }
+}
+
+.animated-background {
+  animation-duration: 1.25s;
+  animation-fill-mode: forwards;
+  animation-iteration-count: infinite;
+  animation-name: placeHolderShimmer;
+  animation-timing-function: linear;
+  background: #f6f6f6;
+  background: linear-gradient(to right, #f6f6f6 8%, #e0e0e0 18%, #f6f6f6 33%);
+  background-size: 800px 104px;
+  height: 96px;
+  position: relative;
+}
+
+
+@keyframes rotate {
+  from {
+      transform: rotate(0deg);
+  }
+  to { 
+      transform: rotate(360deg);
+  }
+}
+
+@-webkit-keyframes rotate {
+  from {
+      -webkit-transform: rotate(0deg);
+  }
+  to { 
+      -webkit-transform: rotate(360deg);
+  }
 }
 
 @media (max-width: 1024px) {

@@ -127,7 +127,7 @@ export default function Class() {
                         eventsButton={eventButton}
                     >
                         <div className="grid grid-cols-12 gap-x-8">
-                            <div className="col-span-3">
+                            <div className="col-span-12 md:col-span-3">
                                 <AuthInput
                                     label="Data"
                                     value={date}
@@ -136,7 +136,7 @@ export default function Class() {
                                     required
                                 />
                             </div>
-                            <div className="col-span-3">
+                            <div className="col-span-12 md:col-span-3">
                                 <AuthInput
                                     label="Tipo"
                                     value={type}
@@ -145,7 +145,7 @@ export default function Class() {
                                     required
                                 />
                             </div>
-                            <div className="col-span-3">
+                            <div className="col-span-12 md:col-span-3">
                                 <AuthInput
                                     label="Professor"
                                     value={teacher}

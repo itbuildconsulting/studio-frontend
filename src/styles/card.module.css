@@ -22,3 +22,9 @@
     max-width: 220px;
     width: 100%;
 }
+
+@media (max-width: 767px) {
+    .bg_card {
+        padding: 1.5rem 1rem;
+    }
+}
