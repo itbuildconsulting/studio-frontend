@@ -10,7 +10,8 @@ interface TitleProps {
     setShowModal?: any,
     url?: any,
     hasFooter?: boolean,
-    eventsButton?: any
+    eventsButton?: any,
+    loading?: boolean
 }
 
 export default function Card(props: TitleProps) {
@@ -29,9 +30,17 @@ export default function Card(props: TitleProps) {
                 <div className={`${styles.footer_card}`}>
                     {
                         props.eventsButton.map((btn: any) => {
-                            return (
-                                <button key={btn.name} className={btn.class} onClick={() => btn.function()}>{btn.name}</button>
-                            )
+                            if(props.loading && (btn.name === "Cadastrar" || btn.name === "Editar")) {
+                                return (
+                                    <button key={btn.name} className={btn.class} onClick={() => btn.function()}>
+                                        <div className='load'/>
+                                    </button>
+                                )
+                            } else {
+                                return (
+                                    <button key={btn.name} className={btn.class} onClick={() => btn.function()}>{btn.name}</button>
+                                )
+                            }
                         })
                     }
                 </div>
