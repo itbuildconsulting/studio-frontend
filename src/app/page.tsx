@@ -28,6 +28,7 @@ export default function Auth() {
   }
 
   async function handleSubmit() {
+    console.log('Aquiii')
     if (login) {
       try {
         await login(username, password);
