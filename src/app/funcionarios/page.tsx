@@ -16,7 +16,6 @@ import Loading from "@/components/loading/Loading";
 
 export default function Teachers() {
     const repo = useMemo(() => new PersonsCollecion(), []);
-    const [modalStudentsAdd, setModalStudentsAdd] = useState<boolean>(false);
 
     const [name, setName] = useState<string>("");
     const [document, setDocument] = useState<string>("");
@@ -92,11 +91,11 @@ export default function Teachers() {
     ];
 
     const clear = () => {
-        console.log("Limpei")
+        listGeneralTeachers("", "", "");
     }
 
     const onSubmit = () => {
-        console.log("Cadastrei")
+        listGeneralTeachers(name, email, document);
     }
 
     const eventButton = [
@@ -150,9 +149,13 @@ export default function Teachers() {
         )
     };
 
-    const listGeneralTeachers = () => {
+    const listGeneralTeachers = (name: string, email: string, document: string) => {
         setLoading(true);
-        repo.list().then((result: any) => {
+        setName(name);
+        setEmail(email);
+        setDocument(document);
+
+        repo.listEmployee(name, email, document).then((result: any) => {
             if (result instanceof Error) {
                 setLoading(false);
             } else {
@@ -165,7 +168,7 @@ export default function Teachers() {
     }
 
     useEffect(() => {
-        listGeneralTeachers();
+        listGeneralTeachers(name, email, document);
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
@@ -251,7 +254,7 @@ export default function Teachers() {
                 btnClose={false}
                 showModal={modalSuccess}
                 setShowModal={setModalSuccess}
-                hrefClose={'/proprietarios'}
+                hrefClose={'/funcionarios'}
                 isModalStatus={true}
                 //edit={edit}
             >

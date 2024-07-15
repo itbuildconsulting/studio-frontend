@@ -70,7 +70,7 @@ const AuthInput = (props: AuthInputProps) => {
 
     return props.noRender ? null : (
         <div className='flex flex-col'>
-            <div className="flex justify-between">
+            <div className="flex justify-start gap-2">
                 <label>{props.label}</label>
                 {
                     props.tooltipMessage !== undefined &&

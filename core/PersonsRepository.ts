@@ -17,7 +17,16 @@ export default interface PersonsRepository {
         employee_level: string | null,
         active: boolean
     ): Promise<Persons[]>;
-    list(): Promise<Persons[]>;
+    listEmployee(
+        name: string | null,
+        email: string | null,
+        identity: string | null,
+    ): Promise<Persons[]>;
+    listStudent(
+        name: string | null,
+        email: string | null,
+        identity: string | null,
+    ): Promise<Persons[]>;
     details(id: number): Promise<Persons[]>
     edit(
         name: string | null,

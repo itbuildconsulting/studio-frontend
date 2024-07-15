@@ -80,8 +80,30 @@ export default class PersonsRepository implements PersonsRepository {
         return conectAPI(req, "/persons", "POST");
     }
 
-    async list(): Promise<[]> {
-        return conectAPI(null, "/persons", "GET");
+    async listEmployee(
+        name: string | null,
+        email: string | null,
+        identity: string | null,
+    ): Promise<[]> {
+        const req: any = {
+            name,
+            email,
+            identity
+        };
+        return conectAPI(req, "/persons/employee/filter", "POST");
+    }
+
+    async listStudent(
+        name: string | null,
+        email: string | null,
+        identity: string | null,
+    ): Promise<[]> {
+        const req: any = {
+            name,
+            email,
+            identity
+        };
+        return conectAPI(req, "/persons/student/filter", "POST");
     }
 
     async details(id: number): Promise<[]> {
