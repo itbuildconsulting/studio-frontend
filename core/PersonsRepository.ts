@@ -15,6 +15,11 @@ export default interface PersonsRepository {
         frequency: string | null,
         employee: boolean,
         employee_level: string | null,
+        zipCode: string | null,
+        state: string | null,
+        city: string | null,
+        address: string | null,
+        country: string | null,
         active: boolean
     ): Promise<Persons[]>;
     listEmployee(
@@ -42,6 +47,11 @@ export default interface PersonsRepository {
         frequency: string | null,
         employee: boolean,
         employee_level: string | null,
+        zipCode: string | null,
+        state: string | null,
+        city: string | null,
+        address: string | null,
+        country: string | null,
         active: boolean
     ): Promise<Persons[]>;
     delete(id: number): Promise<Persons[]>

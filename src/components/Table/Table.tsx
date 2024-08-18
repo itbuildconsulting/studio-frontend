@@ -18,7 +18,7 @@ export default function Table(props: TableProps) {
                 <table className={`${styles.bg_table} ${props.class || ""} w-full`}>
                     <tbody>
                         {
-                            props.data.length > 0 && props.loading === false ? props.data.map((item: any, index: any) => {
+                            props?.data?.length > 0 && props.loading === false ? props.data.map((item: any, index: any) => {
                                 return (
                                     <tr key={index} className={`${props?.rowClasses && props?.rowClasses(item)}`}>
                                         {
@@ -61,7 +61,7 @@ export default function Table(props: TableProps) {
                 <div className={`${styles.bg_table} ${props.class || ""} w-full`}>
                     <div>
                         {
-                            props.data.map((item: any, index: any) => {
+                            props?.data?.length > 0 ? props?.data?.map((item: any, index: any) => {
                                 return (
                                     <div key={index} className={`${styles.bg_table_card} grid grid-cols-12 gap-8`}>
                                         {
@@ -78,7 +78,7 @@ export default function Table(props: TableProps) {
                                         }
                                     </div>
                                 )
-                            })
+                            }) : ""
                         }
                     </div>
                 </div>

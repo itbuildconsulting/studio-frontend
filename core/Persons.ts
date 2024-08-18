@@ -59,6 +59,11 @@ export default class PersonsRepository implements PersonsRepository {
         frequency: string | null,
         employee: boolean,
         employee_level: string | null,
+        zipCode: string | null,
+        state: string | null,
+        city: string | null,
+        address: string | null,
+        country: string | null,
         active: boolean
     ): Promise<[]> {
         const req: any = {
@@ -75,6 +80,11 @@ export default class PersonsRepository implements PersonsRepository {
             frequency,
             employee,
             employee_level,
+            zipCode,
+            state,
+            city,
+            address,
+            country,
             active
         };
         return conectAPI(req, "/persons", "POST");
@@ -124,6 +134,11 @@ export default class PersonsRepository implements PersonsRepository {
         frequency: string | null,
         employee: boolean,
         employee_level: string | null,
+        zipCode: string | null,
+        state: string | null,
+        city: string | null,
+        address: string | null,
+        country: string | null,
         active: boolean
     ): Promise<[]> {
         const req: any = {
@@ -140,6 +155,11 @@ export default class PersonsRepository implements PersonsRepository {
             frequency,
             employee,
             employee_level,
+            zipCode,
+            state,
+            city,
+            address,
+            country,
             active
         };
         return conectAPI(req, `/persons`, "PUT");

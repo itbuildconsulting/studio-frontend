@@ -28,6 +28,11 @@ export default function AddTeachers() {
     const [password, setPassword] = useState<any>(null);
     const [confirmPass, setConfirmPass] = useState<string | null>(null);
     const [level, setLevel] = useState<string | null>('1');
+    const [zipCode, setZipCode] = useState<string | null>(null);
+    const [state, setState] = useState<string | null>(null);
+    const [city, setCity] = useState<string | null>(null);
+    const [address, setAddress] = useState<string | null>(null);
+    const [country, setCountry] = useState<string | null>(null);
     const [status, setStatus] = useState<boolean>(true);
 
     const [modalSuccess, setModalSuccess] = useState<any>(false);
@@ -283,7 +288,7 @@ export default function AddTeachers() {
                 setErrorMessage(null);
             }, 2500);
         } else {
-            repo?.create(name, removerCaracteresEspeciais(document), email, removerCaracteresEspeciais(phone), converterDate(birthday), height, weight, shoes, password, '', '', true, level, status).then((result: any) => {
+            repo?.create(name, removerCaracteresEspeciais(document), email, removerCaracteresEspeciais(phone), converterDate(birthday), height, weight, shoes, password, '', '', true, level, zipCode, state, city, address, country, status).then((result: any) => {
                 if (result instanceof Error) {
                     const message: any = JSON.parse(result.message);
                     setErrorMessage(message.error);
@@ -466,16 +471,66 @@ export default function AddTeachers() {
                                 />
                             </div>
                         </div>
-                        {errorMessage === null ? false :
-                            <div className={` 
+                        <hr className="mt-3 mb-5 pb-3" style={{ borderColor: "#F4F5F6" }} />
+                        <div className="grid grid-cols-12 gap-x-8">
+                            <div className="col-span-12 sm:col-span-6 xl:col-span-4">
+                                <AuthInput
+                                    label="CEP"
+                                    value={zipCode}
+                                    type='text'
+                                    changeValue={setZipCode}
+                                    required
+                                />
+                            </div>
+                            <div className="col-span-12 sm:col-span-6 xl:col-span-4">
+                                <AuthInput
+                                    label="Estado"
+                                    value={state}
+                                    type='text'
+                                    changeValue={setState}
+                                    required
+                                />
+                            </div>
+                            <div className="col-span-12 sm:col-span-6 xl:col-span-4">
+                                <AuthInput
+                                    label="Cidade"
+                                    value={city}
+                                    type='text'
+                                    changeValue={setCity}
+                                    required
+                                />
+                            </div>
+                        </div>
+                        <div className="grid grid-cols-12 gap-x-8">
+                            <div className="col-span-12 sm:col-span-6 xl:col-span-4">
+                                <AuthInput
+                                    label="Endereço"
+                                    value={address}
+                                    type='text'
+                                    changeValue={setAddress}
+                                    required
+                                />
+                            </div>
+                            <div className="col-span-12 sm:col-span-6 xl:col-span-4">
+                                <AuthInput
+                                    label="Pais"
+                                    value={country}
+                                    type='text'
+                                    changeValue={setCountry}
+                                    required
+                                />
+                            </div>
+                            {errorMessage === null ? false :
+                                <div className={` 
                                         bg-red-400 text-white py-1 px-2
                                         border border-red-500 rounded-md
                                         flex flex-row items-center col-span-12 w-1/2
                                         `}>
-                                {/* {IconWarning} */}
-                                <span className='ml-2 text-sm'>{errorMessage}</span>
-                            </div>
-                        }
+                                    {/* {IconWarning} */}
+                                    <span className='ml-2 text-sm'>{errorMessage}</span>
+                                </div>
+                            }
+                        </div>
                     </Card>
                 </div>
             </div>
