@@ -59,6 +59,11 @@ export default class PersonsRepository implements PersonsRepository {
         frequency: string | null,
         employee: boolean,
         employee_level: string | null,
+        zipCode: string | null,
+        state: string | null,
+        city: string | null,
+        address: string | null,
+        country: string | null,
         active: boolean
     ): Promise<[]> {
         const req: any = {
@@ -75,13 +80,40 @@ export default class PersonsRepository implements PersonsRepository {
             frequency,
             employee,
             employee_level,
+            zipCode,
+            state,
+            city,
+            address,
+            country,
             active
         };
         return conectAPI(req, "/persons", "POST");
     }
 
-    async list(): Promise<[]> {
-        return conectAPI(null, "/persons", "GET");
+    async listEmployee(
+        name: string | null,
+        email: string | null,
+        identity: string | null,
+    ): Promise<[]> {
+        const req: any = {
+            name,
+            email,
+            identity
+        };
+        return conectAPI(req, "/persons/employee/filter", "POST");
+    }
+
+    async listStudent(
+        name: string | null,
+        email: string | null,
+        identity: string | null,
+    ): Promise<[]> {
+        const req: any = {
+            name,
+            email,
+            identity
+        };
+        return conectAPI(req, "/persons/student/filter", "POST");
     }
 
     async details(id: number): Promise<[]> {
@@ -102,6 +134,11 @@ export default class PersonsRepository implements PersonsRepository {
         frequency: string | null,
         employee: boolean,
         employee_level: string | null,
+        zipCode: string | null,
+        state: string | null,
+        city: string | null,
+        address: string | null,
+        country: string | null,
         active: boolean
     ): Promise<[]> {
         const req: any = {
@@ -118,6 +155,11 @@ export default class PersonsRepository implements PersonsRepository {
             frequency,
             employee,
             employee_level,
+            zipCode,
+            state,
+            city,
+            address,
+            country,
             active
         };
         return conectAPI(req, `/persons`, "PUT");

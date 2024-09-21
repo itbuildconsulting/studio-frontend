@@ -4,16 +4,19 @@ import Card from "@/components/Card/Card";
 import AuthInput from "@/components/auth/AuthInput";
 import AuthSelect from "@/components/auth/AuthSelect";
 import PageDefault from "@/components/template/default";
-import { useRouter } from "next/navigation";
+import { useRouter, useParams } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 
-import PersonsCollecion from "../../../../core/Persons";
+import PersonsCollecion from "../../../../../core/Persons";
+import SingleCalendar from "@/components/date/SingleCalendar";
 import Loading from "@/components/loading/Loading";
 import Modal from "@/components/Modal/Modal";
-import SingleCalendar from "@/components/date/SingleCalendar";
 
-export default function Students() {
+export default function EditStudents() {
+    const edit: boolean = true;
     const repo = useMemo(() => new PersonsCollecion(), []);
+
+    const searchParams = useParams()
     const router = useRouter();
 
     const [name, setName] = useState<string | null>(null);
@@ -26,9 +29,7 @@ export default function Students() {
     const [shoes, setShoes] = useState<string | null>(null);
     const [password, setPassword] = useState<any>(null);
     const [confirmPass, setConfirmPass] = useState<string | null>(null);
-    const [contract, setContract] = useState<string | null>(null);
-    const [frequency, setFrequency] = useState<string | null>(null);
-    const [classValue, setClassValue] = useState<string | null>(null);
+    const [level, setLevel] = useState<string | null>('1');
     const [zipCode, setZipCode] = useState<string | null>(null);
     const [state, setState] = useState<string | null>(null);
     const [city, setCity] = useState<string | null>(null);
@@ -41,6 +42,19 @@ export default function Students() {
     const [successMessage, setSuccessMessage] = useState<any>(null);
     const [loading, setLoading] = useState<any>(false);
     const [errorMessage, setErrorMessage] = useState<any>(null);
+
+    const [dropdownLevel] = useState<any>(
+        [
+            {
+                label: 'Administrador',
+                value: '1'
+            },
+            {
+                label: 'Professor',
+                value: '2'
+            }
+        ]
+    );
 
     // Password Control
     var regex = /^(?=.*[a-z]{1})(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,}$/;
@@ -55,7 +69,7 @@ export default function Students() {
     const [passwordStrText, setPasswordStrText] = useState<any>('');
 
     const clear = () => {
-        router.push("/alunos");
+        router.push("/funcionarios");
     }
 
     function Validation() {
@@ -203,7 +217,7 @@ export default function Students() {
 
     const handleClosed = () => {
         if (log === 0) {
-            router.push("/alunos");
+            router.push("/funcionarios");
         } else {
             setModalSuccess(false);
         }
@@ -243,6 +257,45 @@ export default function Students() {
         )
     };
 
+    useEffect(() => {
+        repo?.details(+searchParams?.slug).then((result: any) => {
+            if (result instanceof Error) {
+                const message: any = JSON.parse(result.message);
+                setErrorMessage(message.error);
+                setLoading(false);
+                setLog(1);
+                setTimeout(() => {
+                    setErrorMessage(null);
+                }, 2500);
+            } else {
+                setName(result.name)
+                setDocument(result.identity)
+                setEmail(result.email)
+                setPhone(result.phone)
+                setBirthday(result.birthday)
+                setHeight(result.height)
+                setWeight(result.weight)
+                setShoes(result.shoes)
+                setPassword('')
+                setConfirmPass('')
+                setLevel(result.level)
+                setZipCode(result.zipCode)
+                setState(result.state)
+                setCity(result.city)
+                setAddress(result.address)
+                setCountry(result.country)
+                setStatus(result.active)
+            }
+        }).catch((error) => {
+            setErrorMessage(error.message);
+            setTimeout(() => {
+                setErrorMessage(null);
+            }, 2500);
+            setLog(1);
+            setLoading(false);
+        });
+    }, [])
+
     const onSubmit = () => {
         setLoading(true);
         setErrorMessage(null);
@@ -276,7 +329,7 @@ export default function Students() {
                 setErrorMessage(null);
             }, 2500);
         } else {
-            repo?.create(name, document, email, phone, birthday, height, weight, shoes, password, contract, frequency, false, '', zipCode, state, city, address, country, status).then((result: any) => {
+            repo?.edit(name, removerCaracteresEspeciais(document), email, removerCaracteresEspeciais(phone), converterDate(birthday), height, weight, shoes, password, '', '', true, level, zipCode, state, city, address, country, status).then((result: any) => {
                 if (result instanceof Error) {
                     const message: any = JSON.parse(result.message);
                     setErrorMessage(message.error);
@@ -288,7 +341,7 @@ export default function Students() {
                 } else {
                     setModalSuccess(true);
                     setLoading(false);
-                    setSuccessMessage("Cadastro realizado com sucesso!");
+                    setSuccessMessage("Edição realizada com sucesso!");
                     setLog(0);
                 }
             }).catch((error) => {
@@ -309,14 +362,14 @@ export default function Students() {
             class: "btn-outline-primary"
         },
         {
-            name: "Cadastrar",
+            name: "Editar",
             function: onSubmit,
             class: "btn-primary"
         },
     ];
 
     return (
-        <PageDefault title={"Cadastrar Alunos"}>
+        <PageDefault title={"Cadastrar Professores"}>
             <div className="grid grid-cols-12">
                 <div className="col-span-12">
                     <Card
@@ -331,6 +384,7 @@ export default function Students() {
                                     value={name}
                                     type='text'
                                     changeValue={setName}
+                                    edit={edit}
                                     required
                                 />
                             </div>
@@ -342,6 +396,7 @@ export default function Students() {
                                     maxLength={14}
                                     maskType={"cpf"}
                                     changeValue={setDocument}
+                                    edit={edit}
                                     required
                                 />
                             </div>
@@ -351,6 +406,7 @@ export default function Students() {
                                     value={email}
                                     type='text'
                                     changeValue={setEmail}
+                                    edit={edit}
                                     required
                                 />
                             </div>
@@ -368,6 +424,7 @@ export default function Students() {
                                     type='text'
                                     maskType={"telefone"}
                                     changeValue={setPhone}
+                                    edit={edit}
                                     required
                                 />
                             </div>
@@ -386,6 +443,7 @@ export default function Students() {
                                     ]}
                                     value={status}
                                     changeValue={setStatus}
+                                    edit={edit}
                                     required
                                 />
                             </div>
@@ -396,8 +454,9 @@ export default function Students() {
                                 <AuthInput
                                     label="Altura (cm)"
                                     value={height}
-                                    type='text'
+                                    type='number'
                                     changeValue={setHeight}
+                                    edit={edit}
                                     required
                                 />
                             </div>
@@ -405,8 +464,9 @@ export default function Students() {
                                 <AuthInput
                                     label="Peso (kg)"
                                     value={weight}
-                                    type='text'
+                                    type='number'
                                     changeValue={setWeight}
+                                    edit={edit}
                                     required
                                 />
                             </div>
@@ -414,8 +474,9 @@ export default function Students() {
                                 <AuthInput
                                     label="Sapato"
                                     value={shoes}
-                                    type='text'
+                                    type='number'
                                     changeValue={setShoes}
+                                    edit={edit}
                                     required
                                 />
                             </div>
@@ -426,6 +487,7 @@ export default function Students() {
                                     type='password'
                                     changeValue={setPassword}
                                     tooltipMessage={"Use oito ou mais caracteres com uma combinação de letras, números e símbolos"}
+                                    edit={edit}
                                     required
                                 />
                                 {passwordStrength()}
@@ -443,6 +505,7 @@ export default function Students() {
                                     value={confirmPass}
                                     type='password'
                                     changeValue={setConfirmPass}
+                                    edit={edit}
                                     required
                                 />
                             </div>
@@ -450,29 +513,12 @@ export default function Students() {
                         <hr className="mt-3 mb-5 pb-3" style={{ borderColor: "#F4F5F6" }} />
                         <div className="grid grid-cols-12 gap-x-8">
                             <div className="col-span-12 sm:col-span-6 xl:col-span-4">
-                                <AuthInput
-                                    label="Contrato"
-                                    value={contract}
-                                    type='text'
-                                    changeValue={setContract}
-                                    required
-                                />
-                            </div>
-                            <div className="col-span-12 sm:col-span-6 xl:col-span-4">
-                                <AuthInput
-                                    label="Frequência"
-                                    value={frequency}
-                                    type='text'
-                                    changeValue={setFrequency}
-                                    required
-                                />
-                            </div>
-                            <div className="col-span-12 sm:col-span-6 xl:col-span-4">
-                                <AuthInput
-                                    label="Aula"
-                                    value={classValue}
-                                    type='text'
-                                    changeValue={setClassValue}
+                                <AuthSelect
+                                    label="Nível"
+                                    options={dropdownLevel}
+                                    value={level}
+                                    changeValue={setLevel}
+                                    edit={edit}
                                     required
                                 />
                             </div>
@@ -485,6 +531,7 @@ export default function Students() {
                                     value={zipCode}
                                     type='text'
                                     changeValue={setZipCode}
+                                    edit={edit}
                                     required
                                 />
                             </div>
@@ -494,6 +541,7 @@ export default function Students() {
                                     value={state}
                                     type='text'
                                     changeValue={setState}
+                                    edit={edit}
                                     required
                                 />
                             </div>
@@ -503,6 +551,7 @@ export default function Students() {
                                     value={city}
                                     type='text'
                                     changeValue={setCity}
+                                    edit={edit}
                                     required
                                 />
                             </div>
@@ -514,6 +563,7 @@ export default function Students() {
                                     value={address}
                                     type='text'
                                     changeValue={setAddress}
+                                    edit={edit}
                                     required
                                 />
                             </div>
@@ -523,6 +573,7 @@ export default function Students() {
                                     value={country}
                                     type='text'
                                     changeValue={setCountry}
+                                    edit={edit}
                                     required
                                 />
                             </div>
@@ -539,13 +590,12 @@ export default function Students() {
                         </div>
                     </Card>
                 </div>
-            </div >
-
+            </div>
             <Modal
                 btnClose={false}
                 showModal={modalSuccess}
                 setShowModal={setModalSuccess}
-                hrefClose={'/alunos'}
+                hrefClose={'/funcionarios'}
                 isModalStatus={true}
             >
                 <div
@@ -560,6 +610,6 @@ export default function Students() {
                 </div>
 
             </Modal>
-        </PageDefault >
+        </PageDefault>
     )
 }

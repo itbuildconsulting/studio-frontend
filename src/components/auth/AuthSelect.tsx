@@ -25,6 +25,8 @@ const AuthSelect = (props: AuthSelectProps) => {
         }
     }, [props.value]);
 
+    console.log(props.edit, props.value)
+
     return props.noRender ? null : (
         <div className="flex flex-col">
             <label className="">{props.label}</label>

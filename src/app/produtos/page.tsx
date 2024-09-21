@@ -85,6 +85,14 @@ export default function Products() {
         ]
     );
 
+    const actionLocaleName = (cell: any, row: any) => {
+        return cell?.name;
+    }
+
+    const actionProductTypeName = (cell: any, row: any) => {
+        return cell?.name;
+    }
+
     function convertArray(array: any) {
         return array.map((item: any) => {
             const { name, id, ...rest } = item;
@@ -92,8 +100,15 @@ export default function Products() {
         });
     }
 
+    function convertArrayType(array: any) {
+        return array.map((item: any) => {
+            const { name, id, place, ...rest } = item;
+            return { label: `${name} - ${place?.name}`, value: id, ...rest };
+        });
+    }
+
     const convertValue = (cell: any, row: any) => {
-        return cell.toLocaleString('pt-br', { style: 'currency', currency: 'BRL' })
+        return Number(cell).toLocaleString('pt-br', { style: 'currency', currency: 'BRL' })
     }
 
     const convertStatus = (cell: any, row: any) => {
@@ -126,12 +141,14 @@ export default function Products() {
             text: `Créditos`,
         },
         {
-            dataField: 'productTypeId',
+            dataField: 'productType',
             text: `Tipo`,
+            formatter: actionProductTypeName
         },
         {
-            dataField: 'placeId',
+            dataField: 'place',
             text: `Local`,
+            formatter: actionLocaleName
         },
         {
             dataField: 'value',
@@ -293,7 +310,7 @@ export default function Products() {
             setStatus(true);
         } else {
             repoDrop.dropdown('places').then(setDropdownPlace);
-            repoDrop.dropdown('productTypes').then(setDropdownType);
+            repoDrop.dropdown('productTypes/dropdown').then(setDropdownType);
         }
     }, [modalProductAdd]);
 
@@ -361,13 +378,13 @@ export default function Products() {
                         <AuthSelect
                             label='Tipo de Produto'
                             value={typeProduct}
-                            options={convertArray(dropdownType)}
+                            options={convertArrayType(dropdownType)}
                             changeValue={setTypeProduct}
                             edit={edit}
                             required
                         />
                     </div>
-                    <div className="col-span-6">
+                    {/* <div className="col-span-6">
                         <AuthSelect
                             label='Local'
                             value={localeName}
@@ -376,7 +393,7 @@ export default function Products() {
                             edit={edit}
                             required
                         />
-                    </div>
+                    </div> */}
                     <div className="col-span-6">
                         <AuthInput
                             label="Valor"

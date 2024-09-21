@@ -15,9 +15,23 @@ export default interface PersonsRepository {
         frequency: string | null,
         employee: boolean,
         employee_level: string | null,
+        zipCode: string | null,
+        state: string | null,
+        city: string | null,
+        address: string | null,
+        country: string | null,
         active: boolean
     ): Promise<Persons[]>;
-    list(): Promise<Persons[]>;
+    listEmployee(
+        name: string | null,
+        email: string | null,
+        identity: string | null,
+    ): Promise<Persons[]>;
+    listStudent(
+        name: string | null,
+        email: string | null,
+        identity: string | null,
+    ): Promise<Persons[]>;
     details(id: number): Promise<Persons[]>
     edit(
         name: string | null,
@@ -33,6 +47,11 @@ export default interface PersonsRepository {
         frequency: string | null,
         employee: boolean,
         employee_level: string | null,
+        zipCode: string | null,
+        state: string | null,
+        city: string | null,
+        address: string | null,
+        country: string | null,
         active: boolean
     ): Promise<Persons[]>;
     delete(id: number): Promise<Persons[]>

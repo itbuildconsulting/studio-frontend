@@ -5,7 +5,7 @@ import AuthInput from "@/components/auth/AuthInput";
 import AuthSelect from "@/components/auth/AuthSelect";
 import PageDefault from "@/components/template/default";
 import { useRouter } from "next/navigation";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import PersonsCollecion from "../../../../core/Persons";
 import SingleCalendar from "@/components/date/SingleCalendar";
@@ -25,9 +25,14 @@ export default function AddTeachers() {
     const [height, setHeight] = useState<number | null>(null);
     const [weight, setWeight] = useState<number | null>(null);
     const [shoes, setShoes] = useState<string | null>(null);
-    const [password, setPassword] = useState<string | null>(null);
+    const [password, setPassword] = useState<any>(null);
     const [confirmPass, setConfirmPass] = useState<string | null>(null);
     const [level, setLevel] = useState<string | null>('1');
+    const [zipCode, setZipCode] = useState<string | null>(null);
+    const [state, setState] = useState<string | null>(null);
+    const [city, setCity] = useState<string | null>(null);
+    const [address, setAddress] = useState<string | null>(null);
+    const [country, setCountry] = useState<string | null>(null);
     const [status, setStatus] = useState<boolean>(true);
 
     const [modalSuccess, setModalSuccess] = useState<any>(false);
@@ -49,9 +54,107 @@ export default function AddTeachers() {
         ]
     );
 
+    // Password Control
+    var regex = /^(?=.*[a-z]{1})(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,}$/;
+    var regexLetter = /^(?=.*[A-Za-z]{1})/;
+    var regexNumber = /^(?=.*\d)/;
+    var regexSymble = /^(?=.*[@$!%*#?&])/;
+
+    const [passwordValidation, setPasswordValidation] = useState<boolean>(false); ///usado nos atributos "isValid" e "isInvald" dos inputs
+
+    const [passwordStr, setPasswordStr] = useState<any>(0);
+    const [passwordStrColor, setPasswordStrColor] = useState<any>('#ccc');
+    const [passwordStrText, setPasswordStrText] = useState<any>('');
+
     const clear = () => {
         router.push("/funcionarios");
     }
+
+    function Validation() {
+        var strength: any = 0;
+
+        if (regexNumber.exec(password)) {
+            strength += 1;
+        }
+
+        if (regexSymble.exec(password)) {
+            strength += 1;
+        }
+
+        if (regexLetter.exec(password)) {
+            strength += 1;
+        }
+
+        if (!regex.exec(password)) {
+            setPasswordValidation(false);
+        } else {
+            strength = 4;
+            setPasswordValidation(true);
+        }
+
+        if (strength === 0) {
+            setPasswordStrColor('#ccc');
+            setPasswordStrText('');
+        } else if (strength === 1) {
+            setPasswordStrColor('red');
+            setPasswordStrText('Senha Fraca');
+        } else if (strength === 2 || strength === 3) {
+            setPasswordStrColor('#e0e00d');
+            setPasswordStrText('Senha Média');
+        } else {
+            setPasswordStrColor('green');
+            setPasswordStrText('Senha Forte');
+        }
+
+        setPasswordStr(strength);
+
+        return true;
+    };
+
+    const passwordStrength = () => {
+        return (
+            <div
+                className={`grid grid-cols-12`}
+                style={{
+                    gap: "5px"
+                }}
+            >
+                <div
+                    className={`col-span-3`}
+                    style={{
+                        border: "2px solid #ccc",
+                        borderColor: `${passwordStr >= 1 ? passwordStrColor : ''}`,
+                    }}
+                ></div>
+                <div
+                    className={`col-span-3`}
+                    style={{
+                        border: "2px solid #ccc",
+                        borderColor: `${passwordStr >= 2 ? passwordStrColor : ''}`,
+                    }}
+                ></div>
+                <div
+                    className={`col-span-3`}
+                    style={{
+                        border: "2px solid #ccc",
+                        borderColor: `${passwordStr >= 3 ? passwordStrColor : ''}`,
+                    }}
+                ></div>
+                <div
+                    className={`col-span-3`}
+                    style={{
+                        border: "2px solid #ccc",
+                        borderColor: `${passwordStr >= 4 ? passwordStrColor : ''}`,
+                    }}
+                ></div>
+            </div>
+        );
+    };
+
+    useEffect(() => {
+        Validation();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [password])
 
     function removerCaracteresEspeciais(str: any) {
         if (str) {
@@ -106,16 +209,6 @@ export default function AddTeachers() {
         }
     }
 
-    function validarSenha(senha: any) {
-        const minLength = 8; // Comprimento mínimo da senha
-        const hasUpperCase = /[A-Z]/.test(senha); // Verifica se tem letra maiúscula
-        const hasLowerCase = /[a-z]/.test(senha); // Verifica se tem letra minúscula
-        const hasNumbers = /\d/.test(senha); // Verifica se tem dígito numérico
-        const hasSpecialChar = /[!@#$%^&*(),.?":{}|<>]/.test(senha); // Verifica se tem caractere especial
-
-        return senha.length >= minLength && hasUpperCase && hasLowerCase && hasNumbers && hasSpecialChar;
-    }
-
     function confirmarSenha(senha: any, confirmacaoSenha: any) {
         return senha === confirmacaoSenha;
     }
@@ -163,7 +256,6 @@ export default function AddTeachers() {
     };
 
     const onSubmit = () => {
-        console.log(name, removerCaracteresEspeciais(document), email, removerCaracteresEspeciais(phone), converterDate(birthday), height, weight, shoes, password, '', '', true, level, status)
         setLoading(true);
         setErrorMessage(null);
 
@@ -181,6 +273,13 @@ export default function AddTeachers() {
             setTimeout(() => {
                 setErrorMessage(null);
             }, 2500);
+        } else if (!passwordValidation) {
+            setErrorMessage("Senha muito fraca!");
+            setLoading(false);
+            setLog(1);
+            setTimeout(() => {
+                setErrorMessage(null);
+            }, 2500);
         } else if (!confirmarSenha(password, confirmPass)) {
             setErrorMessage("Por favor, confirme a senha corretamente!");
             setLoading(false);
@@ -189,7 +288,7 @@ export default function AddTeachers() {
                 setErrorMessage(null);
             }, 2500);
         } else {
-            repo?.create(name, removerCaracteresEspeciais(document), email, removerCaracteresEspeciais(phone), converterDate(birthday), height, weight, shoes, password, '', '', true, level, status).then((result: any) => {
+            repo?.create(name, removerCaracteresEspeciais(document), email, removerCaracteresEspeciais(phone), converterDate(birthday), height, weight, shoes, password, '', '', true, level, zipCode, state, city, address, country, status).then((result: any) => {
                 if (result instanceof Error) {
                     const message: any = JSON.parse(result.message);
                     setErrorMessage(message.error);
@@ -253,8 +352,8 @@ export default function AddTeachers() {
                                     value={document}
                                     type='text'
                                     maxLength={14}
-                                    changeValue={setDocument}
                                     maskType={"cpf"}
+                                    changeValue={setDocument}
                                     required
                                 />
                             </div>
@@ -338,8 +437,17 @@ export default function AddTeachers() {
                                     value={password}
                                     type='password'
                                     changeValue={setPassword}
+                                    tooltipMessage={"Use oito ou mais caracteres com uma combinação de letras, números e símbolos"}
                                     required
                                 />
+                                {passwordStrength()}
+
+                                <div
+                                    className="flex justify-center"
+                                    style={{ color: `${passwordStrColor}` }}
+                                >
+                                    {passwordStrText}
+                                </div>
                             </div>
                             <div className="col-span-12 sm:col-span-6 xl:col-span-4">
                                 <AuthInput
@@ -363,16 +471,66 @@ export default function AddTeachers() {
                                 />
                             </div>
                         </div>
-                        {errorMessage === null ? false :
-                            <div className={` 
+                        <hr className="mt-3 mb-5 pb-3" style={{ borderColor: "#F4F5F6" }} />
+                        <div className="grid grid-cols-12 gap-x-8">
+                            <div className="col-span-12 sm:col-span-6 xl:col-span-4">
+                                <AuthInput
+                                    label="CEP"
+                                    value={zipCode}
+                                    type='text'
+                                    changeValue={setZipCode}
+                                    required
+                                />
+                            </div>
+                            <div className="col-span-12 sm:col-span-6 xl:col-span-4">
+                                <AuthInput
+                                    label="Estado"
+                                    value={state}
+                                    type='text'
+                                    changeValue={setState}
+                                    required
+                                />
+                            </div>
+                            <div className="col-span-12 sm:col-span-6 xl:col-span-4">
+                                <AuthInput
+                                    label="Cidade"
+                                    value={city}
+                                    type='text'
+                                    changeValue={setCity}
+                                    required
+                                />
+                            </div>
+                        </div>
+                        <div className="grid grid-cols-12 gap-x-8">
+                            <div className="col-span-12 sm:col-span-6 xl:col-span-4">
+                                <AuthInput
+                                    label="Endereço"
+                                    value={address}
+                                    type='text'
+                                    changeValue={setAddress}
+                                    required
+                                />
+                            </div>
+                            <div className="col-span-12 sm:col-span-6 xl:col-span-4">
+                                <AuthInput
+                                    label="Pais"
+                                    value={country}
+                                    type='text'
+                                    changeValue={setCountry}
+                                    required
+                                />
+                            </div>
+                            {errorMessage === null ? false :
+                                <div className={` 
                                         bg-red-400 text-white py-1 px-2
                                         border border-red-500 rounded-md
                                         flex flex-row items-center col-span-12 w-1/2
                                         `}>
-                                {/* {IconWarning} */}
-                                <span className='ml-2 text-sm'>{errorMessage}</span>
-                            </div>
-                        }
+                                    {/* {IconWarning} */}
+                                    <span className='ml-2 text-sm'>{errorMessage}</span>
+                                </div>
+                            }
+                        </div>
                     </Card>
                 </div>
             </div>
@@ -380,7 +538,7 @@ export default function AddTeachers() {
                 btnClose={false}
                 showModal={modalSuccess}
                 setShowModal={setModalSuccess}
-                hrefClose={'/proprietarios'}
+                hrefClose={'/funcionarios'}
                 isModalStatus={true}
             >
                 <div

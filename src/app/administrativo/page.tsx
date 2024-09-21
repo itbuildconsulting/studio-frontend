@@ -54,6 +54,10 @@ export default function Administrative() {
         });
     }
 
+    const actionLocaleName = (cell: any, row: any) => {
+        return cell?.name || "Não definido";
+    }
+
     const actionButtonLocale = (cell: any, row: any) => {
         return (
             <DropDown style={'bg-white'} className="nav-link">
@@ -105,8 +109,9 @@ export default function Administrative() {
             text: `Tipo`,
         },
         {
-            dataField: 'placeId',
+            dataField: 'place',
             text: `Local`,
+            formatter: actionLocaleName
         },
         {
             dataField: 'id',
