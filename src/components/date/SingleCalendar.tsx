@@ -17,11 +17,12 @@ const CustomMultipleInput = ({ openCalendar, value, date, setValue, errors, star
                     id={'singleCalendarId'}
                     placeholder={"dd/mm/aaaa"}
                     autoComplete='off'
+                    onClick={openCalendar} 
                     onChange={(e: any) => { if (e.target.value.length <= 10) { setValue(e.target.value) } }}
                     //onPaste={(e: any) => {console.log(e)}}
                     onKeyPress={(e) => !/[0-9/]/.test(e.key) && e.preventDefault()}
                 />
-                <Icon onClick={openCalendar} style={{ position: 'absolute', top: 'calc((120px - 40px)/2)', right: '1rem' }} />
+                <Icon style={{ position: 'absolute', top: 'calc((120px - 40px)/2)', right: '1rem' }} />
             </div>
         </>
     )

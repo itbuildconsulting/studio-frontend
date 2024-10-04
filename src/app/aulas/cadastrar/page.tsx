@@ -3,16 +3,21 @@
 import Card from "@/components/Card/Card";
 import AuthInput from "@/components/auth/AuthInput";
 import AuthSelect from "@/components/auth/AuthSelect";
+import SingleCalendar from "@/components/date/SingleCalendar";
+import TimePickerCalendar from "@/components/date/TimePickerCalendar";
 import PageDefault from "@/components/template/default";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import DropDownsCollection from "../../../../core/DropDowns";
 
 export default function AddClass() {
+
+    const repoDrop = useMemo(() => new DropDownsCollection(), []);
     const router = useRouter();
 
     const [date, setDate] = useState<string>("");
     const [time, setTime] = useState<string>("");
-    const [typeProduct, setTypeProduct] = useState<string>("");
+    const [typeProduct, setTypeProduct] = useState<string | null>(null);
     const [product, setProduct] = useState<string>("");
     const [teacher, setTeacher] = useState<string>("");
     const [qtdStudents, setQtdStudents] = useState<string>("");
@@ -20,6 +25,24 @@ export default function AddClass() {
     const [students, setStudents] = useState<string>("");
     const [commissionRules, setCommissionRules] = useState<string>("");
     const [commissionValue, setCommissionValue] = useState<string>("");
+    const [edit, setEdit] = useState<boolean>(false);
+
+    const [dropdownType, setDropdownType] = useState<string[]>([]);
+    const [dropdownEmployee, setDropdownEmployee] = useState<string[]>([]);
+    const [dropdownStudent, setDropdownStudent] = useState<string[]>([]);
+    const [dropdownProduct, setDropdownProduct] = useState<string[]>([]);
+
+    useEffect(() => {
+            repoDrop.dropdown('productTypes/dropdown').then(setDropdownType);
+            repoDrop.dropdown('persons/employee/dropdown').then(setDropdownEmployee);
+            repoDrop.dropdown('persons/student/dropdown').then(setDropdownStudent);
+      
+    }, []);
+
+    useEffect(() => {
+        repoDrop.dropdown(`products/dropdown/${typeProduct}`).then(setDropdownProduct);
+  
+}, [typeProduct]);
 
     const clear = () => {
         router.push("/aulas");
@@ -42,6 +65,20 @@ export default function AddClass() {
         },
     ];
 
+    function convertArrayType(array: any) {
+        return array.map((item: any) => {
+            const { name, id, place, ...rest } = item;
+            return { label: `${name} - ${place?.name}`, value: id, ...rest };
+        });
+    }
+
+    function convertArrayType2(array: any) {
+        return array.map((item: any) => {
+            const { name, id, place, ...rest } = item;
+            return { label: `${name}`, value: id, ...rest };
+        });
+    }
+
     return (
         <PageDefault title={"Cadastrar Aulas"}>
             <div className="grid grid-cols-12">
@@ -52,43 +89,69 @@ export default function AddClass() {
                     >
                         <div className="grid grid-cols-12 gap-x-8">
                             <div className="col-span-12 sm:col-span-6 xl:col-span-4">
-                                <AuthInput
+                                <SingleCalendar
                                     label="Data"
-                                    value={date}
-                                    type='text'
-                                    changeValue={setDate}
-                                    required
+                                    date={date}
+                                    setValue={setDate}
                                 />
                             </div>
                             <div className="col-span-12 sm:col-span-6 xl:col-span-4 xl:grid-rows-4">
-                                <AuthInput
+                                <TimePickerCalendar
                                     label="Hora"
                                     value={time}
-                                    type='text'
                                     changeValue={setTime}
-                                    required
-                                />
+                                    />
+                                
                             </div>
                             <div className="hidden xl:flex xl:grid-rows-4"></div>
                             <div className="col-span-12 sm:col-span-6 xl:col-span-4">
-                                <AuthInput
-                                    label="Tipo de Produto"
+                                <AuthSelect
+                                    label='Tipo de Produto'
                                     value={typeProduct}
-                                    type='text'
+                                    options={convertArrayType(dropdownType)}
                                     changeValue={setTypeProduct}
+                                    edit={edit}
                                     required
                                 />
                             </div>
                             <div className="col-span-12 sm:col-span-6 xl:col-span-4">
+                                
+                                {dropdownProduct.length > 0 
+                                ? 
+                                <AuthSelect
+                                    label='Produto'
+                                    value={product}
+                                    options={convertArrayType2(dropdownProduct)}
+                                    changeValue={setProduct}
+                                    edit={edit}
+                                    required
+                                />
+                                :
                                 <AuthInput
                                     label="Produto"
                                     value={product}
                                     type='text'
+                                    disabled
                                     changeValue={setProduct}
                                     required
                                 />
+                                }
+                                
                             </div>
                             <div className="col-span-12 sm:col-span-6 xl:col-span-4">
+                                
+
+                            {dropdownEmployee.length > 0 
+                                ? 
+                                <AuthSelect
+                                    label='Professor'
+                                    value={teacher}
+                                    options={convertArrayType2(dropdownEmployee)}
+                                    changeValue={setTeacher}
+                                    edit={edit}
+                                    required
+                                />
+                                :
                                 <AuthInput
                                     label="Professor"
                                     value={teacher}
@@ -96,6 +159,7 @@ export default function AddClass() {
                                     changeValue={setTeacher}
                                     required
                                 />
+                                }
                             </div>
                         </div>
                         <hr className="mt-3 mb-5 pb-3" style={{ borderColor: "#F4F5F6" }} />
@@ -108,6 +172,7 @@ export default function AddClass() {
                                     changeValue={setQtdStudents}
                                     required
                                 />
+                                
                             </div>
                             <div className="col-span-12 sm:col-span-6 xl:col-span-4">
                                 <AuthInput
@@ -119,14 +184,26 @@ export default function AddClass() {
                                 />
                             </div>
                             <div className="hidden xl:flex xl:grid-rows-4"></div>
-                            <div className="col-span-12 sm:col-span-6 xl:col-span-4">
-                                <AuthInput
-                                    label="Alunos"
-                                    value={students}
-                                    type='text'
-                                    changeValue={setStudents}
-                                    required
-                                />
+                            <div className="col-span-12 sm:col-span-6 xl:col-span-4">                                
+                                {dropdownStudent.length > 0 
+                                    ? 
+                                    <AuthSelect
+                                        label='Alunos'
+                                        value={students}
+                                        options={convertArrayType2(dropdownStudent)}
+                                        changeValue={setStudents}
+                                        edit={edit}
+                                        required
+                                    />
+                                    :
+                                    <AuthInput
+                                        label="Alunos"
+                                        value={students}
+                                        type='text'
+                                        changeValue={setStudents}
+                                        required
+                                    />
+                                }
                             </div>
                             <div className="hidden xl:flex xl:grid-rows-4"></div>
                             <div className="hidden xl:flex xl:grid-rows-4"></div>
