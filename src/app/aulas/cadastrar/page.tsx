@@ -165,21 +165,23 @@ export default function AddClass() {
                         <hr className="mt-3 mb-5 pb-3" style={{ borderColor: "#F4F5F6" }} />
                         <div className="grid grid-cols-12 gap-x-8">
                             <div className="col-span-12 sm:col-span-6 xl:col-span-4">
-                                <AuthInput
+                                
+                                <AuthSelect
                                     label="Quantidade de alunos"
                                     value={qtdStudents}
-                                    type='text'
+                                    options={[{label: '1', value: 1}, {label: '2', value: 2}, {label: '3', value: 3}, {label: '4', value: 4}, {label: '5', value: 5}, {label: '6', value: 6}, {label: '7', value: 7}, {label: '8', value: 8}, {label: '9', value: 9}, {label: '10', value: 10}]}
                                     changeValue={setQtdStudents}
+                                    edit={edit}
                                     required
                                 />
-                                
                             </div>
                             <div className="col-span-12 sm:col-span-6 xl:col-span-4">
-                                <AuthInput
+                                <AuthSelect
                                     label="Possiu comissão?"
                                     value={canCommission}
-                                    type='text'
+                                    options={[{label: 'Sim', value: true}, {label: 'Não', value: false}]}
                                     changeValue={setCanCommission}
+                                    edit={edit}
                                     required
                                 />
                             </div>
@@ -223,7 +225,7 @@ export default function AddClass() {
                                 <AuthInput
                                     label="Valor da Comissão"
                                     value={commissionValue}
-                                    type='text'
+                                    type='number'
                                     changeValue={setCommissionValue}
                                     required
                                 />
