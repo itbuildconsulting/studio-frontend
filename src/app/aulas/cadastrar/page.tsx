@@ -49,6 +49,17 @@ export default function AddClass() {
     }
 
     const onSubmit = () => {
+        const finalObject = {
+            date: date,
+            time: time,
+            teacherId: teacher,
+            limit: qtdStudents,
+            hasCommission: canCommission,
+            kickbackRules: commissionRules,
+            kickback: commissionValue,
+            productId: product,
+            students: students 
+        }
         console.log("Cadastrei");
     }
 
