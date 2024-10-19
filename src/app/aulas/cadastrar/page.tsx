@@ -77,14 +77,14 @@ export default function AddClass() {
     ];
 
     function convertArrayType(array: any) {
-        return array.map((item: any) => {
+        return array?.map((item: any) => {
             const { name, id, place, ...rest } = item;
             return { label: `${name} - ${place?.name}`, value: id, ...rest };
         });
     }
 
     function convertArrayType2(array: any) {
-        return array.map((item: any) => {
+        return array?.map((item: any) => {
             const { name, id, place, ...rest } = item;
             return { label: `${name}`, value: id, ...rest };
         });

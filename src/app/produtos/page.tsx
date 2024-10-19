@@ -22,6 +22,7 @@ export default function Products() {
 
     const [modalProductAdd, setModalProductAdd] = useState<boolean>(false);
 
+    const [id, setId] = useState<number | null>(null); 
     const [productName, setProductName] = useState<string | null>(null);
     const [creditValue, setCreditValue] = useState<number | null>(null);
     const [validity, setValidity] = useState<number | null>(null);
@@ -170,7 +171,7 @@ export default function Products() {
         setLoading(true);
         setErrorMessage(null);
 
-        (edit ? repo?.edit(productName, Number(creditValue), Number(validity), Number(value), typeProduct, localeName, status) : repo?.create(productName, Number(creditValue), Number(validity), Number(value), typeProduct, localeName, status)).then((result: any) => {
+        (edit ? repo?.edit(id, productName, Number(creditValue), Number(validity), Number(value), typeProduct, localeName, status) : repo?.create(productName, Number(creditValue), Number(validity), Number(value), typeProduct, localeName, status)).then((result: any) => {
             if (result instanceof Error) {
                 const message: any = JSON.parse(result.message);
                 setErrorMessage(message.error);
@@ -195,6 +196,8 @@ export default function Products() {
             setLoading(false);
         });
     }
+
+    console.log(Number(creditValue))
 
     const handleClosed = () => {
         setModalSuccess(false);
@@ -262,6 +265,7 @@ export default function Products() {
             if (result instanceof Error) {
                 console.log("erro");
             } else {
+                setId(result.id);
                 setProductName(result.name);
                 setCreditValue(result.credit);
                 setValidity(result.validateDate);

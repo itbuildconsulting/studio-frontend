@@ -13,6 +13,7 @@ export default interface ProductRepository {
     list(): Promise<Product[]>;
     details(id: number): Promise<Product[]>
     edit(
+        id: number | null,
         name: string | null,
         credit: number | null,
         validateDate: number | null,
