@@ -186,6 +186,7 @@ export default function Products() {
                 setModalProductAdd(false);
                 setSuccessMessage(edit ? "Edição realizada com sucesso!" : "Cadastro realizado com sucesso!");
                 setLog(0);
+                listGeneralProduct();
             }
         }).catch((error) => {
             setErrorMessage(error.message);
@@ -196,8 +197,6 @@ export default function Products() {
             setLoading(false);
         });
     }
-
-    console.log(Number(creditValue))
 
     const handleClosed = () => {
         setModalSuccess(false);

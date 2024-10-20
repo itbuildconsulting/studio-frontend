@@ -1,6 +1,8 @@
-import { kMaxLength } from 'buffer'
-import React, { useEffect } from 'react'
-//import SingleCalendar from '../date/SingleCalendar';
+import { kMaxLength } from 'buffer';
+import React, { useEffect, useState } from 'react';
+
+import { IconHidePassword } from '../icons';
+import { IconShowPassword } from '../icons';
 
 interface AuthInputProps {
     label: string,
@@ -17,6 +19,8 @@ interface AuthInputProps {
 }
 
 const AuthInput = (props: AuthInputProps) => {
+    const [isVisible, setIsVisible] = useState<boolean | null>(null);
+
     const applyMask = (value: string, maskType?: string) => {
         // Remove todos os caracteres não-dígitos
         let onlyDigits = value.replace(/\D/g, '');
@@ -68,6 +72,24 @@ const AuthInput = (props: AuthInputProps) => {
         }
     };
 
+    function handleIsVisiblePassword() {
+        if(props.value) {
+            if(isVisible) {
+                return IconHidePassword('24px', '24px', 'var(--primary)')
+            } else {
+                return IconShowPassword('24px', '24px', 'var(--primary)')
+            }
+        }
+
+        return '';
+    }
+
+    useEffect(() => {
+        if(!props.value) {  
+            setIsVisible(false);
+        }
+    }, [props.value])
+
     return props.noRender ? null : (
         <div className='flex flex-col'>
             <div className="flex justify-start gap-2">
@@ -93,15 +115,22 @@ const AuthInput = (props: AuthInputProps) => {
                         <div className='load load-input'></div>
                     </div>
                     :
-                    <input
-                        type={props.type ?? 'text'}
-                        value={props.value}
-                        maxLength={props.maxLength !== undefined ? props.maxLength : 50}
-                        onChange={e => props.changeValue?.(applyMask(e.target.value, props.maskType))}
-                        required={props.required}
-                        className={`focus: outline-none`}
-                        disabled={props.disabled}
-                    />
+                    <div style={{ position: 'relative' }}>
+                        <input
+                            type={props.type && isVisible ? 'text' : props.type}
+                            value={props.value}
+                            maxLength={props.maxLength !== undefined ? props.maxLength : 50}
+                            onChange={e => props.changeValue?.(applyMask(e.target.value, props.maskType))}
+                            required={props.required}
+                            className={`focus: outline-none w-full`}
+                            disabled={props.disabled}
+                        />
+                        {
+                            props.type === "password"
+                            &&
+                            <div style={{ position: 'absolute', right: "1rem", top: '1rem', cursor: 'pointer' }} onClick={() => setIsVisible(!isVisible)}>{handleIsVisiblePassword()}</div>
+                        }
+                    </div>
             }
         </div>
     )
