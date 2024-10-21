@@ -18,7 +18,6 @@ const CustomMultipleInput = ({ openCalendar, value, date, setValue, errors, star
                     autoComplete='off'
                     onClick={openCalendar}
                     onChange={(e: any) => { if (e.target.value.length <= 10) { setValue(e.target.value) } }}
-                 
                 />
                 
             </div>

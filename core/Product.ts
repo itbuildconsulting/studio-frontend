@@ -17,6 +17,7 @@ async function conectAPI(req: object | null, url: string, method: string) {
             method,
             headers: {
                 "Content-Type": "application/json",
+                'Authorization': `Bearer ${token}`
             },
             body: JSON.stringify(req),
         };

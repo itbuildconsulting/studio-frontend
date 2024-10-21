@@ -1,4 +1,7 @@
+import Cookies from 'js-cookie';
+
 async function conectAPI(req: object | null, url: string, method: string) {
+    const token = Cookies.get('admin-user-sci-auth');
     let config = {};
 
     if (req === null) {
@@ -6,6 +9,7 @@ async function conectAPI(req: object | null, url: string, method: string) {
             method,
             headers: {
                 "Content-Type": "application/json",
+                'Authorization': `Bearer ${token}`
             },
         };
     } else {
@@ -13,6 +17,7 @@ async function conectAPI(req: object | null, url: string, method: string) {
             method,
             headers: {
                 "Content-Type": "application/json",
+                'Authorization': `Bearer ${token}`
             },
             body: JSON.stringify(req),
         };

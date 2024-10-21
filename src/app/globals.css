@@ -371,3 +371,9 @@ hr {
   visibility: visible;
 }
 /* tooltip */
+
+/* TimePicker */
+.rmdp-time-picker input {
+  margin-bottom: 0;
+  height: 2rem;
+}

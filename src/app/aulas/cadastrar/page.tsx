@@ -32,6 +32,19 @@ export default function AddClass() {
     const [dropdownStudent, setDropdownStudent] = useState<string[]>([]);
     const [dropdownProduct, setDropdownProduct] = useState<string[]>([]);
 
+    const [dropdownCommission] = useState<any>(
+        [
+            {
+                name: 'Não',
+                id: 1
+            },
+            {
+                name: 'Turma Cheia',
+                id: 2
+            },
+        ]
+    );
+
     useEffect(() => {
             repoDrop.dropdown('productTypes/dropdown').then(setDropdownType);
             repoDrop.dropdown('persons/employee/dropdown').then(setDropdownEmployee);
@@ -224,11 +237,12 @@ export default function AddClass() {
                         <hr className="mt-3 mb-5 pb-3" style={{ borderColor: "#F4F5F6" }} />
                         <div className="grid grid-cols-12 gap-x-8">
                             <div className="col-span-12 sm:col-span-6 xl:col-span-4">
-                                <AuthInput
+                                <AuthSelect
                                     label="Regra de Comissão"
                                     value={commissionRules}
-                                    type='text'
+                                    options={convertArrayType2(dropdownCommission)}
                                     changeValue={setCommissionRules}
+                                    edit={edit}
                                     required
                                 />
                             </div>
