@@ -10,7 +10,7 @@ import { useEffect, useMemo, useState } from "react";
 import styles from '../../styles/products.module.css';
 import AuthSelect from "@/components/auth/AuthSelect";
 
-import ProductCollecion from "../../../core/Product";
+import ProductCollection from "../../../core/Product";
 import DropDownsCollection from "../../../core/DropDowns";
 import Loading from "@/components/loading/Loading";
 import DropDown from "@/components/dropdown/DropDown";
@@ -18,7 +18,7 @@ import Link from "next/link";
 
 export default function Products() {
     const repoDrop = useMemo(() => new DropDownsCollection(), []);
-    const repo = useMemo(() => new ProductCollecion(), []);
+    const repo = useMemo(() => new ProductCollection(), []);
 
     const [modalProductAdd, setModalProductAdd] = useState<boolean>(false);
 

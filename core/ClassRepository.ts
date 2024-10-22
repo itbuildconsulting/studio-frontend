@@ -2,13 +2,29 @@ import Class from "./Class";
 
 export default interface ClassRepository {
     create(
-        name: string,
-        limit: number,
-        income: number,
         date: string,
-        config: string,
-        kickback: number,
+        time: string,
+        teacherId: string,
+        limit: number,
+        hasCommission: boolean,
+        kickback: number | null,
         kickbackRule: string,
+        productId: string | null,
+        students: number[] | string[],
+        active: boolean
+    ): Promise<Class[]>;
+
+    edit(
+        id: number | null,
+        date: string,
+        time: string,
+        teacherId: string,
+        limit: number,
+        hasCommission: boolean,
+        kickback: number | null,
+        kickbackRule: string,
+        productId: string | null,
+        students: number[] | string[],
         active: boolean
     ): Promise<Class[]>;
 }

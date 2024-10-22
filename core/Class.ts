@@ -44,25 +44,58 @@ async function conectAPI(req: object | null, url: string, method: string) {
 
 export default class ClassRepository implements ClassRepository {
     async create(
-        name: string,
-        limit: number,
-        income: number,
         date: string,
-        config: string,
-        kickback: number,
+        time: string,
+        teacherId: string,
+        limit: number,
+        hasCommission: boolean,
+        kickback: number | null,
         kickbackRule: string,
+        productId: string | null,
+        students: number[] | string[],
         active: boolean
     ): Promise<[]> {
         const req: any = {
-            name,
-            limit,
-            income,
             date,
-            config,
+            time,
+            teacherId,
+            limit,
+            hasCommission,
             kickback,
             kickbackRule,
+            productId,
+            students,
             active
         };
         return conectAPI(req, "/class", "POST");
+    }
+
+    async edit(
+        id: number | null,
+        date: string,
+        time: string,
+        teacherId: string,
+        limit: number,
+        hasCommission: boolean,
+        kickback: number | null,
+        kickbackRule: string,
+        productId: string | null,
+        students: number[] | string[],
+        active: boolean
+    ): Promise<[]> {
+        const req: any = {
+            id,
+            date,
+            time,
+            teacherId,
+            limit,
+            hasCommission,
+            kickback,
+            kickbackRule,
+            productId,
+            students,
+            active
+        };
+        return conectAPI(req, `/class/${id}`, "PUT");
     }
 }
