@@ -11,7 +11,8 @@ interface AuthContextProps {
     loginError?: boolean,
     msgError?: Array<{}>,
     login?: (email: string, senha: string) => Promise<any>,
-    cadastrar?: ((email: string, senha: string) => Promise<any>) | undefined,
+    recoverPassword?: ((email: string) => Promise<any>) | undefined,
+    resetPassword?: ((password: string) => Promise<any>) | undefined,
     logout?: () => Promise<any>
 }
 
@@ -38,7 +39,6 @@ function managementCookie(logado: boolean, expireAt: string, token: string) {
         Cookies.remove('admin-template-sci-auth');
     }
 }
-
 
 export function AuthProvider(props: any) {
     const [load, setLoad] = useState(false);
@@ -70,7 +70,6 @@ export function AuthProvider(props: any) {
     }
 
     async function login(email: string, password: string) {
-        console.log("Aquiii")
         setLoad(true);
 
         const req: any = {
@@ -111,52 +110,81 @@ export function AuthProvider(props: any) {
         }
     }
 
-    /*     async function perfil(token: string) {
-    
-            const config = {
-                method: 'GET',
-                headers: { 'Authorization': `Bearer ${token}` },
-            };
-    
-            try {
-                const resp: any = await fetch(
-                    `${process.env.NEXT_PUBLIC_SERVER_URL_API}/auth/profile`,
-                    config
-                );
-                setLoad(true)
-                if (resp.status === 200) {
-                    const authResp: any = await resp.json();
-    
-                    console.log(authResp.data)
-    
-                    Cookies.set('admin-user-sci-info', JSON.stringify(authResp.data), {
-                        expires: 1
-                    })
-                    console.log('AQUIII')
-                    Router.push('/construcao');
-    
-                } else {
-                    setLoginError(true);
-                    const authResp: any = await resp.json();
-                    setMsgError(authResp.errors)
-                }
-    
-            } finally {
-                setLoad(false);
-                return true;
-            }
-    
-    
-        } */
+    async function recoverPassword(email: string) {
+        setLoad(true);
 
-    async function cadastrar(email: string, password: string) {
+        const req: any = {
+            "email": email
+        }
+
         try {
-            setLoad(true)
-            //const resp = await firebase.auth().createUserWithEmailAndPassword(email, password)
-            //await sessionConfig(resp.user);
-            Router.push('/construcao')
+            const resp: any = await fetch(
+                `${process.env.NEXT_PUBLIC_SERVER_URL_API}/request-reset`,
+                {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(req),
+                }
+            );
+            
+            if (resp.status === 200) {
+                setLoad(false);
+                const authResp: any = await resp.json();
+                console.log(authResp)
+            } else if (resp.status === 500) {
+                setLoad(false);
+                showErro('Erro desconhecido - Entre em contato com o Suporte');
+            } else {
+                setLoad(false);
+                const authResp: any = await resp.json();
+                showErro(authResp.error);
+            }
+        } catch {
+            setLoad(false);
+            showErro('Erro desconhecido - Entre em contato com o Suporte');
         } finally {
-            setLoad(false)
+            setLoad(false);
+            return true;
+        }
+    }
+    async function resetPassword(password: string) {
+        setLoad(true);
+
+        const req: any = {
+            "password": password
+        }
+
+        try {
+            const resp: any = await fetch(
+                `${process.env.NEXT_PUBLIC_SERVER_URL_API}/reset`,
+                {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(req),
+                }
+            );
+            
+            if (resp.status === 200) {
+                setLoad(false);
+                const authResp: any = await resp.json();
+                console.log(authResp)
+            } else if (resp.status === 500) {
+                setLoad(false);
+                showErro('Erro desconhecido - Entre em contato com o Suporte');
+            } else {
+                setLoad(false);
+                const authResp: any = await resp.json();
+                showErro(authResp.error);
+            }
+        } catch {
+            setLoad(false);
+            showErro('Erro desconhecido - Entre em contato com o Suporte');
+        } finally {
+            setLoad(false);
             return true;
         }
     }
@@ -180,7 +208,8 @@ export function AuthProvider(props: any) {
             loginError,
             msgError,
             login,
-            cadastrar,
+            recoverPassword,
+            resetPassword,
             logout
         }}>
             {props.children}

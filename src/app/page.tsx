@@ -41,7 +41,7 @@ export default function Auth() {
             <h2>Bem-vindo!</h2>
             <p className={`${styles.subtitle_login}`}>Entre com seus dados, para fazer login</p>
           </div>
-          <div className="mt-8">
+          <form className="mt-8" action={() => handleSubmit()}>
             <div>
               <AuthInput
                 label="Usuário"
@@ -69,7 +69,7 @@ export default function Auth() {
                     <div className="load" />
                   </button>
                   :
-                  <button className="btn-primary" onClick={handleSubmit}>Entrar</button>
+                  <button className="btn-primary">Entrar</button>
               }
             </div>
             {loginError ? (
@@ -86,7 +86,7 @@ export default function Auth() {
               <hr className="my-8" />
               <p className={`${styles.forgotPassword_login}`}>Você esqueceu sua senha? <Link href={"/recuperar-senha"}>Recuperar senha</Link></p>
             </div>
-          </div>
+          </form>
         </div>
       </div>
     </AuthDefault>

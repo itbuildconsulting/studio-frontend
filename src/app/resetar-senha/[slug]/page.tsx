@@ -5,30 +5,38 @@ import AuthInput from "@/components/auth/AuthInput";
 import { Key, useEffect, useState } from "react";
 import Link from "next/link";
 import AuthDefault from "@/components/template/auth";
+import useAuthData from '@/data/hooks/useAuthData';
 
 export default function ResetPassword() {
+    const { resetPassword, loginError, msgError, load } = useAuthData();
+
     const [password, setPassword] = useState<string>('');
-    const [load, setLoad] = useState<boolean>(false);
-    const [loginError, setLoginError] = useState<boolean>(false);
-    const [msgError, setMsgError] = useState<string[]>([]);
+    const [, setError] = useState<string[]>(['']);
 
-        // Password Control
-        var regex = /^(?=.*[a-z]{1})(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,}$/;
-        var regexLetter = /^(?=.*[A-Za-z]{1})/;
-        var regexNumber = /^(?=.*\d)/;
-        var regexSymble = /^(?=.*[@$!%*#?&])/;
-    
-        const [passwordValidation, setPasswordValidation] = useState<boolean>(false); ///usado nos atributos "isValid" e "isInvald" dos inputs
-    
-        const [passwordStr, setPasswordStr] = useState<any>(0);
-        const [passwordStrColor, setPasswordStrColor] = useState<any>('#ccc');
-        const [passwordStrText, setPasswordStrText] = useState<any>('');
+    // Password Control
+    var regex = /^(?=.*[a-z]{1})(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,}$/;
+    var regexLetter = /^(?=.*[A-Za-z]{1})/;
+    var regexNumber = /^(?=.*\d)/;
+    var regexSymble = /^(?=.*[@$!%*#?&])/;
 
-    const handleSubmit = () => {
-        setLoad(true);
-        setTimeout(() => {
-            setLoad(false);
-        }, 2000);
+    const [passwordValidation, setPasswordValidation] = useState<boolean>(false); ///usado nos atributos "isValid" e "isInvald" dos inputs
+
+    const [passwordStr, setPasswordStr] = useState<any>(0);
+    const [passwordStrColor, setPasswordStrColor] = useState<any>('#ccc');
+    const [passwordStrText, setPasswordStrText] = useState<any>('');
+
+    const handleSubmit = async () => {
+        if (resetPassword) {
+            try {
+                await resetPassword(password);
+            } catch (e) {
+                setError(['Erro desconhecido - Entre em contato com o Suporte']);
+                //showErro('Erro desconhecido');
+            }
+        } else {
+            setError(['Erro desconhecido - Entre em contato com o Suporte']);
+            //showErro('Erro desconhecido');
+        }
     }
 
     const passwordStrength = () => {
@@ -127,7 +135,7 @@ export default function ResetPassword() {
                         <h2>Resetar senha</h2>
                         <p className={`${styles.subtitle_login}`}>Escolha uma nova senha para a sua conta</p>
                     </div>
-                    <div className="mt-8">
+                    <form className="mt-8" action={() => handleSubmit()}>
                         <div>
                             <AuthInput
                                 label="Nova Senha"
@@ -153,7 +161,7 @@ export default function ResetPassword() {
                                         <div className="load" />
                                     </button>
                                     :
-                                    <button type="submit" className="btn-primary" onClick={handleSubmit}>Resetar</button>
+                                    <button type="submit" className="btn-primary">Resetar</button>
                             }
                         </div>
                         {loginError ? (
@@ -169,7 +177,7 @@ export default function ResetPassword() {
                             <hr className="my-8" />
                             <p className={`${styles.forgotPassword_login}`}>Já tem uma conta? <Link href={"/"}>Voltar para Login</Link></p>
                         </div>
-                    </div>
+                    </form>
                 </div>
             </div>
         </AuthDefault>

@@ -5,18 +5,26 @@ import AuthInput from "@/components/auth/AuthInput";
 import { Key, useState } from "react";
 import Link from "next/link";
 import AuthDefault from "@/components/template/auth";
+import useAuthData from '@/data/hooks/useAuthData';
 
 export default function RecoverPassword() {
-    const [email, setEmail] = useState<string>('');
-    const [load, setLoad] = useState<boolean>(false);
-    const [loginError, setLoginError] = useState<boolean>(false);
-    const [msgError, setMsgError] = useState<string[]>([]);
+    const { recoverPassword, loginError, msgError, load } = useAuthData();
 
-    const handleSubmit = () => {
-        setLoad(true);
-        setTimeout(() => {
-            setLoad(false);
-        }, 2000);
+    const [email, setEmail] = useState<string>('');
+    const [, setError] = useState<string[]>(['']);
+
+    const handleSubmit = async () => {
+        if (recoverPassword) {
+            try {
+              await recoverPassword(email);
+            } catch (e) {
+              setError(['Erro desconhecido - Entre em contato com o Suporte']);
+              //showErro('Erro desconhecido');
+            }
+          } else {
+            setError(['Erro desconhecido - Entre em contato com o Suporte']);
+            //showErro('Erro desconhecido');
+          }
     }
 
     return (
@@ -27,7 +35,7 @@ export default function RecoverPassword() {
                         <h2>Recuperar senha</h2>
                         <p className={`${styles.subtitle_login}`}>Digite seu endereço de e-mail para receber um link de redefinição de senha</p>
                     </div>
-                    <div className="mt-8">
+                    <form className="mt-8" action={() => handleSubmit()}>
                         <div>
                             <AuthInput
                                 label="Email"
@@ -46,7 +54,7 @@ export default function RecoverPassword() {
                                         <div className="load" />
                                     </button>
                                     :
-                                    <button type="submit" className="btn-primary" onClick={handleSubmit}>Enviar</button>
+                                    <button type="submit" className="btn-primary">Enviar</button>
                             }
                         </div>
                         {loginError ? (
@@ -62,7 +70,7 @@ export default function RecoverPassword() {
                             <hr className="my-8" />
                             <p className={`${styles.forgotPassword_login}`}>Já tem uma conta? <Link href={"/"}>Voltar para Login</Link></p>
                         </div>
-                    </div>
+                    </form>
                 </div>
             </div>
         </AuthDefault>
