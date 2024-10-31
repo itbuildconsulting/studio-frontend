@@ -14,7 +14,8 @@ import DropDownsCollection from "../../../../core/DropDowns";
 import Modal from "@/components/Modal/Modal";
 import Loading from "@/components/loading/Loading";
 
-import DropdownType from "../../../model/DropDown";
+import DropdownType from "../../../model/Dropdown";
+import AuthSelectMulti from "@/components/auth/AuthSelectMulti";
 
 export default function AddClass() {
     const repo = useMemo(() => new ClassCollection(), []);
@@ -292,14 +293,12 @@ export default function AddClass() {
                             <div className="col-span-12 sm:col-span-6 xl:col-span-4">
                                 {dropdownStudent.length > 0
                                     ?
-                                    <AuthSelect
-                                        label='Alunos'
-                                        value={students}
-                                        options={convertArrayType2(dropdownStudent)}
-                                        changeValue={setStudents}
-                                        edit={edit}
-                                        required
-                                    />
+                                    <>
+                                        <AuthSelectMulti
+                                            label="Alunos"
+                                            options={convertArrayType2(dropdownStudent)}
+                                        />
+                                    </>
                                     :
                                     <AuthInput
                                         label="Alunos"

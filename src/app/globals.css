@@ -377,3 +377,32 @@ hr {
   margin-bottom: 0;
   height: 2rem;
 }
+
+/* Select Multi */
+.select-multi__control {
+  border-radius: 4px !important;
+  border: 1px solid var(--primary) !important;
+  padding: 0 20px;
+  color: var(--primary);
+  font-size: 1rem;
+  font-weight: 500;
+  margin-bottom: 2rem;
+  background-color: var(--backgroundColor);
+}
+
+.select-multi__input-container {
+  height: 56px;
+  margin: 0 !important;
+}
+
+.select-multi__placeholder {
+  color: var(--primary) !important;
+}
+
+.select-multi__control--is-focused {
+  box-shadow: none !important;
+}
+
+.select-multi__value-container {
+  padding: 0 !important;
+}
