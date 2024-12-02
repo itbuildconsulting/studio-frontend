@@ -1,15 +1,19 @@
-import Select from "react-select";
+import Select, { MultiValue } from "react-select";
 import SelectType from "@/model/Select";
 
 interface MultiProps {
     label: string
-    options: SelectType[]
+    options: MultiValue<SelectType[]>
+    value: string | string[]
+    changeValue: (e:any) => void
 }
 
-const AuthSelectMulti = ({ label, options }: MultiProps) => {
+const AuthSelectMulti = ({ label, options, value, changeValue }: MultiProps) => {
 
-    const handleChange = (selectedOptions: SelectType) => {
-        console.log('Selecionado:', selectedOptions);
+    const handleChange = (selectedOptions: MultiValue<SelectType[]>) => {
+        let aux: string[] = [];
+        selectedOptions.map((elem: any) => aux.push(String(elem.value)));
+        changeValue(aux);
     };
 
     return (
@@ -18,7 +22,7 @@ const AuthSelectMulti = ({ label, options }: MultiProps) => {
             <Select
                 options={options}
                 placeholder={"Selecione"}
-                onChange={() => handleChange}
+                onChange={handleChange}
                 classNamePrefix={"select-multi"}
                 isMulti
             />

@@ -20,7 +20,7 @@ const AuthSelect = ({label, options, value, required, noRender, disabled, edit, 
     };
 
     useEffect(() => {
-        if (value !== null) {
+        if (!value) {
             setIsFirstSelection(false);
         }
     }, [value]);
@@ -45,14 +45,13 @@ const AuthSelect = ({label, options, value, required, noRender, disabled, edit, 
                         focus: outline-none                
                         `}
                     >
-                        <option value={'0'} disabled={!isFirstSelection}>Selecione</option>
+                        <option value={''} disabled={!isFirstSelection}>Selecione</option>
                         {options.map((option: any) => (
                             <option key={option.value} value={option.value}>
                                 {option.label}
                             </option>
                         ))}
                     </select>
-
             }
         </div>
     );

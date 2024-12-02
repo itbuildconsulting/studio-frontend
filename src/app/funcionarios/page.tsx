@@ -159,7 +159,7 @@ export default function Teachers() {
             if (result instanceof Error) {
                 setLoading(false);
             } else {
-                setListPersons(result);
+                setListPersons(result?.data);
                 setLoading(false);
             }
         }).catch((error: any) => {

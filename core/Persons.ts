@@ -121,6 +121,7 @@ export default class PersonsRepository implements PersonsRepository {
     }
 
     async edit(
+        id: number | null,
         name: string | null,
         identity: string | null,
         email: string | null,
@@ -142,6 +143,7 @@ export default class PersonsRepository implements PersonsRepository {
         active: boolean
     ): Promise<[]> {
         const req: any = {
+            id,
             name,
             identity,
             email,
@@ -162,7 +164,7 @@ export default class PersonsRepository implements PersonsRepository {
             country,
             active
         };
-        return conectAPI(req, `/persons`, "PUT");
+        return conectAPI(req, `/persons/${id}`, "PUT");
     }
 
     async delete(id: number): Promise<[]> {

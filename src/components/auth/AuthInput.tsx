@@ -16,6 +16,7 @@ interface AuthInputProps {
     changeValue: (novoValor: any) => void,
     tooltipMessage?: string,
     edit?: boolean
+    blurValue?: (novoValor: any) => void,
 }
 
 const AuthInput = (props: AuthInputProps) => {
@@ -124,6 +125,7 @@ const AuthInput = (props: AuthInputProps) => {
                             required={props.required}
                             className={`focus: outline-none w-full`}
                             disabled={props.disabled}
+                            onBlur={e => props.blurValue?.(applyMask(e.target.value, props.maskType))}
                         />
                         {
                             props.type === "password"

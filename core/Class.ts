@@ -52,7 +52,7 @@ export default class ClassRepository implements ClassRepository {
         kickback: number | null,
         kickbackRule: string,
         productId: string | null,
-        students: number[] | string[],
+        students: string[],
         active: boolean
     ): Promise<[]> {
         const req: any = {
@@ -80,7 +80,7 @@ export default class ClassRepository implements ClassRepository {
         kickback: number | null,
         kickbackRule: string,
         productId: string | null,
-        students: number[] | string[],
+        students: string[],
         active: boolean
     ): Promise<[]> {
         const req: any = {

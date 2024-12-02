@@ -10,7 +10,7 @@ export default interface ClassRepository {
         kickback: number | null,
         kickbackRule: string,
         productId: string | null,
-        students: number[] | string[],
+        students: string[],
         active: boolean
     ): Promise<Class[]>;
 
@@ -24,7 +24,7 @@ export default interface ClassRepository {
         kickback: number | null,
         kickbackRule: string,
         productId: string | null,
-        students: number[] | string[],
+        students: string[],
         active: boolean
     ): Promise<Class[]>;
 }
