@@ -17,6 +17,7 @@ async function conectAPI(req: object | null, url: string, method: string) {
             method,
             headers: {
                 "Content-Type": "application/json",
+                'Authorization': `Bearer ${token}`
             },
             body: JSON.stringify(req),
         };
@@ -74,6 +75,7 @@ export default class ProductRepository implements ProductRepository {
     }
 
     async edit(
+        id: number | null,
         name: string | null,
         credit: number | null,
         validateDate: number | null,
@@ -91,7 +93,7 @@ export default class ProductRepository implements ProductRepository {
             placeId,
             active
         };
-        return conectAPI(req, `/products`, "PUT");
+        return conectAPI(req, `/products/${id}`, "PUT");
     }
 
     async delete(id: number): Promise<[]> {

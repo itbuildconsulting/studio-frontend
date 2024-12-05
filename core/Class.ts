@@ -1,4 +1,7 @@
+import Cookies from 'js-cookie';
+
 async function conectAPI(req: object | null, url: string, method: string) {
+    const token = Cookies.get('admin-user-sci-auth');
     let config = {};
 
     if (req === null) {
@@ -6,6 +9,7 @@ async function conectAPI(req: object | null, url: string, method: string) {
             method,
             headers: {
                 "Content-Type": "application/json",
+                'Authorization': `Bearer ${token}`
             },
         };
     } else {
@@ -13,6 +17,7 @@ async function conectAPI(req: object | null, url: string, method: string) {
             method,
             headers: {
                 "Content-Type": "application/json",
+                'Authorization': `Bearer ${token}`
             },
             body: JSON.stringify(req),
         };
@@ -24,10 +29,10 @@ async function conectAPI(req: object | null, url: string, method: string) {
             config
         );
 
-        if (resp.status === 201) {
+        if (resp.status === 201 || resp.status === 200) {
             const authResp: any = await resp.json();
 
-            return authResp.data;
+            return authResp;
         } else {
             const error = await resp.json();
             throw new Error(JSON.stringify(error));
@@ -39,25 +44,73 @@ async function conectAPI(req: object | null, url: string, method: string) {
 
 export default class ClassRepository implements ClassRepository {
     async create(
-        name: string,
-        limit: number,
-        income: number,
         date: string,
-        config: string,
-        kickback: number,
+        time: string,
+        teacherId: string,
+        limit: number,
+        hasCommission: boolean,
+        kickback: number | null,
         kickbackRule: string,
+        productId: string | null,
+        students: string[],
         active: boolean
     ): Promise<[]> {
         const req: any = {
-            name,
-            limit,
-            income,
             date,
-            config,
+            time,
+            teacherId,
+            limit,
+            hasCommission,
             kickback,
             kickbackRule,
+            productId,
+            students,
             active
         };
         return conectAPI(req, "/class", "POST");
+    }
+
+    async listClass(
+        date: string,
+        time: string,
+        teacherId: string,
+        productId: string | null,
+    ): Promise<[]> {
+        const req: any = {
+            date,
+            time,
+            teacherId,           
+            productId,
+        };
+        return conectAPI(req, "/class/filter", "POST");
+    }
+
+    async edit(
+        id: number | null,
+        date: string,
+        time: string,
+        teacherId: string,
+        limit: number,
+        hasCommission: boolean,
+        kickback: number | null,
+        kickbackRule: string,
+        productId: string | null,
+        students: string[],
+        active: boolean
+    ): Promise<[]> {
+        const req: any = {
+            id,
+            date,
+            time,
+            teacherId,
+            limit,
+            hasCommission,
+            kickback,
+            kickbackRule,
+            productId,
+            students,
+            active
+        };
+        return conectAPI(req, `/class/${id}`, "PUT");
     }
 }

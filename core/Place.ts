@@ -82,6 +82,6 @@ export default class PlaceRepository implements PlaceRepository {
     }
 
     async delete(id: number): Promise<[]> {
-        return conectAPI(null, `/places/${id}`, "DELETE");
+        return conectAPI(null, `/places/remove/${id}`, "POST");
     }
 }

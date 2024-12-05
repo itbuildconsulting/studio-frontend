@@ -4,8 +4,9 @@ import TimePicker from 'react-multi-date-picker/plugins/time_picker';
 
 
 const CustomMultipleInput = ({ openCalendar, value, date, setValue, errors, startTimeLocal, label }: any) => {
+    date = value[0]?.length === 1 ? value : value[0];
 
-    setValue(date);
+    setValue(date || "");
 
     return (
         <>
@@ -13,12 +14,11 @@ const CustomMultipleInput = ({ openCalendar, value, date, setValue, errors, star
                 {label ? <label>{label}</label> : <></>}
                 <input
                     className={`w-full px-4 py-2 rounded-md mt-1 border border-slate-400 bg-white focus: outline-none`}
-                    //onFocus={openCalendar}
                     value={date}
+                    placeholder={"00:00"}
                     autoComplete='off'
                     onClick={openCalendar}
                     onChange={(e: any) => { if (e.target.value.length <= 10) { setValue(e.target.value) } }}
-                 
                 />
                 
             </div>

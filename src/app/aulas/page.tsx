@@ -5,58 +5,47 @@ import PageDefault from "@/components/template/default";
 
 import styles from '../../styles/class.module.css';
 import Table from "@/components/Table/Table";
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import AuthInput from "@/components/auth/AuthInput";
+import ClassCollecion from "../../../core/Class";
 
 export default function Class() {
+    const repo = useMemo(() => new ClassCollecion(), []);
+
     const [date, setDate] = useState<string>("");
+    const [time, setTime] = useState<string>("");
+    const [teacherId, setTeacherId] = useState<string>("");
+    const [productId, setProductId] = useState<string>("");
     const [type, setType] = useState<string>("");
-    const [teacher, setTeacher] = useState<string>("");
+    const [classses, setClasses] = useState<string[]>([]);
+    const [loading, setLoading] = useState<any>(false);
 
     const convertDate = (cell: any, row: any) => {
-        return cell.split("T")[0].split("-").reverse().join("/") + " - " + cell.split("T")[1];
+        return cell.split("T")[0].split("-").reverse().join("/");
     }
 
     const convertStatus = (cell: any, row: any) => {
         return cell ? "Ativo" : "Inativo";
     }
 
-    let info: any = {
-        rows: [
-            {
-                date: "2024-06-12T08:00:00",
-                tipoAula: "Aula Coletiva",
-                local: "Studio Raphael Oliveira",
-                professor: "Raphael",
-                qtdAlunos: 6,
-                status: true,
-            },
-            {
-                date: "2024-06-12T09:00:00",
-                tipoAula: "Aula Coletiva",
-                local: "Studio Raphael Oliveira",
-                professor: "Raphael",
-                qtdAlunos: 6,
-                status: true,
-            },
-            {
-                date: "2024-06-12T10:00:00",
-                tipoAula: "Aula Individual",
-                local: "Studio Raphael Oliveira",
-                professor: "Raphael",
-                qtdAlunos: 6,
-                status: true,
-            },
-            {
-                date: "2024-06-12T11:00:00",
-                tipoAula: "Bike Coletiva",
-                local: "Studio Raphael Oliveira",
-                professor: "Raphael",
-                qtdAlunos: 6,
-                status: true,
-            },
-        ]
+    const listClass = () => {
+        setLoading(true);
+        repo.listClass(date, time, teacherId, productId,).then((result: any) => {
+            if (result instanceof Error) {
+                setLoading(false);
+            } else {
+                setClasses(result.data);
+                setLoading(false);
+            }
+        }).catch((error: any) => {
+            setLoading(false);
+        });
     }
+
+    useEffect(() => {
+        listClass();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
 
     const columns = [
         {
@@ -65,23 +54,19 @@ export default function Class() {
             formatter: convertDate
         },
         {
-            dataField: 'tipoAula',
-            text: `Tipo de Aula`,
+            dataField: 'time',
+            text: `Hora`,
         },
         {
-            dataField: 'local',
-            text: `Local`,
-        },
-        {
-            dataField: 'professor',
+            dataField: 'teacherId',
             text: `Professor`
         },
         {
-            dataField: 'qtdAlunos',
-            text: `Quantidade de Alunos`
+            dataField: 'productId',
+            text: `Tipo de Produto`
         },
         {
-            dataField: 'status',
+            dataField: 'active',
             text: `Status`,
             formatter: convertStatus
         }
@@ -146,13 +131,13 @@ export default function Class() {
                                 />
                             </div>
                             <div className="col-span-12 md:col-span-3">
-                                <AuthInput
+                                {/*<AuthInput
                                     label="Professor"
                                     value={teacher}
                                     type='text'
                                     changeValue={setTeacher}
                                     required
-                                />
+                                />*/}
                             </div>
                         </div>
                     </Card>
@@ -164,10 +149,10 @@ export default function Class() {
                         url={"/aulas/cadastrar"}
                     >
                         <Table
-                            data={info.rows}
+                            data={classses}
                             columns={columns}
                             class={styles.table_students}
-                            rowClasses={rowClasses}
+                            loading={loading}
                         />
                     </Card>
                 </div>

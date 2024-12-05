@@ -11,6 +11,7 @@ import PersonsCollecion from "../../../../../core/Persons";
 import SingleCalendar from "@/components/date/SingleCalendar";
 import Loading from "@/components/loading/Loading";
 import Modal from "@/components/Modal/Modal";
+import useConvertDate from "@/data/hooks/useConvertDate";
 
 export default function EditTeachers() {
     const edit: boolean = true;
@@ -19,6 +20,9 @@ export default function EditTeachers() {
     const searchParams = useParams()
     const router = useRouter();
 
+    const formatterDate = useConvertDate;
+
+    const [id, setId] = useState<number | null>(null);
     const [name, setName] = useState<string | null>(null);
     const [document, setDocument] = useState<string | null>(null);
     const [email, setEmail] = useState<string | null>(null);
@@ -268,23 +272,24 @@ export default function EditTeachers() {
                     setErrorMessage(null);
                 }, 2500);
             } else {
-                setName(result.name)
-                setDocument(result.identity)
-                setEmail(result.email)
-                setPhone(result.phone)
+                setId(result.id);
+                setName(result.name);
+                setDocument(result.identity);
+                setEmail(result.email);
+                setPhone(result.phone);;
                 setBirthday(result.birthday)
-                setHeight(result.height)
-                setWeight(result.weight)
-                setShoes(result.shoes)
-                setPassword('')
-                setConfirmPass('')
-                setLevel(result.level)
-                setZipCode(result.zipCode)
-                setState(result.state)
-                setCity(result.city)
-                setAddress(result.address)
-                setCountry(result.country)
-                setStatus(result.active)
+                setHeight(result.height);
+                setWeight(result.weight);
+                setShoes(result.other);
+                setPassword(result.password);
+                setConfirmPass('');
+                setLevel(result.employee_level);
+                setZipCode(result.zipCode);
+                setState(result.state);
+                setCity(result.city);
+                setAddress(result.address);
+                setCountry(result.country);
+                setStatus(result.active);
             }
         }).catch((error) => {
             setErrorMessage(error.message);
@@ -314,22 +319,8 @@ export default function EditTeachers() {
             setTimeout(() => {
                 setErrorMessage(null);
             }, 2500);
-        } else if (!passwordValidation) {
-            setErrorMessage("Senha muito fraca!");
-            setLoading(false);
-            setLog(1);
-            setTimeout(() => {
-                setErrorMessage(null);
-            }, 2500);
-        } else if (!confirmarSenha(password, confirmPass)) {
-            setErrorMessage("Por favor, confirme a senha corretamente!");
-            setLoading(false);
-            setLog(1);
-            setTimeout(() => {
-                setErrorMessage(null);
-            }, 2500);
         } else {
-            repo?.edit(name, removerCaracteresEspeciais(document), email, removerCaracteresEspeciais(phone), converterDate(birthday), height, weight, shoes, password, '', '', true, level, zipCode, state, city, address, country, status).then((result: any) => {
+            repo?.edit(id, name, removerCaracteresEspeciais(document), email, removerCaracteresEspeciais(phone), converterDate(birthday), height, weight, shoes, password, '', '', true, level, zipCode, state, city, address, country, status).then((result: any) => {
                 if (result instanceof Error) {
                     const message: any = JSON.parse(result.message);
                     setErrorMessage(message.error);
@@ -413,7 +404,7 @@ export default function EditTeachers() {
                             <div className="col-span-12 sm:col-span-6 xl:col-span-4">
                                 <SingleCalendar
                                     label="Data de Nascimento"
-                                    date={birthday}
+                                    date={formatterDate(birthday)}
                                     setValue={setBirthday}
                                 />
                             </div>
@@ -433,11 +424,11 @@ export default function EditTeachers() {
                                     label="Status"
                                     options={[
                                         {
-                                            value: true,
+                                            value: 1,
                                             label: "Ativo"
                                         },
                                         {
-                                            value: false,
+                                            value: 0,
                                             label: "Inativo"
                                         }
                                     ]}
@@ -480,7 +471,7 @@ export default function EditTeachers() {
                                     required
                                 />
                             </div>
-                            <div className="col-span-12 sm:col-span-6 xl:col-span-4">
+                            {/* <div className="col-span-12 sm:col-span-6 xl:col-span-4">
                                 <AuthInput
                                     label="Senha"
                                     value={password}
@@ -508,7 +499,7 @@ export default function EditTeachers() {
                                     edit={edit}
                                     required
                                 />
-                            </div>
+                            </div> */}
                         </div>
                         <hr className="mt-3 mb-5 pb-3" style={{ borderColor: "#F4F5F6" }} />
                         <div className="grid grid-cols-12 gap-x-8">

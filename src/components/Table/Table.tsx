@@ -11,7 +11,6 @@ interface TableProps {
 
 export default function Table(props: TableProps) {
     const size: any = useWindowSize();
-
     if (size?.width > 1200) {
         return (
             <>

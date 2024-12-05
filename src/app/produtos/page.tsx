@@ -10,7 +10,7 @@ import { useEffect, useMemo, useState } from "react";
 import styles from '../../styles/products.module.css';
 import AuthSelect from "@/components/auth/AuthSelect";
 
-import ProductCollecion from "../../../core/Product";
+import ProductCollection from "../../../core/Product";
 import DropDownsCollection from "../../../core/DropDowns";
 import Loading from "@/components/loading/Loading";
 import DropDown from "@/components/dropdown/DropDown";
@@ -18,10 +18,11 @@ import Link from "next/link";
 
 export default function Products() {
     const repoDrop = useMemo(() => new DropDownsCollection(), []);
-    const repo = useMemo(() => new ProductCollecion(), []);
+    const repo = useMemo(() => new ProductCollection(), []);
 
     const [modalProductAdd, setModalProductAdd] = useState<boolean>(false);
 
+    const [id, setId] = useState<number | null>(null); 
     const [productName, setProductName] = useState<string | null>(null);
     const [creditValue, setCreditValue] = useState<number | null>(null);
     const [validity, setValidity] = useState<number | null>(null);
@@ -170,7 +171,7 @@ export default function Products() {
         setLoading(true);
         setErrorMessage(null);
 
-        (edit ? repo?.edit(productName, Number(creditValue), Number(validity), Number(value), typeProduct, localeName, status) : repo?.create(productName, Number(creditValue), Number(validity), Number(value), typeProduct, localeName, status)).then((result: any) => {
+        (edit ? repo?.edit(id, productName, Number(creditValue), Number(validity), Number(value), typeProduct, localeName, status) : repo?.create(productName, Number(creditValue), Number(validity), Number(value), typeProduct, localeName, status)).then((result: any) => {
             if (result instanceof Error) {
                 const message: any = JSON.parse(result.message);
                 setErrorMessage(message.error);
@@ -185,6 +186,7 @@ export default function Products() {
                 setModalProductAdd(false);
                 setSuccessMessage(edit ? "Edição realizada com sucesso!" : "Cadastro realizado com sucesso!");
                 setLog(0);
+                listGeneralProduct();
             }
         }).catch((error) => {
             setErrorMessage(error.message);
@@ -262,6 +264,7 @@ export default function Products() {
             if (result instanceof Error) {
                 console.log("erro");
             } else {
+                setId(result.id);
                 setProductName(result.name);
                 setCreditValue(result.credit);
                 setValidity(result.validateDate);

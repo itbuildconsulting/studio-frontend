@@ -12,7 +12,15 @@ import SingleCalendar from "@/components/date/SingleCalendar";
 import Loading from "@/components/loading/Loading";
 import Modal from "@/components/Modal/Modal";
 
+import searchCEP from "@/utils/searchCEP";
+
+import listStates from '../../../json/states.json';
+import listCountry from '../../../json/country.json';
+
 export default function AddTeachers() {
+    const dropdownStates = listStates?.estados;
+    const dropdownCountry = listCountry?.pais;
+
     const repo = useMemo(() => new PersonsCollecion(), []);
 
     const router = useRouter();
@@ -327,6 +335,16 @@ export default function AddTeachers() {
         },
     ];
 
+    function handleSearchCEP(zipCode: string | null) {
+        searchCEP({
+            zipCode,
+            setAddress,
+            setCity,
+            setState,
+            setErrorMessage
+        })
+    }
+
     return (
         <PageDefault title={"Cadastrar Professores"}>
             <div className="grid grid-cols-12">
@@ -388,11 +406,11 @@ export default function AddTeachers() {
                                     label="Status"
                                     options={[
                                         {
-                                            value: true,
+                                            value: 1,
                                             label: "Ativo"
                                         },
                                         {
-                                            value: false,
+                                            value: 0,
                                             label: "Inativo"
                                         }
                                     ]}
@@ -479,17 +497,30 @@ export default function AddTeachers() {
                                     value={zipCode}
                                     type='text'
                                     changeValue={setZipCode}
+                                    blurValue={handleSearchCEP}
                                     required
                                 />
                             </div>
                             <div className="col-span-12 sm:col-span-6 xl:col-span-4">
-                                <AuthInput
+                                {/*  {
+                                    state
+                                        ?
+                                        <AuthInput
+                                            label="Estado"
+                                            value={state}
+                                            type='text'
+                                            changeValue={setState}
+                                            required
+                                        />
+                                        : */}
+                                <AuthSelect
                                     label="Estado"
+                                    options={dropdownStates}
                                     value={state}
-                                    type='text'
                                     changeValue={setState}
                                     required
                                 />
+                                {/* } */}
                             </div>
                             <div className="col-span-12 sm:col-span-6 xl:col-span-4">
                                 <AuthInput
@@ -512,13 +543,25 @@ export default function AddTeachers() {
                                 />
                             </div>
                             <div className="col-span-12 sm:col-span-6 xl:col-span-4">
-                                <AuthInput
+                                {/*  {
+                                    country
+                                        ?
+                                        <AuthInput
+                                            label="Pais"
+                                            value={country}
+                                            type='text'
+                                            changeValue={setCountry}
+                                            required
+                                        />
+                                        : */}
+                                <AuthSelect
                                     label="Pais"
+                                    options={dropdownCountry}
                                     value={country}
-                                    type='text'
                                     changeValue={setCountry}
                                     required
                                 />
+                                {/* } */}
                             </div>
                             {errorMessage === null ? false :
                                 <div className={` 

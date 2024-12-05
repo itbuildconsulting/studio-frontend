@@ -12,49 +12,46 @@ interface AuthSelectProps {
 }
 
 
-const AuthSelect = (props: AuthSelectProps) => {
+const AuthSelect = ({label, options, value, required, noRender, disabled, edit, changeValue}: AuthSelectProps) => {
     const [isFirstSelection, setIsFirstSelection] = useState<boolean>(true);
-    
-    const handleChange = (e:any) => {
-        props.changeValue?.(e.target.value);
+
+    const handleChange = (e: any) => {
+        changeValue?.(e.target.value);
     };
 
     useEffect(() => {
-        if(props.value !== null) {
+        if (!value) {
             setIsFirstSelection(false);
         }
-    }, [props.value]);
+    }, [value]);
 
-    console.log(props.edit, props.value)
-
-    return props.noRender ? null : (
+    return noRender ? null : (
         <div className="flex flex-col">
-            <label className="">{props.label}</label>
+            <label className="">{label}</label>
             {
-                props.edit === true && props.value === null ?
-                <div
+                edit === true && value === null ?
+                    <div
                         className={`flex justify-start items-center loading-input focus: outline-none`}
                     >
                         <div className='load load-input'></div>
                     </div>
                     :
                     <select
-                        disabled={props.disabled}
-                        value={props.value}
+                        disabled={disabled}
+                        value={value}
                         onChange={e => handleChange(e)}
-                        required={props.required}
+                        required={required}
                         className={`
-                focus: outline-none                
-                `}
+                        focus: outline-none                
+                        `}
                     >
-                        <option value={'0'} disabled={!isFirstSelection}>Selecione</option>
-                        {props?.options.map((option: any) => (
+                        <option value={''} disabled={!isFirstSelection}>Selecione</option>
+                        {options.map((option: any) => (
                             <option key={option.value} value={option.value}>
                                 {option.label}
                             </option>
                         ))}
                     </select>
-
             }
         </div>
     );
