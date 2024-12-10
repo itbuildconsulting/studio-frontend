@@ -85,6 +85,11 @@ export default class ClassRepository implements ClassRepository {
         return conectAPI(req, "/class/filter", "POST");
     }
 
+    async details(id: number): Promise<[]> {
+        return conectAPI(null, `/class/${id}`, "GET");
+    }
+
+
     async edit(
         id: number | null,
         date: string,

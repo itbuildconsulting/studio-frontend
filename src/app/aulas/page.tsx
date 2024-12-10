@@ -8,6 +8,7 @@ import Table from "@/components/Table/Table";
 import { useEffect, useMemo, useState } from "react";
 import AuthInput from "@/components/auth/AuthInput";
 import ClassCollecion from "../../../core/Class";
+import { actionButton } from "@/utils/actionTable";
 
 export default function Class() {
     const repo = useMemo(() => new ClassCollecion(), []);
@@ -26,6 +27,15 @@ export default function Class() {
 
     const convertStatus = (cell: any, row: any) => {
         return cell ? "Ativo" : "Inativo";
+    }
+
+    const handleActionButton = (cell: number, row: any) => {
+        return actionButton({ 
+            id: cell, 
+            info: row, 
+            editURL: "/aulas/editar/", 
+            changeStatus: () => {}
+        })
     }
 
     const listClass = () => {
@@ -69,6 +79,10 @@ export default function Class() {
             dataField: 'active',
             text: `Status`,
             formatter: convertStatus
+        },
+        {
+            dataField: 'id',
+            formatter: handleActionButton
         }
     ];
 

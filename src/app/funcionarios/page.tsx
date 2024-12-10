@@ -13,6 +13,7 @@ import DropDown from "@/components/dropdown/DropDown";
 import Link from "next/link";
 import Modal from "@/components/Modal/Modal";
 import Loading from "@/components/loading/Loading";
+import { actionButton } from "@/utils/actionTable";
 
 export default function Teachers() {
     const repo = useMemo(() => new PersonsCollecion(), []);
@@ -44,20 +45,13 @@ export default function Teachers() {
         return cell ? "Ativo" : "Inativo";
     }
 
-    const actionButtonProduct = (cell: any, row: any) => {
-        return (
-            <DropDown style={'bg-white'} styleHeader={'bg-white'} className="nav-link">
-                <>...</>
-
-                <Link href={`/funcionarios/editar/${cell}`}>
-                    Editar
-                </Link>
-                <Link href={'#'} onClick={() => deletePersons(cell)}>
-                    Excluir
-                </Link>
-
-            </DropDown>
-        )
+    const handleActionButton = (cell: number, row: any) => {
+        return actionButton({ 
+            id: cell, 
+            info: row, 
+            editURL: "/funcionarios/editar/", 
+            changeStatus: deletePersons
+        })
     }
 
     const columns = [
@@ -86,7 +80,7 @@ export default function Teachers() {
         },
         {
             dataField: 'id',
-            formatter: actionButtonProduct
+            formatter: handleActionButton
         }
     ];
 

@@ -360,7 +360,7 @@ export default function EditTeachers() {
     ];
 
     return (
-        <PageDefault title={"Cadastrar Professores"}>
+        <PageDefault title={"Editar Professor"}>
             <div className="grid grid-cols-12">
                 <div className="col-span-12">
                     <Card

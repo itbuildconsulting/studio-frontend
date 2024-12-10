@@ -35,4 +35,8 @@ export default interface ClassRepository {
         teacherId: string,
         productId: string | null,
     ): Promise<Class[]>;
+
+    details(
+        id: number,
+    ): Promise<Class[]>;
 }

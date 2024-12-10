@@ -6,18 +6,15 @@ import styles from '../styles/login.module.css';
 import { useState, Key } from "react";
 import Link from "next/link";
 
-import { useRouter } from "next/navigation";
-
 import useAuthData from '../data/hooks/useAuthData';
 import AuthDefault from "@/components/template/auth";
 
 export default function Auth() {
   const { login, loginError, msgError, load } = useAuthData();
 
-  const [error, setError] = useState<any>();
+  const [, setError] = useState<any>();
   const [username, setUsername] = useState<string>('');
   const [password, setPassword] = useState<string>('');
-  const router = useRouter();
 
   async function handleSubmit() {
     if (login) {
@@ -25,11 +22,9 @@ export default function Auth() {
         await login(username, password);
       } catch (e) {
         setError(['Erro desconhecido - Entre em contato com o Suporte']);
-        //showErro('Erro desconhecido');
       }
     } else {
       setError(['Erro desconhecido - Entre em contato com o Suporte']);
-      //showErro('Erro desconhecido');
     }
   }
 
