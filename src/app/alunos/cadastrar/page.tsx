@@ -12,7 +12,13 @@ import Loading from "@/components/loading/Loading";
 import Modal from "@/components/Modal/Modal";
 import SingleCalendar from "@/components/date/SingleCalendar";
 
+import listStates from '../../../json/states.json';
+import listCountry from '../../../json/country.json';
+
 export default function Students() {
+    const dropdownStates = listStates?.estados;
+    const dropdownCountry = listCountry?.pais;
+
     const repo = useMemo(() => new PersonsCollecion(), []);
     const router = useRouter();
 
@@ -489,10 +495,17 @@ export default function Students() {
                                 />
                             </div>
                             <div className="col-span-12 sm:col-span-6 xl:col-span-4">
-                                <AuthInput
+                                 {/* <AuthInput
                                     label="Estado"
                                     value={state}
                                     type='text'
+                                    changeValue={setState}
+                                    required
+                                />*/}
+                                <AuthSelect
+                                    label="Estado"
+                                    options={dropdownStates}
+                                    value={state}
                                     changeValue={setState}
                                     required
                                 />
@@ -518,10 +531,17 @@ export default function Students() {
                                 />
                             </div>
                             <div className="col-span-12 sm:col-span-6 xl:col-span-4">
-                                <AuthInput
+                                {/* <AuthInput
                                     label="Pais"
                                     value={country}
                                     type='text'
+                                    changeValue={setCountry}
+                                    required
+                                />*/}
+                                <AuthSelect
+                                    label="Pais"
+                                    options={dropdownCountry}
+                                    value={country}
                                     changeValue={setCountry}
                                     required
                                 />

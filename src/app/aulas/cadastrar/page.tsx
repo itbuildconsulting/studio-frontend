@@ -220,31 +220,7 @@ export default function AddClass() {
                                             edit={edit}
                                             required
                                         />
-                                    </div>
-                                    <div className="col-span-12 sm:col-span-6">
-
-                                        {dropdownProduct.length > 0
-                                            ?
-                                            <AuthSelect
-                                                label='Produto'
-                                                value={product}
-                                                options={convertArrayType2(dropdownProduct)}
-                                                changeValue={setProduct}
-                                                edit={edit}
-                                                required
-                                            />
-                                            :
-                                            <AuthInput
-                                                label="Produto"
-                                                value={product}
-                                                type='text'
-                                                disabled
-                                                changeValue={setProduct}
-                                                required
-                                            />
-                                        }
-
-                                    </div>
+                                    </div>                                    
                                 </div>
                                 <hr className="mt-3 mb-5 pb-3" style={{ borderColor: "#F4F5F6" }} />
                                 <div className="grid grid-cols-12 gap-x-8">
