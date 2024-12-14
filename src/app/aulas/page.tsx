@@ -53,14 +53,16 @@ export default function Class() {
         setType(typeF);
         setLoading(true);
         repo.listClass(dateF, timeF, teacherF, typeF).then((result: any) => {
+            setLoading(false);
+
             if (result instanceof Error) {
-                setLoading(false);
+                setClasses([]);
             } else {
                 setClasses(result.data);
-                setLoading(false);
             }
-        }).catch((error: any) => {
+        }).catch(() => {
             setLoading(false);
+            setClasses([]);
         });
     }
 

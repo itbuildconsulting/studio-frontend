@@ -4,7 +4,7 @@ import SelectType from "@/model/Select";
 interface MultiProps {
     label: string
     options: MultiValue<SelectType[]>
-    value: string | string[]
+    value: string | string[] | null
     changeValue: (e:any) => void
 }
 

@@ -34,7 +34,7 @@ async function conectAPI(req: object | null, url: string, method: string) {
 
             return authResp;
         } else {
-            const error = await resp.json();
+            const error = await resp?.json();
             throw new Error(JSON.stringify(error));
         }
     } catch (error) {
@@ -92,15 +92,15 @@ export default class ClassRepository implements ClassRepository {
 
     async edit(
         id: number | null,
-        date: string,
-        time: string,
-        teacherId: string,
-        limit: number,
-        hasCommission: boolean,
+        date: string | null,
+        time: string | null,
+        teacherId: string | null,
+        limit: number | null,
+        hasCommission: boolean | null,
         kickback: number | null,
-        kickbackRule: string,
+        kickbackRule: string | null,
         productId: string | null,
-        students: string[],
+        students: string[] | null,
         active: boolean
     ): Promise<[]> {
         const req: any = {

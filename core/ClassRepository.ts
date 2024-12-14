@@ -16,15 +16,15 @@ export default interface ClassRepository {
 
     edit(
         id: number | null,
-        date: string,
-        time: string,
-        teacherId: string,
-        limit: number,
-        hasCommission: boolean,
+        date: string | null,
+        time: string | null,
+        teacherId: string | null,
+        limit: number | null,
+        hasCommission: boolean | null,
         kickback: number | null,
-        kickbackRule: string,
+        kickbackRule: string | null,
         productId: string | null,
-        students: string[],
+        students: string[] | null,
         active: boolean
     ): Promise<Class[]>;
 

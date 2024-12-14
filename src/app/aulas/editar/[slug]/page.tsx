@@ -19,6 +19,7 @@ import AuthSelectMulti from "@/components/auth/AuthSelectMulti";
 import useConvertDate from "@/data/hooks/useConvertDate";
 
 export default function AddClass() {
+    const edit: boolean = true;
     const repo = useMemo(() => new ClassCollection(), []);
 
     const repoDrop = useMemo(() => new DropDownsCollection(), []);
@@ -28,18 +29,17 @@ export default function AddClass() {
 
     const formatterDate = useConvertDate;
 
-    const [date, setDate] = useState<string>("");
-    const [time, setTime] = useState<string>("");
+    const [date, setDate] = useState<string | null>(null);
+    const [time, setTime] = useState<string | null>(null);
     const [typeProduct, setTypeProduct] = useState<string | null>(null);
-    const [product, setProduct] = useState<string>("");
-    const [teacher, setTeacher] = useState<string>("");
+    const [product, setProduct] = useState<string | null>(null);
+    const [teacher, setTeacher] = useState<string | null>(null);
     const [limit, setLimit] = useState<number>(0);
-    const [qtdStudents, setQtdStudents] = useState<string>("");
-    const [canCommission, setCanCommission] = useState<string>("true");
-    const [students, setStudents] = useState<string[]>([]);
-    const [commissionRules, setCommissionRules] = useState<string>("1");
+    const [qtdStudents, setQtdStudents] = useState<string | null>(null);
+    const [canCommission, setCanCommission] = useState<boolean | null>(null);
+    const [students, setStudents] = useState<string[] | null>(null);
+    const [commissionRules, setCommissionRules] = useState<string | null>(null);
     const [commissionValue, setCommissionValue] = useState<number | null>(null);
-    const [edit, setEdit] = useState<boolean>(false);
 
     const [dropdownType, setDropdownType] = useState<string[]>([]);
     const [dropdownEmployee, setDropdownEmployee] = useState<DropdownType[]>([]);
@@ -117,9 +117,9 @@ export default function AddClass() {
                 setProduct(result.productId);
                 setTeacher(result.teacherId);;
                 setQtdStudents(result.limit)
-                setCanCommission(result.height);
+                setCanCommission(result.hasCommission);
                 setStudents(result.weight);
-                setCommissionRules(result.hasCommission);
+                setCommissionRules(result.kickbackRule);
                 setCommissionValue(result.kickback);
             }
         }).catch((error) => {
@@ -134,7 +134,7 @@ export default function AddClass() {
 
 
     const onSubmit = () => {
-        repo?.edit(+searchParams?.slug, date, time, teacher, limit, JSON.parse(canCommission), commissionValue, commissionRules, product, students, true).then((result: any) => {
+        repo?.edit(+searchParams?.slug, date, time, teacher, limit, canCommission, commissionValue, commissionRules, product, students, true).then((result: any) => {
             if (result instanceof Error) {
                 const message: any = JSON.parse(result.message);
                 setErrorMessage(message.error);
@@ -276,6 +276,7 @@ export default function AddClass() {
                                                 type='text'
                                                 disabled
                                                 changeValue={setProduct}
+                                                edit={edit}
                                                 required
                                             />
                                         }
@@ -368,6 +369,7 @@ export default function AddClass() {
                                             value={commissionValue}
                                             type='number'
                                             changeValue={setCommissionValue}
+                                            edit={edit}
                                             required
                                         />
                                     </div>
@@ -405,9 +407,7 @@ export default function AddClass() {
 
                     {loading ? <LoadingStatus /> : <SuccessStatus />}
 
-                    <div className="">
-
-                    </div>
+                    <div className=""></div>
                 </div>
 
             </Modal>

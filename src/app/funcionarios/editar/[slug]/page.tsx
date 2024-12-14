@@ -595,9 +595,7 @@ export default function EditTeachers() {
 
                     {loading ? <LoadingStatus /> : <SuccessStatus />}
 
-                    <div className="">
-
-                    </div>
+                    <div className=""></div>
                 </div>
 
             </Modal>
