@@ -44,14 +44,14 @@ async function conectAPI(req: object | null, url: string, method: string) {
 
 export default class ClassRepository implements ClassRepository {
     async create(
-        date: string,
+        date: string | null,
         time: string,
         teacherId: string,
         limit: number,
         hasCommission: boolean,
         kickback: number | null,
         kickbackRule: string,
-        productId: string | null,
+        productTypeId: string | null,
         students: string[],
         active: boolean
     ): Promise<[]> {
@@ -63,7 +63,7 @@ export default class ClassRepository implements ClassRepository {
             hasCommission,
             kickback,
             kickbackRule,
-            productId,
+            productTypeId,
             students,
             active
         };
@@ -74,13 +74,13 @@ export default class ClassRepository implements ClassRepository {
         date: string,
         time: string,
         teacherId: string,
-        productId: string | null,
+        productTypeId: string | null,
     ): Promise<[]> {
         const req: any = {
             date,
             time,
             teacherId,           
-            productId,
+            productTypeId,
         };
         return conectAPI(req, "/class/filter", "POST");
     }
@@ -99,7 +99,7 @@ export default class ClassRepository implements ClassRepository {
         hasCommission: boolean | null,
         kickback: number | null,
         kickbackRule: string | null,
-        productId: string | null,
+        productTypeId: string | null,
         students: string[] | null,
         active: boolean
     ): Promise<[]> {
@@ -112,7 +112,7 @@ export default class ClassRepository implements ClassRepository {
             hasCommission,
             kickback,
             kickbackRule,
-            productId,
+            productTypeId,
             students,
             active
         };

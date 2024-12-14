@@ -58,7 +58,7 @@ export default class PersonsRepository implements PersonsRepository {
         rule: string | null,
         frequency: string | null,
         employee: boolean,
-        employee_level: string | number,
+        employee_level: string | null,
         zipCode: string | null,
         state: string | null,
         city: string | null,

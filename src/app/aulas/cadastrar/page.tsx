@@ -16,12 +16,16 @@ import Loading from "@/components/loading/Loading";
 
 import DropdownType from "../../../model/Dropdown";
 import AuthSelectMulti from "@/components/auth/AuthSelectMulti";
+import useConvertDate from "@/data/hooks/useConvertDate";
+import { convertDate } from "@/utils/formatterText";
 
 export default function AddClass() {
     const repo = useMemo(() => new ClassCollection(), []);
 
     const repoDrop = useMemo(() => new DropDownsCollection(), []);
     const router = useRouter();
+
+    const formatterDate = useConvertDate;
 
     const [date, setDate] = useState<string>("");
     const [time, setTime] = useState<string>("");
@@ -34,7 +38,7 @@ export default function AddClass() {
     const [students, setStudents] = useState<string[]>([]);
     const [commissionRules, setCommissionRules] = useState<string>("1");
     const [commissionValue, setCommissionValue] = useState<number | null>(null);
-    const [edit, setEdit] = useState<boolean>(false);
+    const [edit] = useState<boolean>(false);
 
     const [dropdownType, setDropdownType] = useState<string[]>([]);
     const [dropdownEmployee, setDropdownEmployee] = useState<DropdownType[]>([]);
@@ -79,10 +83,6 @@ export default function AddClass() {
         setTeacher(String(dropdownEmployee[0]?.id));
     }, [dropdownEmployee])
 
-    /* useEffect(() => {
-        setStudents(String(dropdownStudent[0]?.id));
-    }, [dropdownStudent]) */
-
     const clear = () => {
         router.push("/aulas");
     }
@@ -97,7 +97,10 @@ export default function AddClass() {
 
 
     const onSubmit = () => {
-        repo?.create(date, time, teacher, limit, JSON.parse(canCommission), commissionValue, commissionRules, product, students, true).then((result: any) => {
+        setLoading(true);
+        setErrorMessage(null);
+        
+        repo?.create(convertDate(date), time, teacher, limit, JSON.parse(canCommission), commissionValue, commissionRules, product, students, true).then((result: any) => {
             if (result instanceof Error) {
                 const message: any = JSON.parse(result.message);
                 setErrorMessage(message.error);
@@ -191,6 +194,7 @@ export default function AddClass() {
                     <Card
                         hasFooter={true}
                         eventsButton={eventButton}
+                        loading={loading}
                     >
                         <div className="grid grid-cols-12 gap-8">
                             <div className="col-span-7">
@@ -198,7 +202,7 @@ export default function AddClass() {
                                     <div className="col-span-12 sm:col-span-6">
                                         <SingleCalendar
                                             label="Data"
-                                            date={date}
+                                            date={formatterDate(date)}
                                             setValue={setDate}
                                         />
                                     </div>
@@ -219,31 +223,7 @@ export default function AddClass() {
                                             edit={edit}
                                             required
                                         />
-                                    </div>
-                                    <div className="col-span-12 sm:col-span-6">
-
-                                        {dropdownProduct.length > 0
-                                            ?
-                                            <AuthSelect
-                                                label='Produto'
-                                                value={product}
-                                                options={convertArrayType2(dropdownProduct)}
-                                                changeValue={setProduct}
-                                                edit={edit}
-                                                required
-                                            />
-                                            :
-                                            <AuthInput
-                                                label="Produto"
-                                                value={product}
-                                                type='text'
-                                                disabled
-                                                changeValue={setProduct}
-                                                required
-                                            />
-                                        }
-
-                                    </div>
+                                    </div>                                    
                                 </div>
                                 <hr className="mt-3 mb-5 pb-3" style={{ borderColor: "#F4F5F6" }} />
                                 <div className="grid grid-cols-12 gap-x-8">

@@ -17,6 +17,7 @@ import Loading from "@/components/loading/Loading";
 import DropdownType from "../../../../model/Dropdown";
 import AuthSelectMulti from "@/components/auth/AuthSelectMulti";
 import useConvertDate from "@/data/hooks/useConvertDate";
+import { convertDate } from "@/utils/formatterText";
 
 export default function AddClass() {
     const edit: boolean = true;
@@ -78,15 +79,11 @@ export default function AddClass() {
 
     useEffect(() => {
         setProduct(String(dropdownProduct[0]?.id));
-    }, [dropdownProduct])
+    }, [dropdownProduct]);
 
     useEffect(() => {
         setTeacher(String(dropdownEmployee[0]?.id));
-    }, [dropdownEmployee])
-
-    /* useEffect(() => {
-        setStudents(String(dropdownStudent[0]?.id));
-    }, [dropdownStudent]) */
+    }, [dropdownEmployee]);
 
     const clear = () => {
         router.push("/aulas");
@@ -132,9 +129,8 @@ export default function AddClass() {
         });
     }, [])
 
-
     const onSubmit = () => {
-        repo?.edit(+searchParams?.slug, date, time, teacher, limit, canCommission, commissionValue, commissionRules, product, students, true).then((result: any) => {
+        repo?.edit(+searchParams?.slug, convertDate(date), time, teacher, limit, canCommission, commissionValue, commissionRules, product, students, true).then((result: any) => {
             if (result instanceof Error) {
                 const message: any = JSON.parse(result.message);
                 setErrorMessage(message.error);
@@ -171,7 +167,6 @@ export default function AddClass() {
             class: "btn-primary"
         },
     ];
-
 
     const LoadingStatus = () => {
         return (
@@ -256,31 +251,6 @@ export default function AddClass() {
                                             edit={edit}
                                             required
                                         />
-                                    </div>
-                                    <div className="col-span-12 sm:col-span-6">
-
-                                        {dropdownProduct.length > 0
-                                            ?
-                                            <AuthSelect
-                                                label='Produto'
-                                                value={product}
-                                                options={convertArrayType2(dropdownProduct)}
-                                                changeValue={setProduct}
-                                                edit={edit}
-                                                required
-                                            />
-                                            :
-                                            <AuthInput
-                                                label="Produto"
-                                                value={product}
-                                                type='text'
-                                                disabled
-                                                changeValue={setProduct}
-                                                edit={edit}
-                                                required
-                                            />
-                                        }
-
                                     </div>
                                 </div>
                                 <hr className="mt-3 mb-5 pb-3" style={{ borderColor: "#F4F5F6" }} />

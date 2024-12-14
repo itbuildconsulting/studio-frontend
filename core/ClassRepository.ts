@@ -2,7 +2,7 @@ import Class from "./Class";
 
 export default interface ClassRepository {
     create(
-        date: string,
+        date: string | null,
         time: string,
         teacherId: string,
         limit: number,
