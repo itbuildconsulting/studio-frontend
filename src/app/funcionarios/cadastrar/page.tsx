@@ -296,7 +296,7 @@ export default function AddTeachers() {
                 setErrorMessage(null);
             }, 2500);
         } else {
-            repo?.create(name, removerCaracteresEspeciais(document), email, removerCaracteresEspeciais(phone), converterDate(birthday), height, weight, shoes, password, '', '', true, level, zipCode, state, city, address, country, status).then((result: any) => {
+            repo?.create(name, removerCaracteresEspeciais(document), email, removerCaracteresEspeciais(phone), converterDate(birthday), height, weight, shoes, password, '', '', true, "1", zipCode, state, city, address, country, status).then((result: any) => {
                 if (result instanceof Error) {
                     const message: any = JSON.parse(result.message);
                     setErrorMessage(message.error);
@@ -473,18 +473,6 @@ export default function AddTeachers() {
                                     value={confirmPass}
                                     type='password'
                                     changeValue={setConfirmPass}
-                                    required
-                                />
-                            </div>
-                        </div>
-                        <hr className="mt-3 mb-5 pb-3" style={{ borderColor: "#F4F5F6" }} />
-                        <div className="grid grid-cols-12 gap-x-8">
-                            <div className="col-span-12 sm:col-span-6 xl:col-span-4">
-                                <AuthSelect
-                                    label="Nível"
-                                    options={dropdownLevel}
-                                    value={level}
-                                    changeValue={setLevel}
                                     required
                                 />
                             </div>
