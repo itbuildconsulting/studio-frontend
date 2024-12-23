@@ -14,6 +14,7 @@ import TimePickerCalendar from "@/components/date/TimePickerCalendar";
 import DropDownsCollection from "../../../core/DropDowns";
 import AuthSelect from "@/components/auth/AuthSelect";
 import Time from "@/components/time/time";
+import { EventBtn } from "@/types/btn";
 
 export default function Class() {
     const repo = useMemo(() => new ClassCollecion(), []);
@@ -103,7 +104,7 @@ export default function Class() {
         listClass(date, time, teacherId, type);
     }
 
-    const eventButton = [
+    const eventButton:EventBtn[] = [
         {
             name: "Limpar",
             function: clear,

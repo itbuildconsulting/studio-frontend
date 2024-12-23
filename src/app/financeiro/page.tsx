@@ -17,7 +17,7 @@ export default function Financial() {
     const [product, setProduct] = useState<string>("");
     const [date, setDate] = useState<string>("");
     const [student, setStudent] = useState<string>("");
-    const [loading, setLoading] = useState<any>(false);
+    const [loading, setLoading] = useState<boolean>(false);
     const [financialList, setFinancialList] = useState<string[]>([]);
 
     const statusColors: any = {

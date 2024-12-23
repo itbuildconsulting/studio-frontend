@@ -14,6 +14,7 @@ import SingleCalendar from "@/components/date/SingleCalendar";
 
 import listStates from '../../../json/states.json';
 import listCountry from '../../../json/country.json';
+import { EventBtn } from "@/types/btn";
 
 export default function Students() {
     const dropdownStates = listStates?.estados;
@@ -282,7 +283,7 @@ export default function Students() {
                 setErrorMessage(null);
             }, 2500);
         } else {
-            repo?.create(name, document, email, phone, birthday, height, weight, shoes, password, contract, frequency, false, 0 , zipCode, state, city, address, country, status).then((result: any) => {
+            repo?.create(name, document, email, phone, birthday, height, weight, shoes, password, contract, frequency, false, zipCode, state, city, address, country, status).then((result: any) => {
                 if (result instanceof Error) {
                     const message: any = JSON.parse(result.message);
                     setErrorMessage(message.error);
@@ -308,7 +309,7 @@ export default function Students() {
         }
     }
 
-    const eventButton = [
+    const eventButton:EventBtn[] = [
         {
             name: "Cancelar",
             function: clear,

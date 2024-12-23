@@ -10,7 +10,7 @@ import useAuthData from '@/data/hooks/useAuthData';
 
 interface MenuSideBarProps {
     menuMobileOpen: boolean,
-    handleMenuOpen: any
+    handleMenuOpen: () => void
 }
 
 export default function MenuSideBar(props: MenuSideBarProps) {

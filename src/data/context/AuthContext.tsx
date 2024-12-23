@@ -1,15 +1,14 @@
-import React, { createContext, useEffect, useState } from 'react';
+import React, { createContext, useState } from 'react';
 import Cookies from 'js-cookie';
 import User from '../../model/User';
-import Router from 'next/router';
-import { stringify } from 'querystring';
+
 import { useRouter } from "next/navigation";
 
-interface AuthContextProps {
+interface AuthContextProps<> {
     user?: User | null | undefined,
     load?: boolean,
     loginError?: boolean,
-    msgError?: Array<{}>,
+    msgError?: string[],
     login?: (email: string, senha: string) => Promise<any>,
     recoverPassword?: ((email: string) => Promise<any>) | undefined,
     resetPassword?: ((password: string) => Promise<any>) | undefined,
@@ -20,11 +19,11 @@ const AuthContext = createContext<AuthContextProps>({});
 
 function managementCookie(logado: boolean, expireAt: string, token: string) {
 
-    const dataString = expireAt;
-    const partes = dataString.split('T')[0].split('-');
-    const ano = parseInt(partes[0]);
-    const mes = parseInt(partes[1]) - 1; // Os meses em JavaScript são base 0 (0 - janeiro, 1 - fevereiro, etc.)
-    const dia = parseInt(partes[2]);
+    //const dataString = expireAt;
+    //const partes = dataString.split('T')[0].split('-');
+    /* const ano = parseInt(partes[0]);
+    const mes = parseInt(partes[1]) - 1; 
+    const dia = parseInt(partes[2]); */
 
     const data = new Date(expireAt);
 
@@ -44,7 +43,7 @@ export function AuthProvider(props: any) {
     const [load, setLoad] = useState(false);
     const [user, setUser] = useState<User | null | undefined>();
     const [loginError, setLoginError] = useState<boolean>(false);
-    const [msgError, setMsgError] = useState<Array<{}>>([]);
+    const [msgError, setMsgError] = useState<string[]>([]);
 
     const router = useRouter();
 
@@ -72,13 +71,13 @@ export function AuthProvider(props: any) {
     async function login(email: string, password: string) {
         setLoad(true);
 
-        const req: any = {
+        const req = {
             "email": email,
             "password": password
         }
 
         try {
-            const resp: any = await fetch(
+            const resp = await fetch(
                 `${process.env.NEXT_PUBLIC_SERVER_URL_API}/login`,
                 {
                     method: 'POST',
@@ -90,7 +89,7 @@ export function AuthProvider(props: any) {
             );
             if (resp.status === 200) {
                 router.push("/dashboard");
-                const authResp: any = await resp.json();
+                const authResp = await resp.json();
                 await sessionConfig(authResp);
                 setLoad(false);
             } else if (resp.status === 500) {
@@ -98,7 +97,7 @@ export function AuthProvider(props: any) {
                 showErro('Erro desconhecido - Entre em contato com o Suporte');
             } else {
                 setLoad(false);
-                const authResp: any = await resp.json();
+                const authResp = await resp.json();
                 showErro(authResp.error);
             }
         } catch {
@@ -113,12 +112,12 @@ export function AuthProvider(props: any) {
     async function recoverPassword(email: string) {
         setLoad(true);
 
-        const req: any = {
+        const req = {
             "email": email
         }
 
         try {
-            const resp: any = await fetch(
+            const resp = await fetch(
                 `${process.env.NEXT_PUBLIC_SERVER_URL_API}/request-reset`,
                 {
                     method: 'POST',
@@ -131,14 +130,14 @@ export function AuthProvider(props: any) {
             
             if (resp.status === 200) {
                 setLoad(false);
-                const authResp: any = await resp.json();
+                const authResp = await resp.json();
                 console.log(authResp)
             } else if (resp.status === 500) {
                 setLoad(false);
                 showErro('Erro desconhecido - Entre em contato com o Suporte');
             } else {
                 setLoad(false);
-                const authResp: any = await resp.json();
+                const authResp = await resp.json();
                 showErro(authResp.error);
             }
         } catch {
@@ -152,12 +151,12 @@ export function AuthProvider(props: any) {
     async function resetPassword(password: string) {
         setLoad(true);
 
-        const req: any = {
+        const req = {
             "password": password
         }
 
         try {
-            const resp: any = await fetch(
+            const resp = await fetch(
                 `${process.env.NEXT_PUBLIC_SERVER_URL_API}/reset`,
                 {
                     method: 'POST',
@@ -170,14 +169,14 @@ export function AuthProvider(props: any) {
             
             if (resp.status === 200) {
                 setLoad(false);
-                const authResp: any = await resp.json();
+                const authResp = await resp.json();
                 console.log(authResp)
             } else if (resp.status === 500) {
                 setLoad(false);
                 showErro('Erro desconhecido - Entre em contato com o Suporte');
             } else {
                 setLoad(false);
-                const authResp: any = await resp.json();
+                const authResp = await resp.json();
                 showErro(authResp.error);
             }
         } catch {
@@ -192,8 +191,6 @@ export function AuthProvider(props: any) {
     async function logout() {
         try {
             setLoad(true)
-            //await firebase.auth().signOut()
-            // await sessionConfig(null);
             return 'Test';
         } finally {
             setLoad(false)

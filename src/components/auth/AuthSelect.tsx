@@ -15,9 +15,7 @@ interface AuthSelectProps {
 const AuthSelect = ({label, options, value, required, noRender, disabled, edit, changeValue}: AuthSelectProps) => {
     const [isFirstSelection, setIsFirstSelection] = useState<boolean>(true);
 
-    const handleChange = (e: any) => {
-        changeValue?.(e.target.value);
-    };
+    const handleChange = (e: any) => {changeValue?.(e.target.value)};
 
     useEffect(() => {
         if (!value) {

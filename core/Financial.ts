@@ -24,13 +24,13 @@ async function conectAPI(req: object | null, url: string, method: string) {
     }
 
     try {
-        const resp: any = await fetch(
+        const resp = await fetch(
             `${process.env.NEXT_PUBLIC_SERVER_URL_API}${url}`,
             config
         );
 
         if (resp.status === 201 || resp.status === 200) {
-            const authResp: any = await resp.json();
+            const authResp = await resp.json();
 
             return authResp;
         } else {
@@ -44,9 +44,6 @@ async function conectAPI(req: object | null, url: string, method: string) {
 
 export default class FinancialRepository implements FinancialRepository {
     async getLatestTransactions(): Promise<[]> {
-        const req: any = null;
-        return conectAPI(req, "/financial/lastTransactions", "POST");
+        return conectAPI(null, "/financial/lastTransactions", "POST");
     }
-
-
 }

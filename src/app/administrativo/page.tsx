@@ -39,11 +39,11 @@ export default function Administrative() {
     const [listProductType, setListProductType] = useState<string[]>([]);
     const [idProductType, setIdProductType] = useState<number>(0);
 
-    const [modalSuccess, setModalSuccess] = useState<any>(false);
+    const [modalSuccess, setModalSuccess] = useState<boolean>(false);
     const [log, setLog] = useState<number | null>(null);
-    const [loading, setLoading] = useState<any>(false);
-    const [successMessage, setSuccessMessage] = useState<any>(null);
-    const [errorMessage, setErrorMessage] = useState<any>(null);
+    const [loading, setLoading] = useState<boolean>(false);
+    const [successMessage, setSuccessMessage] = useState<string>('');
+    const [errorMessage, setErrorMessage] = useState<string>('');
 
     const [edit, setEdit] = useState<boolean>(false);
 
@@ -159,7 +159,7 @@ export default function Administrative() {
 
     function onSubmitLocale() {
         setLoading(true);
-        setErrorMessage(null);
+        setErrorMessage('');
 
         (edit ? repo?.edit(localeName, addressName, true, idLocales) : repo?.create(localeName, addressName, true)).then((result: any) => {
             if (result instanceof Error) {
@@ -168,7 +168,7 @@ export default function Administrative() {
                 setLoading(false);
                 setLog(1);
                 setTimeout(() => {
-                    setErrorMessage(null);
+                    setErrorMessage('');
                 }, 2500);
             } else {
                 setSuccessMessage(edit ? "Edição realizada com sucesso!" : "Cadastro realizado com sucesso!")
@@ -183,7 +183,7 @@ export default function Administrative() {
         }).catch((error: any) => {
             setErrorMessage(error.message);
             setTimeout(() => {
-                setErrorMessage(null);
+                setErrorMessage('');
             }, 2500);
             setLoading(false);
             setLog(1);
@@ -192,7 +192,7 @@ export default function Administrative() {
 
     function onSubmitTypeProduct() {
         setLoading(true);
-        setErrorMessage(null);
+        setErrorMessage('');
 
         (edit ? repoType?.edit(typeName, Number(productLocaleName), true, idProductType) : repoType?.create(typeName, Number(productLocaleName), true)).then((result: any) => {
             if (result instanceof Error) {
@@ -201,7 +201,7 @@ export default function Administrative() {
                 setLoading(false);
                 setLog(1);
                 setTimeout(() => {
-                    setErrorMessage(null);
+                    setErrorMessage('');
                 }, 2500);
             } else {
                 setSuccessMessage(edit ? "Edição realizada com sucesso!" : "Cadastro realizado com sucesso!")
@@ -216,7 +216,7 @@ export default function Administrative() {
         }).catch((error) => {
             setErrorMessage(error.message);
             setTimeout(() => {
-                setErrorMessage(null);
+                setErrorMessage('');
             }, 2500);
             setLog(1);
             setLoading(false);
@@ -258,7 +258,7 @@ export default function Administrative() {
     const detailsLocale = (id: number) => {
         setEdit(true);
         setModalLocaleShow(true);
-        setErrorMessage(null);
+        setErrorMessage('');
 
         repo.details(id).then((result: any) => {
             if (result instanceof Error) {
@@ -276,7 +276,7 @@ export default function Administrative() {
     const detailsProductType = (id: number) => {
         setEdit(true);
         setModalTypeProductShow(true);
-        setErrorMessage(null);
+        setErrorMessage('');
 
         repoType.details(id).then((result: any) => {
             if (result instanceof Error) {

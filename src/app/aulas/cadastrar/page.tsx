@@ -18,6 +18,7 @@ import DropdownType from "../../../model/Dropdown";
 import AuthSelectMulti from "@/components/auth/AuthSelectMulti";
 import useConvertDate from "@/data/hooks/useConvertDate";
 import { convertDate } from "@/utils/formatterText";
+import { EventBtn } from "@/types/btn";
 
 export default function AddClass() {
     const repo = useMemo(() => new ClassCollection(), []);
@@ -125,7 +126,7 @@ export default function AddClass() {
         });
     }
 
-    const eventButton = [
+    const eventButton:EventBtn[] = [
         {
             name: "Cancelar",
             function: clear,

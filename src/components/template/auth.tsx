@@ -3,9 +3,10 @@ import Image from "next/image";
 import LogoStudio from "../../../public/images/logo_studio.png";
 
 import styles from '../../styles/login.module.css';
+import { ReactNode } from "react";
 
 interface AuthProps {
-    children: any
+    children: ReactNode
 }
 
 export default function AuthDefault(props: AuthProps) {

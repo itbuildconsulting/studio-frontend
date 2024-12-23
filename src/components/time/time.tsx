@@ -15,7 +15,7 @@ export default function Time({ label, value, setValue }: TimeProps) {
                     value={value}
                     placeholder={"00:00"}
                     autoComplete='off'
-                    onChange={(e: any) => { setValue(e.target.value) }}
+                    onChange={(e: any) => setValue(e.target.value)}
                 />
             </div>
         </>

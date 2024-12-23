@@ -11,6 +11,7 @@ import PersonsCollecion from "../../../../../core/Persons";
 import SingleCalendar from "@/components/date/SingleCalendar";
 import Loading from "@/components/loading/Loading";
 import Modal from "@/components/Modal/Modal";
+import { EventBtn } from "@/types/btn";
 
 export default function EditStudents() {
     const edit: boolean = true;
@@ -19,6 +20,7 @@ export default function EditStudents() {
     const searchParams = useParams()
     const router = useRouter();
 
+    const [id, setId] = useState<number | null>(null);
     const [name, setName] = useState<string | null>(null);
     const [document, setDocument] = useState<string | null>(null);
     const [email, setEmail] = useState<string | null>(null);
@@ -268,6 +270,7 @@ export default function EditStudents() {
                     setErrorMessage(null);
                 }, 2500);
             } else {
+                setId(result?.id);
                 setName(result.name)
                 setDocument(result.identity)
                 setEmail(result.email)
@@ -329,7 +332,7 @@ export default function EditStudents() {
                 setErrorMessage(null);
             }, 2500);
         } else {
-            repo?.edit(name, removerCaracteresEspeciais(document), email, removerCaracteresEspeciais(phone), converterDate(birthday), height, weight, shoes, password, '', '', true, level, zipCode, state, city, address, country, status).then((result: any) => {
+            repo?.edit(id, name, removerCaracteresEspeciais(document), email, removerCaracteresEspeciais(phone), converterDate(birthday), height, weight, shoes, password, '', '', true, zipCode, state, city, address, country, status).then((result: any) => {
                 if (result instanceof Error) {
                     const message: any = JSON.parse(result.message);
                     setErrorMessage(message.error);
@@ -355,7 +358,7 @@ export default function EditStudents() {
         }
     }
 
-    const eventButton = [
+    const eventButton:EventBtn[] = [
         {
             name: "Cancelar",
             function: clear,

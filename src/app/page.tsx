@@ -12,22 +12,16 @@ import AuthDefault from "@/components/template/auth";
 export default function Auth() {
   const { login, loginError, msgError, load } = useAuthData();
 
-  const [, setError] = useState<any>();
   const [username, setUsername] = useState<string>('');
   const [password, setPassword] = useState<string>('');
 
   async function handleSubmit() {
     if (login) {
-      try {
-        await login(username, password);
-      } catch (e) {
-        setError(['Erro desconhecido - Entre em contato com o Suporte']);
-      }
-    } else {
-      setError(['Erro desconhecido - Entre em contato com o Suporte']);
+      login(username, password);
     }
   }
 
+  console.log(msgError)
   return (
     <AuthDefault>
       <div className={`${styles.form_login}`}>
@@ -68,7 +62,7 @@ export default function Auth() {
               }
             </div>
             {loginError ? (
-              msgError?.map((err: any, index: Key) => (
+              msgError?.map((err: string, index: Key) => (
                 <div className={`error-message`} key={index}>
                   {/* {IconWarning} */}
                   <span className='ml-2 text-sm'>{err}</span>

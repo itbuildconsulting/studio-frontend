@@ -13,6 +13,7 @@ import Link from "next/link";
 import PersonsCollecion from "../../../core/Persons";
 import Loading from "@/components/loading/Loading";
 import Modal from "@/components/Modal/Modal";
+import { EventBtn } from "@/types/btn";
 
 export default function Students() {
     const repo = useMemo(() => new PersonsCollecion(), []);
@@ -101,7 +102,7 @@ export default function Students() {
         listGeneralStudent();
     }
 
-    const eventButton = [
+    const eventButton: EventBtn[] = [
         {
             name: "Limpar",
             function: clear,

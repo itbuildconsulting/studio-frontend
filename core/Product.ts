@@ -24,16 +24,16 @@ async function conectAPI(req: object | null, url: string, method: string) {
     }
 
     try {
-        const resp: any = await fetch(
+        const resp = await fetch(
             `${process.env.NEXT_PUBLIC_SERVER_URL_API}${url}`,
             config
         );
 
         if (resp.status === 201) { // Created
-            const authResp: any = await resp.json();
+            const authResp = await resp.json();
             return authResp.data;
         } else if (resp.status === 200) { // List
-            const authResp: any = await resp.json();
+            const authResp = await resp.json();
             return authResp;
         } else {
             const error = await resp?.json();
@@ -54,7 +54,7 @@ export default class ProductRepository implements ProductRepository {
         placeId: number | null,
         active: boolean
     ): Promise<[]> {
-        const req: any = {
+        const req = {
             name,
             credit,
             validateDate,
@@ -84,7 +84,7 @@ export default class ProductRepository implements ProductRepository {
         placeId: number | null,
         active: boolean
     ): Promise<[]> {
-        const req: any = {
+        const req = {
             name,
             credit,
             validateDate,

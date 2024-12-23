@@ -1,5 +1,7 @@
 import Cookies from 'js-cookie';
 
+import { ClassFilterType, ClassType } from '@/types/class';
+
 async function conectAPI(req: object | null, url: string, method: string) {
     const token = Cookies.get('admin-user-sci-auth');
     let config = {};
@@ -24,13 +26,13 @@ async function conectAPI(req: object | null, url: string, method: string) {
     }
 
     try {
-        const resp: any = await fetch(
+        const resp = await fetch(
             `${process.env.NEXT_PUBLIC_SERVER_URL_API}${url}`,
             config
         );
 
         if (resp.status === 201 || resp.status === 200) {
-            const authResp: any = await resp.json();
+            const authResp = await resp.json();
 
             return authResp;
         } else {
@@ -43,10 +45,10 @@ async function conectAPI(req: object | null, url: string, method: string) {
 }
 
 export default class ClassRepository implements ClassRepository {
-    async create(
+    async create (
         date: string | null,
-        time: string,
-        teacherId: string,
+        time: string | null,
+        teacherId: string | null,
         limit: number,
         hasCommission: boolean,
         kickback: number | null,
@@ -55,7 +57,7 @@ export default class ClassRepository implements ClassRepository {
         students: string[],
         active: boolean
     ): Promise<[]> {
-        const req: any = {
+        const req = {
             date,
             time,
             teacherId,
@@ -70,13 +72,13 @@ export default class ClassRepository implements ClassRepository {
         return conectAPI(req, "/class", "POST");
     }
 
-    async listClass(
-        date: string,
-        time: string,
-        teacherId: string,
+    async listClass (
+        date: string | null,
+        time: string | null,
+        teacherId: string | null,
         productTypeId: string | null,
     ): Promise<[]> {
-        const req: any = {
+        const req = {
             date,
             time,
             teacherId,           
@@ -85,12 +87,12 @@ export default class ClassRepository implements ClassRepository {
         return conectAPI(req, "/class/filter", "POST");
     }
 
-    async details(id: number): Promise<[]> {
+    async details (id: number): Promise<[]> {
         return conectAPI(null, `/class/${id}`, "GET");
     }
 
 
-    async edit(
+    async edit (
         id: number | null,
         date: string | null,
         time: string | null,
@@ -103,7 +105,7 @@ export default class ClassRepository implements ClassRepository {
         students: string[] | null,
         active: boolean
     ): Promise<[]> {
-        const req: any = {
+        const req = {
             id,
             date,
             time,

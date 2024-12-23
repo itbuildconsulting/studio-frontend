@@ -3,8 +3,8 @@ import Class from "./Class";
 export default interface ClassRepository {
     create(
         date: string | null,
-        time: string,
-        teacherId: string,
+        time: string | null,
+        teacherId: string | null,
         limit: number,
         hasCommission: boolean,
         kickback: number | null,
@@ -30,9 +30,9 @@ export default interface ClassRepository {
 
     listClass(
         id: number | null,
-        date: string,
-        time: string,
-        teacherId: string,
+        date: string | null,
+        time: string | null,
+        teacherId: string | null,
         productId: string | null,
     ): Promise<Class[]>;
 

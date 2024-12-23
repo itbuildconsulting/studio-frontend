@@ -3,12 +3,11 @@ import Link from "next/link";
 
 interface ActionButtonProps {
     id: number,
-    info: any,
     editURL: string,
     changeStatus: (e: number) => void
 }
 
-export const actionButton = ({ id, info, editURL, changeStatus }: ActionButtonProps) => {
+export const actionButton = ({ id, editURL, changeStatus }: ActionButtonProps) => {
     return (
         <DropDown style={'bg-white'} styleHeader={'bg-white'} className="nav-link">
             <>...</>

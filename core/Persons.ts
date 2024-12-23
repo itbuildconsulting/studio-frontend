@@ -1,3 +1,4 @@
+import { EmployeeFilterType, EmployeeType } from '@/types/persons';
 import Cookies from 'js-cookie';
 
 async function conectAPI(req: object | null, url: string, method: string) {
@@ -24,16 +25,16 @@ async function conectAPI(req: object | null, url: string, method: string) {
     }
 
     try {
-        const resp: any = await fetch(
+        const resp = await fetch(
             `${process.env.NEXT_PUBLIC_SERVER_URL_API}${url}`,
             config
         );
 
         if (resp.status === 201) { // Created
-            const authResp: any = await resp.json();
+            const authResp = await resp.json();
             return authResp.data;
         } else if (resp.status === 200) { // List
-            const authResp: any = await resp.json();
+            const authResp = await resp.json();
             return authResp;
         } else {
             const error = await resp?.json();
@@ -58,7 +59,6 @@ export default class PersonsRepository implements PersonsRepository {
         rule: string | null,
         frequency: string | null,
         employee: boolean,
-        employee_level: string | null,
         zipCode: string | null,
         state: string | null,
         city: string | null,
@@ -66,7 +66,7 @@ export default class PersonsRepository implements PersonsRepository {
         country: string | null,
         active: boolean
     ): Promise<[]> {
-        const req: any = {
+        const req = {
             name,
             identity,
             email,
@@ -95,7 +95,7 @@ export default class PersonsRepository implements PersonsRepository {
         email: string | null,
         identity: string | null,
     ): Promise<[]> {
-        const req: any = {
+        const req = {
             name,
             email,
             identity
@@ -108,7 +108,7 @@ export default class PersonsRepository implements PersonsRepository {
         email: string | null,
         identity: string | null,
     ): Promise<[]> {
-        const req: any = {
+        const req = {
             name,
             email,
             identity
@@ -134,7 +134,6 @@ export default class PersonsRepository implements PersonsRepository {
         rule: string | null,
         frequency: string | null,
         employee: boolean,
-        employee_level: string | null,
         zipCode: string | null,
         state: string | null,
         city: string | null,
@@ -142,7 +141,7 @@ export default class PersonsRepository implements PersonsRepository {
         country: string | null,
         active: boolean
     ): Promise<[]> {
-        const req: any = {
+        const req = {
             id,
             name,
             identity,
@@ -156,7 +155,7 @@ export default class PersonsRepository implements PersonsRepository {
             rule,
             frequency,
             employee,
-            employee_level,
+            employee_level: "0",
             zipCode,
             state,
             city,

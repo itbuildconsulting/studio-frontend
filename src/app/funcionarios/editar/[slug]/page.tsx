@@ -12,6 +12,7 @@ import SingleCalendar from "@/components/date/SingleCalendar";
 import Loading from "@/components/loading/Loading";
 import Modal from "@/components/Modal/Modal";
 import useConvertDate from "@/data/hooks/useConvertDate";
+import { EventBtn } from "@/types/btn";
 
 export default function EditTeachers() {
     const edit: boolean = true;
@@ -346,7 +347,7 @@ export default function EditTeachers() {
         }
     }
 
-    const eventButton = [
+    const eventButton:EventBtn[] = [
         {
             name: "Cancelar",
             function: clear,
