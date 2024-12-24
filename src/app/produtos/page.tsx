@@ -118,7 +118,7 @@ export default function Products() {
 
     const actionButtonProduct = (cell: any, row: any) => {
         return (
-            <DropDown style={'bg-white'} styleHeader={'bg-white'} className="nav-link">
+            <DropDown style={'bg-white'} styleHeader={'bg-white'} >
                 <>...</>
 
                 <Link href={"#"} onClick={() => detailsProduct(cell)}>
@@ -426,7 +426,7 @@ export default function Products() {
                             required
                         />
                     </div>
-                    {errorMessage === null ? false :
+                    {errorMessage === "" ? false :
                         <div className={` 
                                         bg-red-400 text-white py-1 px-2
                                         border border-red-500 rounded-md

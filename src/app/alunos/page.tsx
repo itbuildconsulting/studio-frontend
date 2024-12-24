@@ -47,7 +47,7 @@ export default function Students() {
 
     const actionButtonProduct = (cell: any, row: any) => {
         return (
-            <DropDown style={'bg-white'} styleHeader={'bg-white'} className="nav-link">
+            <DropDown style={'bg-white'}>
                 <>...</>
 
                 <Link href={`/alunos/editar/${cell}`}>

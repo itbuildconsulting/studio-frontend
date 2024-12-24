@@ -1,23 +1,24 @@
-import React, { createContext, useState } from 'react';
+import React, { createContext, ReactNode, useState } from 'react';
 import Cookies from 'js-cookie';
 import User from '../../model/User';
 
 import { useRouter } from "next/navigation";
+import { UserAuth } from '@/types/auth';
 
 interface AuthContextProps<> {
     user?: User | null | undefined,
     load?: boolean,
     loginError?: boolean,
     msgError?: string[],
-    login?: (email: string, senha: string) => Promise<any>,
-    recoverPassword?: ((email: string) => Promise<any>) | undefined,
-    resetPassword?: ((password: string) => Promise<any>) | undefined,
-    logout?: () => Promise<any>
+    login?: (email: string, senha: string) => void,
+    recoverPassword?: ((email: string) => void) | undefined,
+    resetPassword?: ((password: string) => void) | undefined,
+    logout?: () => void
 }
 
 const AuthContext = createContext<AuthContextProps>({});
 
-function managementCookie(logado: boolean, expireAt: string, token: string) {
+function managementCookie({logado, expiresIn, token }: UserAuth) {
 
     //const dataString = expireAt;
     //const partes = dataString.split('T')[0].split('-');
@@ -25,7 +26,7 @@ function managementCookie(logado: boolean, expireAt: string, token: string) {
     const mes = parseInt(partes[1]) - 1; 
     const dia = parseInt(partes[2]); */
 
-    const data = new Date(expireAt);
+    const data = new Date(expiresIn);
 
     if (logado) {
         Cookies.set('admin-template-sci-auth', String(logado), {
@@ -39,7 +40,11 @@ function managementCookie(logado: boolean, expireAt: string, token: string) {
     }
 }
 
-export function AuthProvider(props: any) {
+interface AuthProviderProps {
+    children: ReactNode
+}
+
+export function AuthProvider({ children }: AuthProviderProps) {
     const [load, setLoad] = useState(false);
     const [user, setUser] = useState<User | null | undefined>();
     const [loginError, setLoginError] = useState<boolean>(false);
@@ -53,16 +58,16 @@ export function AuthProvider(props: any) {
         setTimeout(() => {setMsgError([]); setLoginError(false)}, time * 1000)
     }
 
-    async function sessionConfig(sistemUser: any) {
+    async function sessionConfig(sistemUser: UserAuth) {
         if (sistemUser?.token) {
             //const user = await normalizeUser(firebaseUser)
             setUser(user);
-            managementCookie(true, sistemUser?.expiresIn, sistemUser?.token);
+            managementCookie({ logado: true, expiresIn: sistemUser?.expiresIn, token: sistemUser?.token});
             setLoad(false);
             //return user.email
         } else {
             setUser(null);
-            managementCookie(false, '', '');
+            managementCookie({ logado: false, expiresIn: '', token: ''});
             setLoad(false);
             return false
         }
@@ -131,7 +136,6 @@ export function AuthProvider(props: any) {
             if (resp.status === 200) {
                 setLoad(false);
                 const authResp = await resp.json();
-                console.log(authResp)
             } else if (resp.status === 500) {
                 setLoad(false);
                 showErro('Erro desconhecido - Entre em contato com o Suporte');
@@ -170,7 +174,6 @@ export function AuthProvider(props: any) {
             if (resp.status === 200) {
                 setLoad(false);
                 const authResp = await resp.json();
-                console.log(authResp)
             } else if (resp.status === 500) {
                 setLoad(false);
                 showErro('Erro desconhecido - Entre em contato com o Suporte');
@@ -209,7 +212,7 @@ export function AuthProvider(props: any) {
             resetPassword,
             logout
         }}>
-            {props.children}
+            {children}
         </AuthContext.Provider>
     )
 }

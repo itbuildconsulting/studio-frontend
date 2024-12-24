@@ -21,7 +21,7 @@ export default function Table(props: TableProps) {
                                 return (
                                     <tr key={index} className={`${props?.rowClasses && props?.rowClasses(item)}`}>
                                         {
-                                            props.columns.map((col: any, indexHeader: any) => {
+                                            props.columns.map((col: any, indexHeader: number) => {
                                                 return (
                                                     <td key={indexHeader}>
                                                         <div className='flex flex-col justify-center'>
@@ -60,11 +60,11 @@ export default function Table(props: TableProps) {
                 <div className={`${styles.bg_table} ${props.class || ""} w-full`}>
                     <div>
                         {
-                            props?.data?.length > 0 ? props?.data?.map((item: any, index: any) => {
+                            props?.data?.length > 0 ? props?.data?.map((item: any, index: number) => {
                                 return (
                                     <div key={index} className={`${styles.bg_table_card} grid grid-cols-12 gap-8`}>
                                         {
-                                            props.columns.map((col: any, indexHeader: any) => {
+                                            props.columns.map((col: any, indexHeader: number) => {
                                                 return (
                                                     <div key={indexHeader} className={'col-span-6 md:col-span-4'} style={{ wordBreak: 'break-word' }}>
                                                         <div className='flex flex-col justify-center'>

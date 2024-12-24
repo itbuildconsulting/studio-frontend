@@ -21,7 +21,6 @@ export default function Auth() {
     }
   }
 
-  console.log(msgError)
   return (
     <AuthDefault>
       <div className={`${styles.form_login}`}>

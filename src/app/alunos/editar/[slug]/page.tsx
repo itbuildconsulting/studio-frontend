@@ -567,7 +567,7 @@ export default function EditStudents() {
                                     required
                                 />
                             </div>
-                            {errorMessage === null ? false :
+                            {errorMessage === "" ? false :
                                 <div className={` 
                                         bg-red-400 text-white py-1 px-2
                                         border border-red-500 rounded-md

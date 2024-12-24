@@ -2,13 +2,13 @@ import styles from '../../styles/header.module.css';
 import { IconArrowBack, IconMenuHamburguer, IconNotification, IconPeople } from '../icons';
 
 interface HeaderProps {
-    handleMenuOpen: any
+    handleMenuOpen: () => void
 }
 
-export default function Header(props: HeaderProps) {
+export default function Header({ handleMenuOpen }: HeaderProps) {
     return (
         <header className={`${styles.bg_header}`}>
-            <span className={`${styles.header_menu}`} onClick={props.handleMenuOpen}>{IconMenuHamburguer(32, 30, '#003D58')}</span>
+            <span className={`${styles.header_menu}`} onClick={handleMenuOpen}>{IconMenuHamburguer('32px', '30px', '#003D58')}</span>
             <div>
 
             </div>

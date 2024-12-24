@@ -9,7 +9,7 @@ interface ActionButtonProps {
 
 export const actionButton = ({ id, editURL, changeStatus }: ActionButtonProps) => {
     return (
-        <DropDown style={'bg-white'} styleHeader={'bg-white'} className="nav-link">
+        <DropDown style={'bg-white'} styleHeader={'bg-white'} >
             <>...</>
 
             <Link href={`${editURL}${id}`}>

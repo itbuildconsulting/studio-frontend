@@ -19,6 +19,7 @@ import { text } from "stream/consumers";
 import DropDown from "@/components/dropdown/DropDown";
 import Link from "next/link";
 import AuthSelect from "@/components/auth/AuthSelect";
+import { Column } from "@/types/table";
 
 export default function Administrative() {
     const repoDrop = useMemo(() => new DropDownsCollection(), []);
@@ -54,13 +55,13 @@ export default function Administrative() {
         });
     }
 
-    const actionLocaleName = (cell: any, row: any) => {
+    const actionLocaleName = (cell: any) => {
         return cell?.name || "Não definido";
     }
 
-    const actionButtonLocale = (cell: any, row: any) => {
+    const actionButtonLocale = (cell: any) => {
         return (
-            <DropDown style={'bg-white'} className="nav-link">
+            <DropDown style={'bg-white'}>
                 <>...</>
 
                 <Link href={"#"} onClick={() => detailsLocale(cell)}>
@@ -74,9 +75,9 @@ export default function Administrative() {
         )
     }
 
-    const actionButtonProductType = (cell: any, row: any) => {
+    const actionButtonProductType = (cell: any) => {
         return (
-            <DropDown style={'bg-white'} className="nav-link">
+            <DropDown style={'bg-white'}>
                 <>...</>
                 <Link href={"#"} onClick={() => detailsProductType(cell)}>
                     Editar
@@ -88,7 +89,7 @@ export default function Administrative() {
         )
     }
 
-    const columns = [
+    const columns: Column[] = [
         {
             dataField: 'name',
             text: `Local`,
@@ -103,7 +104,7 @@ export default function Administrative() {
         }
     ];
 
-    const columns2 = [
+    const columns2: Column[] = [
         {
             dataField: 'name',
             text: `Tipo`,
@@ -428,7 +429,7 @@ export default function Administrative() {
                         />
                     </div>
                     <div className="grid grid-cols-12">
-                        {errorMessage === null ? false :
+                        {errorMessage === "" ? false :
                             <div className={` 
                                         bg-red-400 text-white py-1 px-2
                                         border border-red-500 rounded-md
@@ -475,7 +476,7 @@ export default function Administrative() {
                     </div>
                 </div>
                 <div className="grid grid-cols-12">
-                    {errorMessage === null ? false :
+                    {errorMessage === "" ? false :
                         <div className={` 
                                         bg-red-400 text-white py-1 px-2
                                         border border-red-500 rounded-md
