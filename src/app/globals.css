@@ -420,3 +420,17 @@ input.select-multi__input {
 .select-multi__multi-value__label {
   color: #FFFFFF !important;
 }
+
+.number_bike{
+  font-size: 11px;
+  position: absolute;
+  top: 40px;
+  right: 10px;
+  width: 25px;
+  height: 25px;
+  padding: 5px;
+  background-color: white;
+  border-radius: 100px;
+  border: 1px solid #000;
+  text-align: center;
+}

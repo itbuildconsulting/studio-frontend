@@ -19,6 +19,8 @@ import AuthSelectMulti from "@/components/auth/AuthSelectMulti";
 import useConvertDate from "@/data/hooks/useConvertDate";
 import { convertDate } from "@/utils/formatterText";
 import { EventBtn } from "@/types/btn";
+import { BikeAvalible, BikeBusy } from "@/components/icons";
+import BikeView from "@/components/BikeView/BikeView";
 
 export default function AddClass() {
     const edit: boolean = true;
@@ -41,7 +43,8 @@ export default function AddClass() {
     const [canCommission, setCanCommission] = useState<boolean | null>(null);
     const [students, setStudents] = useState<string[] | null>(null);
     const [commissionRules, setCommissionRules] = useState<string | null>(null);
-    const [commissionValue, setCommissionValue] = useState<number | null>(null);
+    const [commissionValue, setCommissionValue] = useState<number | null>(0);
+    const [bikes, setBikes] = useState<string[]>([]);
 
     const [dropdownType, setDropdownType] = useState<string[]>([]);
     const [dropdownEmployee, setDropdownEmployee] = useState<DropdownType[]>([]);
@@ -109,6 +112,7 @@ export default function AddClass() {
                     setErrorMessage(null);
                 }, 2500);
             } else {
+                setBikes(result.bikes)
                 setDate(result.date);
                 setTime(result.time);
                 setTypeProduct(result.productId);
@@ -236,10 +240,35 @@ export default function AddClass() {
                                         />
                                     </div>
                                     <div className="col-span-12 sm:col-span-6">
-                                        <TimePickerCalendar
-                                            label="Hora"
+                                        <AuthSelect
+                                            label="Horário"
                                             value={time}
-                                            setValue={setTime}
+                                            options={
+                                                [
+                                                    { "label": "05:00", "value": "05:00"},
+                                                    { "label": "06:00", "value": "06:00"},
+                                                    { "label": "07:00", "value": "07:00"},
+                                                    { "label": "08:00", "value": "08:00"},
+                                                    { "label": "09:00", "value": "09:00"},
+                                                    { "label": "10:00", "value": "10:00" },
+                                                    { "label": "11:00", "value": "11:00" },
+                                                    { "label": "12:00", "value": "12:00" },
+                                                    { "label": "13:00", "value": "13:00" },
+                                                    { "label": "14:00", "value": "14:00" },
+                                                    { "label": "15:00", "value": "15:00" },
+                                                    { "label": "16:00", "value": "16:00" },
+                                                    { "label": "17:00", "value": "17:00" },
+                                                    { "label": "18:00", "value": "18:00" },
+                                                    { "label": "19:00", "value": "19:00" },
+                                                    { "label": "20:00", "value": "20:00" },
+                                                    { "label": "21:00", "value": "21:00" },
+                                                    { "label": "22:00", "value": "22:00" },
+                                                    { "label": "23:00", "value": "23:00" }
+                                                ]
+                                            }
+                                            changeValue={setTime}
+                                            edit={edit}
+                                            required
                                         />
 
                                     </div>
@@ -298,7 +327,7 @@ export default function AddClass() {
                                             />
                                         }
                                     </div>
-                                    <div className="col-span-12 sm:col-span-6">
+                                    {/*<div className="col-span-12 sm:col-span-6">
                                         {dropdownStudent.length > 0
                                             ?
                                             <>
@@ -318,7 +347,7 @@ export default function AddClass() {
                                                 required
                                             />
                                         }
-                                    </div>
+                                    </div>*/}
                                     <div className="hidden xl:flex xl:grid-rows-4"></div>
                                     <div className="hidden xl:flex xl:grid-rows-4"></div>
                                 </div>
@@ -338,7 +367,7 @@ export default function AddClass() {
                                         <AuthInput
                                             label="Valor da Comissão"
                                             value={commissionValue}
-                                            type='number'
+                                            type='text'
                                             changeValue={setCommissionValue}
                                             edit={edit}
                                             required
@@ -357,8 +386,77 @@ export default function AddClass() {
                                     }
                                 </div>
                             </div>
-                            <div className="col-span-5" style={{ borderLeft: "1px solid #999999"}}>
+                            <div className="col-span-5 flex items-center justify-center" style={{ borderLeft: "1px solid #999999"}}>
+                                {/*<div className="flex flex-col items-center ">
+                                    <div className="flex flex-row"> 
+                                        <div>
+                                            {BikeBusy()}
+                                            Professor                                       
+                                        </div>
+                                    </div>
 
+                                    <div className="flex flex-row"> 
+                                        <div>
+                                            {BikeAvalible()}
+                                            1                                      
+                                        </div>
+                                        <div>
+                                            {BikeAvalible()}
+                                            2                                     
+                                        </div>
+                                        <div>
+                                            {BikeAvalible()}
+                                            3                                     
+                                        </div>
+                                    </div>
+
+                                    <div className="flex flex-row"> 
+                                        <div>
+                                            {BikeAvalible()}
+                                            4                                     
+                                        </div>
+                                        <div>
+                                            {BikeAvalible()}
+                                            5                                    
+                                        </div>
+                                        <div>
+                                            {BikeAvalible()}
+                                            6                                    
+                                        </div>
+                                        <div>
+                                            {BikeAvalible()}
+                                            7                                    
+                                        </div>
+                                    </div>
+
+                                    <div className="flex flex-row"> 
+                                        <div>
+                                            {BikeAvalible()}
+                                            8                                     
+                                        </div>
+                                        <div>
+                                            {BikeAvalible()}
+                                            9                                    
+                                        </div>
+                                        <div>
+                                            {BikeAvalible()}
+                                            10                                   
+                                        </div>
+                                    </div>
+
+                                    <div className="flex flex-row"> 
+                                        <div>
+                                            {BikeAvalible()}
+                                            11                                    
+                                        </div>
+                                        <div>
+                                            {BikeAvalible()}
+                                            12                                   
+                                        </div>
+                                    </div>
+
+                                </div>*/}
+                                <BikeView bikes={bikes} totalBikes={12} />
                             </div>
                         </div>
                     </Card>
