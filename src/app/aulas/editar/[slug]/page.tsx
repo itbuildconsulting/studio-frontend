@@ -21,6 +21,8 @@ import { convertDate } from "@/utils/formatterText";
 import { EventBtn } from "@/types/btn";
 import { BikeAvalible, BikeBusy } from "@/components/icons";
 import BikeView from "@/components/BikeView/BikeView";
+import { convertArray, convertArrayType } from "@/utils/convertArray";
+import { ValidationForm } from "@/components/formValidation/validation";
 
 export default function AddClass() {
     const edit: boolean = true;
@@ -68,7 +70,7 @@ export default function AddClass() {
     const [log, setLog] = useState<number | null>(null);
     const [successMessage, setSuccessMessage] = useState<any>(null);
     const [loading, setLoading] = useState<any>(false);
-    const [errorMessage, setErrorMessage] = useState<any>(null);
+    const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
     useEffect(() => {
         repoDrop.dropdown('productTypes/dropdown').then(setDropdownType);
@@ -207,20 +209,6 @@ export default function AddClass() {
         )
     };
 
-    function convertArrayType(array: any) {
-        return array.map((item: any) => {
-            const { name, id, place, ...rest } = item;
-            return { label: `${name} - ${place?.name}`, value: id, ...rest };
-        });
-    }
-
-    function convertArrayType2(array: any) {
-        return array?.map((item: any) => {
-            const { name, id, place, ...rest } = item;
-            return { label: `${name}`, value: id, ...rest };
-        });
-    }
-
     return (
         <PageDefault title={"Editar Aula"}>
             <div className="grid grid-cols-12">
@@ -312,7 +300,7 @@ export default function AddClass() {
                                             <AuthSelect
                                                 label='Professor'
                                                 value={teacher}
-                                                options={convertArrayType2(dropdownEmployee)}
+                                                options={convertArray(dropdownEmployee)}
                                                 changeValue={setTeacher}
                                                 edit={edit}
                                                 required
@@ -357,7 +345,7 @@ export default function AddClass() {
                                         <AuthSelect
                                             label="Regra de Comissão"
                                             value={commissionRules}
-                                            options={convertArrayType2(dropdownCommission)}
+                                            options={convertArray(dropdownCommission)}
                                             changeValue={setCommissionRules}
                                             edit={edit}
                                             required
@@ -374,16 +362,7 @@ export default function AddClass() {
                                         />
                                     </div>
 
-                                    {errorMessage === "" ? false :
-                                        <div className={` 
-                                        bg-red-400 text-white py-1 px-2
-                                        border border-red-500 rounded-md
-                                        flex flex-row items-center col-span-12 w-1/2
-                                        `}>
-                                            {/* {IconWarning} */}
-                                            <span className='ml-2 text-sm'>{errorMessage}</span>
-                                        </div>
-                                    }
+                                    <ValidationForm errorMessage={errorMessage} />
                                 </div>
                             </div>
                             <div className="col-span-5 flex items-center justify-center" style={{ borderLeft: "1px solid #999999"}}>

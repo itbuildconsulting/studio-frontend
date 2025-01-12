@@ -14,6 +14,7 @@ import Link from "next/link";
 import Modal from "@/components/Modal/Modal";
 import Loading from "@/components/loading/Loading";
 import { actionButton } from "@/utils/actionTable";
+import { convertUpdateAt } from "@/utils/formatterText";
 
 export default function Teachers() {
     const repo = useMemo(() => new PersonsCollecion(), []);
@@ -26,7 +27,7 @@ export default function Teachers() {
     const [log, setLog] = useState<number | null>(null);
     const [successMessage, setSuccessMessage] = useState<any>(null);
     const [loading, setLoading] = useState<any>(false);
-    const [errorMessage, setErrorMessage] = useState<any>(null);
+    const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
     const [listPersons, setListPersons] = useState<string[]>([]);
 
@@ -38,7 +39,7 @@ export default function Teachers() {
     }
 
     const convertDate = (cell: any, row: any) => {
-        return cell.split("-").reverse().join("/");
+        return convertUpdateAt(cell);
     }
 
     const convertStatus = (cell: any, row: any) => {
@@ -47,8 +48,7 @@ export default function Teachers() {
 
     const handleActionButton = (cell: number, row: any) => {
         return actionButton({ 
-            id: cell, 
-            info: row, 
+            id: cell,
             editURL: "/funcionarios/editar/", 
             changeStatus: deletePersons
         })

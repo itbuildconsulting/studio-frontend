@@ -44,7 +44,7 @@ const AuthSelect = ({label, options, value, required, noRender, disabled, edit, 
                         `}
                     >
                         <option value={''} disabled={!isFirstSelection}>Selecione</option>
-                        {options.map((option: any) => (
+                        {options?.length > 0 && options?.map((option: any) => (
                             <option key={option.value} value={option.value}>
                                 {option.label}
                             </option>

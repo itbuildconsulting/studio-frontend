@@ -14,6 +14,7 @@ import PersonsCollecion from "../../../core/Persons";
 import Loading from "@/components/loading/Loading";
 import Modal from "@/components/Modal/Modal";
 import { EventBtn } from "@/types/btn";
+import { convertUpdateAt } from "@/utils/formatterText";
 
 export default function Students() {
     const repo = useMemo(() => new PersonsCollecion(), []);
@@ -38,7 +39,7 @@ export default function Students() {
     }
 
     const convertDate = (cell: any, row: any) => {
-        return cell.split("-").reverse().join("/");
+        return convertUpdateAt(cell);
     }
 
     const convertStatus = (cell: any, row: any) => {
@@ -92,14 +93,11 @@ export default function Students() {
     ];
 
     const clear = () => {
-        setName("");
-        setEmail("");
-        setDocument("");
-        //listGeneralStudent();
+        listGeneralStudent("", "", "");
     }
 
     const onSubmit = () => {
-        listGeneralStudent();
+        listGeneralStudent(name, email, document);
     }
 
     const eventButton: EventBtn[] = [
@@ -153,22 +151,28 @@ export default function Students() {
         )
     };
 
-    const listGeneralStudent = () => {
+    const listGeneralStudent = (name: string, email: string, document: string) => {
+        setName(name);
+        setEmail(email);
+        setDocument(document);
         setLoading(true);
+
         repo.listStudent(name, email, document).then((result: any) => {
             if (result instanceof Error) {
                 setLoading(false);
+                setListPersons([]);
             } else {
                 setListPersons(result);
                 setLoading(false);
             }
         }).catch((error: any) => {
             setLoading(false);
+            setListPersons([]);
         });
     }
 
     useEffect(() => {
-        listGeneralStudent();
+        listGeneralStudent(name, email, document);
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 

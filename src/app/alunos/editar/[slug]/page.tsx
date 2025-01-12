@@ -12,6 +12,7 @@ import SingleCalendar from "@/components/date/SingleCalendar";
 import Loading from "@/components/loading/Loading";
 import Modal from "@/components/Modal/Modal";
 import { EventBtn } from "@/types/btn";
+import { ValidationForm } from "@/components/formValidation/validation";
 
 export default function EditStudents() {
     const edit: boolean = true;
@@ -567,16 +568,7 @@ export default function EditStudents() {
                                     required
                                 />
                             </div>
-                            {errorMessage === "" ? false :
-                                <div className={` 
-                                        bg-red-400 text-white py-1 px-2
-                                        border border-red-500 rounded-md
-                                        flex flex-row items-center col-span-12 w-1/2
-                                        `}>
-                                    {/* {IconWarning} */}
-                                    <span className='ml-2 text-sm'>{errorMessage}</span>
-                                </div>
-                            }
+                            <ValidationForm errorMessage={errorMessage} />
                         </div>
                     </Card>
                 </div>

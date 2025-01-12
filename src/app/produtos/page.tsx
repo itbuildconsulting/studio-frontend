@@ -15,6 +15,8 @@ import DropDownsCollection from "../../../core/DropDowns";
 import Loading from "@/components/loading/Loading";
 import DropDown from "@/components/dropdown/DropDown";
 import Link from "next/link";
+import { convertArray, convertArrayType } from "@/utils/convertArray";
+import { ValidationForm } from "@/components/formValidation/validation";
 
 export default function Products() {
     const repoDrop = useMemo(() => new DropDownsCollection(), []);
@@ -38,7 +40,7 @@ export default function Products() {
     const [log, setLog] = useState<number | null>(null);
     const [successMessage, setSuccessMessage] = useState<any>(null);
     const [loading, setLoading] = useState<any>(false);
-    const [errorMessage, setErrorMessage] = useState<any>(null);
+    const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
     const [listProduct, setListProduct] = useState<string[]>([]);
     const [edit, setEdit] = useState<boolean>(false);
@@ -87,25 +89,11 @@ export default function Products() {
     );
 
     const actionLocaleName = (cell: any, row: any) => {
-        return cell?.name;
+        return cell?.place?.name || " - ";
     }
 
     const actionProductTypeName = (cell: any, row: any) => {
         return cell?.name;
-    }
-
-    function convertArray(array: any) {
-        return array.map((item: any) => {
-            const { name, id, ...rest } = item;
-            return { label: name, value: id, ...rest };
-        });
-    }
-
-    function convertArrayType(array: any) {
-        return array.map((item: any) => {
-            const { name, id, place, ...rest } = item;
-            return { label: `${name} - ${place?.name}`, value: id, ...rest };
-        });
     }
 
     const convertValue = (cell: any, row: any) => {
@@ -118,7 +106,7 @@ export default function Products() {
 
     const actionButtonProduct = (cell: any, row: any) => {
         return (
-            <DropDown style={'bg-white'} styleHeader={'bg-white'} >
+            <DropDown style={'bg-white'}>
                 <>...</>
 
                 <Link href={"#"} onClick={() => detailsProduct(cell)}>
@@ -147,7 +135,7 @@ export default function Products() {
             formatter: actionProductTypeName
         },
         {
-            dataField: 'place',
+            dataField: 'productType',
             text: `Local`,
             formatter: actionLocaleName
         },
@@ -426,16 +414,7 @@ export default function Products() {
                             required
                         />
                     </div>
-                    {errorMessage === "" ? false :
-                        <div className={` 
-                                        bg-red-400 text-white py-1 px-2
-                                        border border-red-500 rounded-md
-                                        flex flex-row items-center col-span-12
-                                        `}>
-                            {/* {IconWarning} */}
-                            <span className='ml-2 text-sm'>{errorMessage}</span>
-                        </div>
-                    }
+                    <ValidationForm errorMessage={errorMessage} />
                 </div>
             </Modal>
 

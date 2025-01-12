@@ -15,6 +15,7 @@ import DropDownsCollection from "../../../core/DropDowns";
 import AuthSelect from "@/components/auth/AuthSelect";
 import Time from "@/components/time/time";
 import { EventBtn } from "@/types/btn";
+import { convertArray, convertArrayType } from "@/utils/convertArray";
 
 export default function Class() {
     const repo = useMemo(() => new ClassCollecion(), []);
@@ -41,7 +42,6 @@ export default function Class() {
     const handleActionButton = (cell: number, row: any) => {
         return actionButton({
             id: cell,
-            info: row,
             editURL: "/aulas/editar/",
             changeStatus: () => { }
         })
@@ -117,20 +117,6 @@ export default function Class() {
         },
     ];
 
-    function convertArrayType(array: any) {
-        return array.map((item: any) => {
-            const { name, id, place, ...rest } = item;
-            return { label: `${name} - ${place?.name}`, value: id, ...rest };
-        });
-    }
-
-    function convertArrayType2(array: any) {
-        return array?.map((item: any) => {
-            const { name, id, place, ...rest } = item;
-            return { label: `${name}`, value: id, ...rest };
-        });
-    }
-
     useEffect(() => {
         listClass(date, time, teacherId, type);
 
@@ -175,7 +161,7 @@ export default function Class() {
                                 <AuthSelect
                                     label='Professor'
                                     value={teacherId}
-                                    options={convertArrayType2(dropdownTeacher)}
+                                    options={convertArray(dropdownTeacher)}
                                     changeValue={setTeacherId}
                                     required
                                 />

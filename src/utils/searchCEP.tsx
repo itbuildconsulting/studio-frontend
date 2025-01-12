@@ -3,7 +3,7 @@ interface AuthCepProps {
     setAddress: (e: string) => void
     setCity: (e: string) => void
     setState: (e: string) => void
-    setErrorMessage: (e: string | string[]) => void
+    setErrorMessage: (e: string | string[] | null) => void
 }
 
 const searchCEP = async ({
@@ -24,7 +24,7 @@ const searchCEP = async ({
         if (data?.error) {
             setErrorMessage(["CEP inválido ou não encontrado."]);
             setTimeout(() => {
-                setErrorMessage('');
+                setErrorMessage(null);
             }, 5000);
         } else {
             setAddress(data?.logradouro || "");
@@ -34,7 +34,7 @@ const searchCEP = async ({
     } catch (error) {
         setErrorMessage(["CEP inválido ou não encontrado."]);
         setTimeout(() => {
-            setErrorMessage('');
+            setErrorMessage(null);
         }, 5000);
     }
 }

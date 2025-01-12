@@ -16,6 +16,7 @@ import searchCEP from "@/utils/searchCEP";
 
 import listStates from '../../../json/states.json';
 import listCountry from '../../../json/country.json';
+import { ValidationForm } from "@/components/formValidation/validation";
 
 export default function AddTeachers() {
     const dropdownStates = listStates?.estados;
@@ -47,7 +48,7 @@ export default function AddTeachers() {
     const [log, setLog] = useState<number | null>(null);
     const [successMessage, setSuccessMessage] = useState<any>(null);
     const [loading, setLoading] = useState<any>(false);
-    const [errorMessage, setErrorMessage] = useState<any>(null);
+    const [errorMessage, setErrorMessage] = useState<string | string[] | null>(null);
 
     const [dropdownLevel] = useState<any>(
         [
@@ -551,16 +552,7 @@ export default function AddTeachers() {
                                 />
                                 {/* } */}
                             </div>
-                            {errorMessage === "" ? false :
-                                <div className={` 
-                                        bg-red-400 text-white py-1 px-2
-                                        border border-red-500 rounded-md
-                                        flex flex-row items-center col-span-12 w-1/2
-                                        `}>
-                                    {/* {IconWarning} */}
-                                    <span className='ml-2 text-sm'>{errorMessage}</span>
-                                </div>
-                            }
+                            <ValidationForm errorMessage={errorMessage} />
                         </div>
                     </Card>
                 </div>

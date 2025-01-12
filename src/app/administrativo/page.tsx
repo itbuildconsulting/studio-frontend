@@ -20,6 +20,8 @@ import DropDown from "@/components/dropdown/DropDown";
 import Link from "next/link";
 import AuthSelect from "@/components/auth/AuthSelect";
 import { Column } from "@/types/table";
+import { convertArrayType } from "@/utils/convertArray";
+import { ValidationForm } from "@/components/formValidation/validation";
 
 export default function Administrative() {
     const repoDrop = useMemo(() => new DropDownsCollection(), []);
@@ -44,16 +46,9 @@ export default function Administrative() {
     const [log, setLog] = useState<number | null>(null);
     const [loading, setLoading] = useState<boolean>(false);
     const [successMessage, setSuccessMessage] = useState<string>('');
-    const [errorMessage, setErrorMessage] = useState<string>('');
+    const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
     const [edit, setEdit] = useState<boolean>(false);
-
-    function convertArray(array: any) {
-        return array.map((item: any) => {
-            const { name, address, id, ...rest } = item;
-            return { label: `${name} - ${address}`, value: id, ...rest };
-        });
-    }
 
     const actionLocaleName = (cell: any) => {
         return cell?.name || "Não definido";
@@ -160,7 +155,8 @@ export default function Administrative() {
 
     function onSubmitLocale() {
         setLoading(true);
-        setErrorMessage('');
+        setErrorMessage(null);
+        setSuccessMessage('');
 
         (edit ? repo?.edit(localeName, addressName, true, idLocales) : repo?.create(localeName, addressName, true)).then((result: any) => {
             if (result instanceof Error) {
@@ -169,7 +165,7 @@ export default function Administrative() {
                 setLoading(false);
                 setLog(1);
                 setTimeout(() => {
-                    setErrorMessage('');
+                    setErrorMessage(null);
                 }, 2500);
             } else {
                 setSuccessMessage(edit ? "Edição realizada com sucesso!" : "Cadastro realizado com sucesso!")
@@ -184,7 +180,7 @@ export default function Administrative() {
         }).catch((error: any) => {
             setErrorMessage(error.message);
             setTimeout(() => {
-                setErrorMessage('');
+                setErrorMessage(null);
             }, 2500);
             setLoading(false);
             setLog(1);
@@ -193,7 +189,7 @@ export default function Administrative() {
 
     function onSubmitTypeProduct() {
         setLoading(true);
-        setErrorMessage('');
+        setErrorMessage(null);
 
         (edit ? repoType?.edit(typeName, Number(productLocaleName), true, idProductType) : repoType?.create(typeName, Number(productLocaleName), true)).then((result: any) => {
             if (result instanceof Error) {
@@ -202,7 +198,7 @@ export default function Administrative() {
                 setLoading(false);
                 setLog(1);
                 setTimeout(() => {
-                    setErrorMessage('');
+                    setErrorMessage(null);
                 }, 2500);
             } else {
                 setSuccessMessage(edit ? "Edição realizada com sucesso!" : "Cadastro realizado com sucesso!")
@@ -217,7 +213,7 @@ export default function Administrative() {
         }).catch((error) => {
             setErrorMessage(error.message);
             setTimeout(() => {
-                setErrorMessage('');
+                setErrorMessage(null);
             }, 2500);
             setLog(1);
             setLoading(false);
@@ -259,7 +255,7 @@ export default function Administrative() {
     const detailsLocale = (id: number) => {
         setEdit(true);
         setModalLocaleShow(true);
-        setErrorMessage('');
+        setErrorMessage(null);
 
         repo.details(id).then((result: any) => {
             if (result instanceof Error) {
@@ -277,7 +273,7 @@ export default function Administrative() {
     const detailsProductType = (id: number) => {
         setEdit(true);
         setModalTypeProductShow(true);
-        setErrorMessage('');
+        setErrorMessage(null);
 
         repoType.details(id).then((result: any) => {
             if (result instanceof Error) {
@@ -428,18 +424,7 @@ export default function Administrative() {
                             required
                         />
                     </div>
-                    <div className="grid grid-cols-12">
-                        {errorMessage === "" ? false :
-                            <div className={` 
-                                        bg-red-400 text-white py-1 px-2
-                                        border border-red-500 rounded-md
-                                        flex flex-row items-center col-span-12
-                                        `}>
-                                {/* {IconWarning} */}
-                                <span className='ml-2 text-sm'>{errorMessage}</span>
-                            </div>
-                        }
-                    </div>
+                    <ValidationForm errorMessage={errorMessage} />
                 </div>
             </Modal>
 
@@ -468,7 +453,7 @@ export default function Administrative() {
                         <AuthSelect
                             label='Local'
                             value={productLocaleName}
-                            options={convertArray(dropdownPlace)}
+                            options={convertArrayType(dropdownPlace)}
                             changeValue={setProductLocaleName}
                             edit={edit}
                             required
@@ -476,16 +461,7 @@ export default function Administrative() {
                     </div>
                 </div>
                 <div className="grid grid-cols-12">
-                    {errorMessage === "" ? false :
-                        <div className={` 
-                                        bg-red-400 text-white py-1 px-2
-                                        border border-red-500 rounded-md
-                                        flex flex-row items-center col-span-12
-                                        `}>
-                            {/* {IconWarning} */}
-                            <span className='ml-2 text-sm'>{errorMessage}</span>
-                        </div>
-                    }
+                    <ValidationForm errorMessage={errorMessage} />
                 </div>
             </Modal>
 

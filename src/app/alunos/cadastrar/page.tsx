@@ -15,6 +15,7 @@ import SingleCalendar from "@/components/date/SingleCalendar";
 import listStates from '../../../json/states.json';
 import listCountry from '../../../json/country.json';
 import { EventBtn } from "@/types/btn";
+import { ValidationForm } from "@/components/formValidation/validation";
 
 export default function Students() {
     const dropdownStates = listStates?.estados;
@@ -47,7 +48,7 @@ export default function Students() {
     const [log, setLog] = useState<number | null>(null);
     const [successMessage, setSuccessMessage] = useState<any>(null);
     const [loading, setLoading] = useState<any>(false);
-    const [errorMessage, setErrorMessage] = useState<any>(null);
+    const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
     // Password Control
     var regex = /^(?=.*[a-z]{1})(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,}$/;
@@ -547,16 +548,7 @@ export default function Students() {
                                     required
                                 />
                             </div>
-                            {errorMessage === "" ? false :
-                                <div className={` 
-                                        bg-red-400 text-white py-1 px-2
-                                        border border-red-500 rounded-md
-                                        flex flex-row items-center col-span-12 w-1/2
-                                        `}>
-                                    {/* {IconWarning} */}
-                                    <span className='ml-2 text-sm'>{errorMessage}</span>
-                                </div>
-                            }
+                            <ValidationForm errorMessage={errorMessage} />
                         </div>
                     </Card>
                 </div>
