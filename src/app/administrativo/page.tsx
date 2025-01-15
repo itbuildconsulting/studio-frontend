@@ -10,18 +10,18 @@ import { useEffect, useMemo, useState } from "react";
 import AuthInput from "@/components/auth/AuthInput";
 
 import PlaceCollecion from "../../../core/Place";
-import PlaceRepository from "../../../core/PlaceRepository";
 import ProductTypeCollecion from "../../../core/ProductType";
-import ProductTypeRepository from "../../../core/ProductTypeRepository";
 import DropDownsCollection from "../../../core/DropDowns";
 import Loading from "@/components/loading/Loading";
-import { text } from "stream/consumers";
+
 import DropDown from "@/components/dropdown/DropDown";
 import Link from "next/link";
 import AuthSelect from "@/components/auth/AuthSelect";
 import { Column } from "@/types/table";
 import { convertArrayType } from "@/utils/convertArray";
 import { ValidationForm } from "@/components/formValidation/validation";
+
+import ValidationFields from "@/validators/fields";
 
 export default function Administrative() {
     const repoDrop = useMemo(() => new DropDownsCollection(), []);
@@ -158,6 +158,15 @@ export default function Administrative() {
         setErrorMessage(null);
         setSuccessMessage('');
 
+        const validationError = ValidationFields({ "Local": localeName, "Endereço": addressName });
+
+        if (validationError) {
+            setErrorMessage(validationError);
+            setLoading(false);
+            setTimeout(() => setErrorMessage(null), 2500);
+            return;
+        }
+
         (edit ? repo?.edit(localeName, addressName, true, idLocales) : repo?.create(localeName, addressName, true)).then((result: any) => {
             if (result instanceof Error) {
                 const message: any = JSON.parse(result.message);
@@ -190,6 +199,15 @@ export default function Administrative() {
     function onSubmitTypeProduct() {
         setLoading(true);
         setErrorMessage(null);
+
+        const validationError = ValidationFields({ "Nome do Tipo": typeName, "Local": String(productLocaleName) });
+
+        if (validationError) {
+            setErrorMessage(validationError);
+            setLoading(false);
+            setTimeout(() => setErrorMessage(null), 2500);
+            return;
+        }
 
         (edit ? repoType?.edit(typeName, Number(productLocaleName), true, idProductType) : repoType?.create(typeName, Number(productLocaleName), true)).then((result: any) => {
             if (result instanceof Error) {
@@ -404,26 +422,22 @@ export default function Administrative() {
                 edit={edit}
             >
                 <div>
-                    <div>
-                        <AuthInput
-                            label="Local"
-                            value={localeName}
-                            type='text'
-                            changeValue={setLocaleName}
-                            edit={edit}
-                            required
-                        />
-                    </div>
-                    <div>
-                        <AuthInput
-                            label="Endereço"
-                            value={addressName}
-                            type='text'
-                            changeValue={setAdressName}
-                            edit={edit}
-                            required
-                        />
-                    </div>
+                    <AuthInput
+                        label="Local"
+                        value={localeName}
+                        type='text'
+                        changeValue={setLocaleName}
+                        edit={edit}
+                        required
+                    />
+                    <AuthInput
+                        label="Endereço"
+                        value={addressName}
+                        type='text'
+                        changeValue={setAdressName}
+                        edit={edit}
+                        required
+                    />
                     <ValidationForm errorMessage={errorMessage} />
                 </div>
             </Modal>
@@ -439,26 +453,22 @@ export default function Administrative() {
                 edit={edit}
             >
                 <div>
-                    <div>
-                        <AuthInput
-                            label="Nome do tipo"
-                            value={typeName}
-                            type='text'
-                            changeValue={setTypeName}
-                            edit={edit}
-                            required
-                        />
-                    </div>
-                    <div>
-                        <AuthSelect
-                            label='Local'
-                            value={productLocaleName}
-                            options={convertArrayType(dropdownPlace)}
-                            changeValue={setProductLocaleName}
-                            edit={edit}
-                            required
-                        />
-                    </div>
+                    <AuthInput
+                        label="Nome do tipo"
+                        value={typeName}
+                        type='text'
+                        changeValue={setTypeName}
+                        edit={edit}
+                        required
+                    />
+                    <AuthSelect
+                        label='Local'
+                        value={productLocaleName}
+                        options={convertArrayType(dropdownPlace)}
+                        changeValue={setProductLocaleName}
+                        edit={edit}
+                        required
+                    />
                 </div>
                 <div className="grid grid-cols-12">
                     <ValidationForm errorMessage={errorMessage} />
