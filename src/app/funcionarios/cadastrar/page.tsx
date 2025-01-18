@@ -17,6 +17,7 @@ import searchCEP from "@/utils/searchCEP";
 import listStates from '../../../json/states.json';
 import listCountry from '../../../json/country.json';
 import { ValidationForm } from "@/components/formValidation/validation";
+import ValidationFields from "@/validators/fields";
 
 export default function AddTeachers() {
     const dropdownStates = listStates?.estados;
@@ -267,6 +268,15 @@ export default function AddTeachers() {
     const onSubmit = () => {
         setLoading(true);
         setErrorMessage(null);
+
+        const validationError = ValidationFields({ "Nome": name, "Data de Nascimento": birthday, "Telefone": phone, "Status": String(status), "Cep": zipCode, "Estado": state, "Cidade": city, "Endereço": address, "Pais": country });
+
+        if (validationError) {
+            setErrorMessage(validationError);
+            setLoading(false);
+            setTimeout(() => setErrorMessage(null), 2500);
+            return;
+        }
 
         if (!validarCPF(document)) {
             setErrorMessage("Por favor, informe um cpf válido!");

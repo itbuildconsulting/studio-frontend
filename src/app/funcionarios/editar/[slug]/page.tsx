@@ -14,6 +14,7 @@ import Modal from "@/components/Modal/Modal";
 import useConvertDate from "@/data/hooks/useConvertDate";
 import { EventBtn } from "@/types/btn";
 import { ValidationForm } from "@/components/formValidation/validation";
+import ValidationFields from "@/validators/fields";
 
 export default function EditTeachers() {
     const edit: boolean = true;
@@ -305,6 +306,15 @@ export default function EditTeachers() {
     const onSubmit = () => {
         setLoading(true);
         setErrorMessage(null);
+
+        const validationError = ValidationFields({ "Nome": name, "Data de Nascimento": birthday, "Telefone": phone, "Status": String(status), "Cep": zipCode, "Estado": state, "Cidade": city, "Endereço": address, "Pais": country });
+
+        if (validationError) {
+            setErrorMessage(validationError);
+            setLoading(false);
+            setTimeout(() => setErrorMessage(null), 2500);
+            return;
+        }
 
         if (!validarCPF(document)) {
             setErrorMessage("Por favor, informe um cpf válido!");

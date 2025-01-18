@@ -16,6 +16,7 @@ import listStates from '../../../json/states.json';
 import listCountry from '../../../json/country.json';
 import { EventBtn } from "@/types/btn";
 import { ValidationForm } from "@/components/formValidation/validation";
+import ValidationFields from "@/validators/fields";
 
 export default function Students() {
     const dropdownStates = listStates?.estados;
@@ -152,22 +153,6 @@ export default function Students() {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [password])
 
-    function removerCaracteresEspeciais(str: any) {
-        if (str) {
-            return str.replace(/[^a-zA-Z0-9]/g, '');
-        } else {
-            return str;
-        }
-    }
-
-    function converterDate(str: any) {
-        if (str) {
-            return str.split("/").reverse().join("-");
-        } else {
-            return str;
-        }
-    }
-
     function validarCPF(cpf: any) {
         if (cpf) {
             cpf = cpf.replace(/[^\d]+/g, ''); // Remove caracteres não numéricos
@@ -255,6 +240,15 @@ export default function Students() {
         setLoading(true);
         setErrorMessage(null);
 
+        const validationError = ValidationFields({ "Nome": name, "Data de Nascimento": birthday, "Telefone": phone, "Status": String(status), "Cep": zipCode, "Estado": state, "Cidade": city, "Endereço": address, "Pais": country });
+
+        if (validationError) {
+            setErrorMessage(validationError);
+            setLoading(false);
+            setTimeout(() => setErrorMessage(null), 2500);
+            return;
+        }
+
         if (!validarCPF(document)) {
             setErrorMessage("Por favor, informe um cpf válido!");
             setLoading(false);
@@ -310,7 +304,7 @@ export default function Students() {
         }
     }
 
-    const eventButton:EventBtn[] = [
+    const eventButton: EventBtn[] = [
         {
             name: "Cancelar",
             function: clear,
@@ -497,7 +491,7 @@ export default function Students() {
                                 />
                             </div>
                             <div className="col-span-12 sm:col-span-6 xl:col-span-4">
-                                 {/* <AuthInput
+                                {/* <AuthInput
                                     label="Estado"
                                     value={state}
                                     type='text'
