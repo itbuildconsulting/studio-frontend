@@ -23,6 +23,7 @@ import { BikeAvalible, BikeBusy } from "@/components/icons";
 import BikeView from "@/components/BikeView/BikeView";
 import { convertArray, convertArrayType } from "@/utils/convertArray";
 import { ValidationForm } from "@/components/formValidation/validation";
+import ValidationFields from "@/validators/fields";
 
 export default function AddClass() {
     const edit: boolean = true;
@@ -80,14 +81,6 @@ export default function AddClass() {
     }, []);
 
     useEffect(() => {
-        repoDrop.dropdown(`products/dropdown/${typeProduct}`).then(setDropdownProduct);
-    }, [typeProduct]);
-
-    useEffect(() => {
-        setProduct(String(dropdownProduct[0]?.id));
-    }, [dropdownProduct]);
-
-    useEffect(() => {
         setTeacher(String(dropdownEmployee[0]?.id));
     }, [dropdownEmployee]);
 
@@ -117,7 +110,7 @@ export default function AddClass() {
                 setBikes(result.bikes)
                 setDate(result.date);
                 setTime(result.time);
-                setTypeProduct(result.productId);
+                setTypeProduct(result.productTypeId);
                 setProduct(result.productId);
                 setTeacher(result.teacherId);;
                 setQtdStudents(result.limit)
@@ -137,6 +130,15 @@ export default function AddClass() {
     }, [])
 
     const onSubmit = () => {
+        const validationError = ValidationFields({ "Data": date, "Hora": time, "Professor": String(teacher), "Tipo de Produto": String(typeProduct) });
+
+        if (validationError) {
+            setErrorMessage(validationError);
+            setLoading(false);
+            setTimeout(() => setErrorMessage(null), 2500);
+            return;
+        }
+
         repo?.edit(+searchParams?.slug, convertDate(date), time, teacher, limit, canCommission, commissionValue, commissionRules, product, students, true).then((result: any) => {
             if (result instanceof Error) {
                 const message: any = JSON.parse(result.message);
@@ -162,7 +164,7 @@ export default function AddClass() {
         });
     }
 
-    const eventButton:EventBtn[] = [
+    const eventButton: EventBtn[] = [
         {
             name: "Cancelar",
             function: clear,
@@ -233,11 +235,11 @@ export default function AddClass() {
                                             value={time}
                                             options={
                                                 [
-                                                    { "label": "05:00", "value": "05:00"},
-                                                    { "label": "06:00", "value": "06:00"},
-                                                    { "label": "07:00", "value": "07:00"},
-                                                    { "label": "08:00", "value": "08:00"},
-                                                    { "label": "09:00", "value": "09:00"},
+                                                    { "label": "05:00", "value": "05:00" },
+                                                    { "label": "06:00", "value": "06:00" },
+                                                    { "label": "07:00", "value": "07:00" },
+                                                    { "label": "08:00", "value": "08:00" },
+                                                    { "label": "09:00", "value": "09:00" },
                                                     { "label": "10:00", "value": "10:00" },
                                                     { "label": "11:00", "value": "11:00" },
                                                     { "label": "12:00", "value": "12:00" },
@@ -339,33 +341,37 @@ export default function AddClass() {
                                     <div className="hidden xl:flex xl:grid-rows-4"></div>
                                     <div className="hidden xl:flex xl:grid-rows-4"></div>
                                 </div>
-                                <hr className="mt-3 mb-5 pb-3" style={{ borderColor: "#F4F5F6" }} />
-                                <div className="grid grid-cols-12 gap-x-8">
-                                    <div className="col-span-12 sm:col-span-6">
-                                        <AuthSelect
-                                            label="Regra de Comissão"
-                                            value={commissionRules}
-                                            options={convertArray(dropdownCommission)}
-                                            changeValue={setCommissionRules}
-                                            edit={edit}
-                                            required
-                                        />
-                                    </div>
-                                    <div className="col-span-12 sm:col-span-6">
-                                        <AuthInput
-                                            label="Valor da Comissão"
-                                            value={commissionValue}
-                                            type='text'
-                                            changeValue={setCommissionValue}
-                                            edit={edit}
-                                            required
-                                        />
-                                    </div>
-
-                                    <ValidationForm errorMessage={errorMessage} />
-                                </div>
+                                {
+                                    Boolean(canCommission) === true &&
+                                    <>
+                                        <hr className="mt-3 mb-5 pb-3" style={{ borderColor: "#F4F5F6" }} />
+                                        <div className="grid grid-cols-12 gap-x-8">
+                                            <div className="col-span-12 sm:col-span-6">
+                                                <AuthSelect
+                                                    label="Regra de Comissão"
+                                                    value={commissionRules}
+                                                    options={convertArray(dropdownCommission)}
+                                                    changeValue={setCommissionRules}
+                                                    edit={edit}
+                                                    required
+                                                />
+                                            </div>
+                                            <div className="col-span-12 sm:col-span-6">
+                                                <AuthInput
+                                                    label="Valor da Comissão"
+                                                    value={commissionValue}
+                                                    type='text'
+                                                    changeValue={setCommissionValue}
+                                                    edit={edit}
+                                                    required
+                                                />
+                                            </div>
+                                        </div>
+                                    </>
+                                }                            
+                                <ValidationForm errorMessage={errorMessage} />
                             </div>
-                            <div className="col-span-5 flex items-center justify-center" style={{ borderLeft: "1px solid #999999"}}>
+                            <div className="col-span-5 flex items-center justify-center" style={{ borderLeft: "1px solid #999999" }}>
                                 {/*<div className="flex flex-col items-center ">
                                     <div className="flex flex-row"> 
                                         <div>

@@ -22,6 +22,7 @@ import { EventBtn } from "@/types/btn";
 import BikeView from "@/components/BikeView/BikeView";
 import { convertArray, convertArrayType } from "@/utils/convertArray";
 import { ValidationForm } from "@/components/formValidation/validation";
+import ValidationFields from "@/validators/fields";
 
 export default function AddClass() {
     const repo = useMemo(() => new ClassCollection(), []);
@@ -34,11 +35,9 @@ export default function AddClass() {
     const [date, setDate] = useState<string>("");
     const [time, setTime] = useState<string>("");
     const [typeProduct, setTypeProduct] = useState<string | null>(null);
-    const [product, setProduct] = useState<string>("");
     const [teacher, setTeacher] = useState<string>("");
     const [limit, setLimit] = useState<number>(0);
-    const [qtdStudents, setQtdStudents] = useState<string>("");
-    const [canCommission, setCanCommission] = useState<string>("true");
+    const [canCommission, setCanCommission] = useState<string>("false");
     const [students, setStudents] = useState<string[]>([]);
     const [commissionRules, setCommissionRules] = useState<string>("1");
     const [commissionValue, setCommissionValue] = useState<number | null>(null);
@@ -47,7 +46,6 @@ export default function AddClass() {
     const [dropdownType, setDropdownType] = useState<string[]>([]);
     const [dropdownEmployee, setDropdownEmployee] = useState<DropdownType[]>([]);
     const [dropdownStudent, setDropdownStudent] = useState<DropdownType[]>([]);
-    const [dropdownProduct, setDropdownProduct] = useState<DropdownType[]>([]);
 
     const [dropdownCommission] = useState<any>(
         [
@@ -72,20 +70,7 @@ export default function AddClass() {
         repoDrop.dropdown('productTypes/dropdown').then(setDropdownType);
         repoDrop.dropdown('persons/employee/dropdown').then(setDropdownEmployee);
         repoDrop.dropdown('persons/student/dropdown').then(setDropdownStudent);
-
     }, []);
-
-    useEffect(() => {
-        repoDrop.dropdown(`products/dropdown/${typeProduct}`).then(setDropdownProduct);
-    }, [typeProduct]);
-
-    useEffect(() => {
-        setProduct(String(dropdownProduct[0]?.id));
-    }, [dropdownProduct])
-
-    useEffect(() => {
-        setTeacher(String(dropdownEmployee[0]?.id));
-    }, [dropdownEmployee])
 
     const clear = () => {
         router.push("/aulas");
@@ -104,8 +89,17 @@ export default function AddClass() {
         setLoading(true);
         setErrorMessage(null);
         setSuccessMessage("");
-        
-        repo?.create(convertDate(date), time, teacher, limit, JSON.parse(canCommission), commissionValue, commissionRules, product, students, true).then((result: any) => {
+
+        const validationError = ValidationFields({ "Data": date, "Hora": time, "Professor": teacher, "Tipo de Produto": typeProduct });
+
+        if (validationError) {
+            setErrorMessage(validationError);
+            setLoading(false);
+            setTimeout(() => setErrorMessage(null), 2500);
+            return;
+        }
+
+        repo?.create(convertDate(date), time, teacher, limit, JSON.parse(canCommission), commissionValue, commissionRules, typeProduct, students, true).then((result: any) => {
             if (result instanceof Error) {
                 const message: any = JSON.parse(result.message);
                 setErrorMessage(message.error);
@@ -130,7 +124,7 @@ export default function AddClass() {
         });
     }
 
-    const eventButton:EventBtn[] = [
+    const eventButton: EventBtn[] = [
         {
             name: "Cancelar",
             function: clear,
@@ -203,11 +197,11 @@ export default function AddClass() {
                                             value={time}
                                             options={
                                                 [
-                                                    { "label": "05:00", "value": "05:00"},
-                                                    { "label": "06:00", "value": "06:00"},
-                                                    { "label": "07:00", "value": "07:00"},
-                                                    { "label": "08:00", "value": "08:00"},
-                                                    { "label": "09:00", "value": "09:00"},
+                                                    { "label": "05:00", "value": "05:00" },
+                                                    { "label": "06:00", "value": "06:00" },
+                                                    { "label": "07:00", "value": "07:00" },
+                                                    { "label": "08:00", "value": "08:00" },
+                                                    { "label": "09:00", "value": "09:00" },
                                                     { "label": "10:00", "value": "10:00" },
                                                     { "label": "11:00", "value": "11:00" },
                                                     { "label": "12:00", "value": "12:00" },
@@ -239,26 +233,15 @@ export default function AddClass() {
                                             edit={edit}
                                             required
                                         />
-                                    </div>                                    
+                                    </div>
                                 </div>
                                 <hr className="mt-3 mb-5 pb-3" style={{ borderColor: "#F4F5F6" }} />
                                 <div className="grid grid-cols-12 gap-x-8">
-                                    {/*<div className="col-span-12 sm:col-span-6">
-
-                                        <AuthSelect
-                                            label="Quantidade de alunos"
-                                            value={qtdStudents}
-                                            options={[{ label: '1', value: 1 }, { label: '2', value: 2 }, { label: '3', value: 3 }, { label: '4', value: 4 }, { label: '5', value: 5 }, { label: '6', value: 6 }, { label: '7', value: 7 }, { label: '8', value: 8 }, { label: '9', value: 9 }, { label: '10', value: 10 }]}
-                                            changeValue={setQtdStudents}
-                                            edit={edit}
-                                            required
-                                        />
-                                    </div>*/}
                                     <div className="col-span-12 sm:col-span-6">
                                         <AuthSelect
                                             label="Possui comissão?"
                                             value={canCommission}
-                                            options={[{ label: 'Sim', value: true }, { label: 'Não', value: false }]}
+                                            options={[{ label: 'Não', value: false }, { label: 'Sim', value: true }]}
                                             changeValue={setCanCommission}
                                             edit={edit}
                                             required
@@ -285,56 +268,39 @@ export default function AddClass() {
                                             />
                                         }
                                     </div>
-                                    {/*<div className="col-span-12 sm:col-span-6">
-                                        {dropdownStudent.length > 0
-                                            ?
-                                            <>
-                                                <AuthSelectMulti
-                                                    label="Alunos"
-                                                    options={convertArrayType2(dropdownStudent)}
-                                                    value={students}
-                                                    changeValue={setStudents}
+                                    <div className="hidden xl:flex xl:grid-rows-4"></div>
+                                    <div className="hidden xl:flex xl:grid-rows-4"></div>
+                                </div>
+                                {
+                                    canCommission === "true" &&
+                                    <>
+                                        <hr className="mt-3 mb-5 pb-3" style={{ borderColor: "#F4F5F6" }} />
+                                        <div className="grid grid-cols-12 gap-x-8">
+                                            <div className="col-span-12 sm:col-span-6">
+                                                <AuthSelect
+                                                    label="Regra de Comissão"
+                                                    value={commissionRules}
+                                                    options={convertArray(dropdownCommission)}
+                                                    changeValue={setCommissionRules}
+                                                    edit={edit}
+                                                    required
                                                 />
-                                            </>
-                                            :
-                                            <AuthInput
-                                                label="Alunos"
-                                                value={students}
-                                                type='text'
-                                                changeValue={setStudents}
-                                                required
-                                            />
-                                        }
-                                    </div>*/}
-                                    <div className="hidden xl:flex xl:grid-rows-4"></div>
-                                    <div className="hidden xl:flex xl:grid-rows-4"></div>
-                                </div>
-                                <hr className="mt-3 mb-5 pb-3" style={{ borderColor: "#F4F5F6" }} />
-                                <div className="grid grid-cols-12 gap-x-8">
-                                    <div className="col-span-12 sm:col-span-6">
-                                        <AuthSelect
-                                            label="Regra de Comissão"
-                                            value={commissionRules}
-                                            options={convertArray(dropdownCommission)}
-                                            changeValue={setCommissionRules}
-                                            edit={edit}
-                                            required
-                                        />
-                                    </div>
-                                    <div className="col-span-12 sm:col-span-6">
-                                        <AuthInput
-                                            label="Valor da Comissão"
-                                            value={commissionValue}
-                                            type='number'
-                                            changeValue={setCommissionValue}
-                                            required
-                                        />
-                                    </div>
-
-                                    <ValidationForm errorMessage={errorMessage} />
-                                </div>
+                                            </div>
+                                            <div className="col-span-12 sm:col-span-6">
+                                                <AuthInput
+                                                    label="Valor da Comissão"
+                                                    value={commissionValue}
+                                                    type='number'
+                                                    changeValue={setCommissionValue}
+                                                    required
+                                                />
+                                            </div>
+                                        </div>
+                                    </>
+                                }
+                                <ValidationForm errorMessage={errorMessage} />
                             </div>
-                            <div className="col-span-5" style={{ borderLeft: "1px solid #999999"}}>
+                            <div className="col-span-5" style={{ borderLeft: "1px solid #999999" }}>
                             </div>
                         </div>
                     </Card>

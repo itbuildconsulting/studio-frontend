@@ -111,7 +111,7 @@ export default function Financial() {
     }
 
     const onSubmit = () => {
-        console.log("Cadastrei")
+        listFinancial()
     }
 
 
