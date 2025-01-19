@@ -17,6 +17,8 @@ import Time from "@/components/time/time";
 import { EventBtn } from "@/types/btn";
 import { convertArray, convertArrayType } from "@/utils/convertArray";
 
+import listTimes from '../../json/time.json';
+
 export default function Class() {
     const repo = useMemo(() => new ClassCollecion(), []);
     const repoDrop = useMemo(() => new DropDownsCollection(), []);
@@ -104,7 +106,7 @@ export default function Class() {
         listClass(date, time, teacherId, type);
     }
 
-    const eventButton:EventBtn[] = [
+    const eventButton: EventBtn[] = [
         {
             name: "Limpar",
             function: clear,
@@ -141,12 +143,12 @@ export default function Class() {
                                 />
                             </div>
                             <div className="col-span-12 md:col-span-3">
-                                <Time
-                                    label="Hora"
+                                <AuthSelect
+                                    label='Hora'
                                     value={time}
-                                    setValue={setTime}
+                                    options={ listTimes?.time }
+                                    changeValue={setTime}
                                 />
-
                             </div>
                             <div className="col-span-12 md:col-span-3">
                                 <AuthSelect
