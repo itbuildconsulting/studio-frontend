@@ -1,10 +1,12 @@
+'use client'
+
 import React, { createContext, ReactNode, useState } from 'react';
 import Cookies from 'js-cookie';
 import User from '../../model/User';
 
 import { useRouter } from "next/navigation";
 import { UserAuth } from '@/types/auth';
-
+import { CookiesAuth } from '@/shared/enum';
 interface AuthContextProps<> {
     user?: User | null | undefined,
     load?: boolean,
@@ -18,7 +20,7 @@ interface AuthContextProps<> {
 
 const AuthContext = createContext<AuthContextProps>({});
 
-function managementCookie({logado, expiresIn, token }: UserAuth) {
+function managementCookie({logado, expiresIn, token, name }: UserAuth) {
 
     //const dataString = expireAt;
     //const partes = dataString.split('T')[0].split('-');
@@ -29,14 +31,17 @@ function managementCookie({logado, expiresIn, token }: UserAuth) {
     const data = new Date(expiresIn);
 
     if (logado) {
-        Cookies.set('admin-template-sci-auth', String(logado), {
+        Cookies.set(CookiesAuth.USERLOGADO, String(logado), {
             expires: data
         })
-        Cookies.set('admin-user-sci-auth', String(token), {
+        Cookies.set(CookiesAuth.USERTOKEN, String(token), {
+            expires: data
+        })
+        Cookies.set(CookiesAuth.USERNAME, String(name), {
             expires: data
         })
     } else {
-        Cookies.remove('admin-template-sci-auth');
+        Cookies.remove(CookiesAuth.USERLOGADO);
     }
 }
 
@@ -60,14 +65,12 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
     async function sessionConfig(sistemUser: UserAuth) {
         if (sistemUser?.token) {
-            //const user = await normalizeUser(firebaseUser)
             setUser(user);
-            managementCookie({ logado: true, expiresIn: sistemUser?.expiresIn, token: sistemUser?.token});
+            managementCookie({ logado: true, expiresIn: sistemUser?.expiresIn, token: sistemUser?.token, name: sistemUser?.name});
             setLoad(false);
-            //return user.email
         } else {
             setUser(null);
-            managementCookie({ logado: false, expiresIn: '', token: ''});
+            managementCookie({ logado: false, expiresIn: '', token: '', name: ''});
             setLoad(false);
             return false
         }
@@ -94,6 +97,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
             );
             if (resp.status === 200) {
                 router.push("/dashboard");
+
                 const authResp = await resp.json();
                 await sessionConfig(authResp);
                 setLoad(false);

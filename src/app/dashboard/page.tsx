@@ -15,12 +15,16 @@ import TotalSalesRepository from "../../../core/TotalSales";
 import FrequencyStudentsRepository from "../../../core/FrequencyStudents";
 import { getDatesOfWeek } from "@/utils/getDatesOfWeek";
 
+import Cookies from 'js-cookie';
+import { CookiesAuth } from "@/shared/enum";
+
 export default function Home() {
     const repo = useMemo(() => new TotalSalesRepository(), []);
     const repoFreq = useMemo(() => new FrequencyStudentsRepository(), []);
 
     const [totalSales, setTotalSales] = useState<any>([]);
     const [frequency, setFrequency] = useState<any>([]);
+    const [userNameAuth, setUserNameAuth] = useState<string | null>(null);
 
     ChartJS.register(CategoryScale, LineElement, BarElement, LinearScale, PointElement, Title, Tooltip, Legend, Filler);
 
@@ -343,8 +347,14 @@ export default function Home() {
             //setLoading(false);
         });
     }, [])
+
+    useEffect(() => {
+        const username = Cookies.get(CookiesAuth.USERNAME) || '';
+        setUserNameAuth(username);
+      }, []);
+
     return (
-        <PageDefault title={"Bem-vindo, Fulano"}>
+        <PageDefault title={`Bem-vindo, ${userNameAuth}`}>
             <div className="grid grid-rows-auto grid-cols-12 gap-6 lg:gap-8">
                 <div className="col-span-12 lg:col-span-4">
                     <Card title="Frequência de alunos">
