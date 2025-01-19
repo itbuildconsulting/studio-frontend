@@ -26,11 +26,13 @@ export default interface PersonsRepository {
         name: string | null,
         email: string | null,
         identity: string | null,
+        page: number
     ): Promise<Persons[]>;
     listStudent(
         name: string | null,
         email: string | null,
         identity: string | null,
+        page: number
     ): Promise<Persons[]>;
     details(id: number): Promise<Persons[]>
     edit(

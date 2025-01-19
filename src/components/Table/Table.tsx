@@ -1,12 +1,16 @@
 import useWindowSize from '@/data/hooks/useWindowSize';
 import styles from '../../styles/table.module.css';
+import { Pagination } from '../pagination/pagination';
+import { PaginationModel } from '@/types/pagination';
 
 interface TableProps {
     data: any,
     columns: any,
     class?: any,
     rowClasses?: any,
-    loading?: boolean
+    loading?: boolean,
+    setPage?: (page: number) => void,
+    infoPage?: PaginationModel
 }
 
 export default function Table(props: TableProps) {
@@ -35,23 +39,24 @@ export default function Table(props: TableProps) {
                                     </tr>
                                 )
                             })
-                            :
-                            props.loading === true
-                            ?
-                            <div className='flex flex-col gap-4'>
-                                <div className='animated-background' style={{ height: "73px", borderRadius: "16px"}}></div>
-                                <div className='animated-background' style={{ height: "73px", borderRadius: "16px"}}></div>
-                                <div className='animated-background' style={{ height: "73px", borderRadius: "16px"}}></div>
-                                <div className='animated-background' style={{ height: "73px", borderRadius: "16px"}}></div>
-                                <div className='animated-background' style={{ height: "73px", borderRadius: "16px"}}></div>
-                            </div>
-                            :
-                            <div className="flex justify-center items-center" style={{ height: "73px" }}>
-                                Não foram encontrados items há serem listados
-                            </div>
+                                :
+                                props.loading === true
+                                    ?
+                                    <div className='flex flex-col gap-4'>
+                                        <div className='animated-background' style={{ height: "73px", borderRadius: "16px" }}></div>
+                                        <div className='animated-background' style={{ height: "73px", borderRadius: "16px" }}></div>
+                                        <div className='animated-background' style={{ height: "73px", borderRadius: "16px" }}></div>
+                                        <div className='animated-background' style={{ height: "73px", borderRadius: "16px" }}></div>
+                                        <div className='animated-background' style={{ height: "73px", borderRadius: "16px" }}></div>
+                                    </div>
+                                    :
+                                    <div className="flex justify-center items-center" style={{ height: "73px" }}>
+                                        Não foram encontrados items há serem listados
+                                    </div>
                         }
                     </tbody>
                 </table>
+                {props?.infoPage && <Pagination infoPage={props?.infoPage} setPage={props.setPage} />}
             </>
         )
     } else {
@@ -77,7 +82,21 @@ export default function Table(props: TableProps) {
                                         }
                                     </div>
                                 )
-                            }) : ""
+                            })
+                                :
+                                props.loading === true
+                                    ?
+                                    <div className='flex flex-col gap-4'>
+                                        <div className='animated-background' style={{ height: "73px", borderRadius: "16px" }}></div>
+                                        <div className='animated-background' style={{ height: "73px", borderRadius: "16px" }}></div>
+                                        <div className='animated-background' style={{ height: "73px", borderRadius: "16px" }}></div>
+                                        <div className='animated-background' style={{ height: "73px", borderRadius: "16px" }}></div>
+                                        <div className='animated-background' style={{ height: "73px", borderRadius: "16px" }}></div>
+                                    </div>
+                                    :
+                                    <div className="flex justify-center items-center" style={{ height: "73px" }}>
+                                        Não foram encontrados items há serem listados
+                                    </div>
                         }
                     </div>
                 </div>

@@ -1,0 +1,42 @@
+{
+    "validate": [
+        {
+            "name": "10 dias",
+            "id": 10
+        },
+        {
+            "name": "15 dias",
+            "id": 15
+        },
+        {
+            "name": "20 dias",
+            "id": 20
+        },
+        {
+            "name": "25 dias",
+            "id": 25
+        },
+        {
+            "name": "30 dias",
+            "id": 30
+        },
+        {
+            "name": "45 dias",
+            "id": 45
+        },
+        {
+            "name": "60 dias",
+            "id": 60
+        }
+        ,
+        {
+            "name": "120 dias",
+            "id": 120
+        }
+        ,
+        {
+            "name": "365 dias",
+            "id": 365
+        }
+    ]
+}

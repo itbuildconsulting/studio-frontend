@@ -1,4 +1,3 @@
-import { EmployeeFilterType, EmployeeType } from '@/types/persons';
 import Cookies from 'js-cookie';
 
 async function conectAPI(req: object | null, url: string, method: string) {
@@ -95,11 +94,13 @@ export default class PersonsRepository implements PersonsRepository {
         name: string | null,
         email: string | null,
         identity: string | null,
+        page: number
     ): Promise<[]> {
         const req = {
             name,
             email,
-            identity
+            identity,
+            page
         };
         return conectAPI(req, "/persons/employee/filter", "POST");
     }
@@ -108,11 +109,13 @@ export default class PersonsRepository implements PersonsRepository {
         name: string | null,
         email: string | null,
         identity: string | null,
+        page: number
     ): Promise<[]> {
         const req = {
             name,
             email,
-            identity
+            identity,
+            page
         };
         return conectAPI(req, "/persons/student/filter", "POST");
     }

@@ -77,12 +77,14 @@ export default class ClassRepository implements ClassRepository {
         time: string | null,
         teacherId: string | null,
         productTypeId: string | null,
+        page: number
     ): Promise<[]> {
         const req = {
             date,
             time,
             teacherId,           
             productTypeId,
+            page
         };
         return conectAPI(req, "/class/filter", "POST");
     }

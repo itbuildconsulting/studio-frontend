@@ -34,6 +34,7 @@ export default interface ClassRepository {
         time: string | null,
         teacherId: string | null,
         productId: string | null,
+        page: number
     ): Promise<Class[]>;
 
     details(

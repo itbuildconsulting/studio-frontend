@@ -15,6 +15,8 @@ import Modal from "@/components/Modal/Modal";
 import Loading from "@/components/loading/Loading";
 import { actionButton } from "@/utils/actionTable";
 import { convertUpdateAt } from "@/utils/formatterText";
+import { PaginationModel } from "@/types/pagination";
+import pageDefault from "@/utils/pageDetault";
 
 export default function Teachers() {
     const repo = useMemo(() => new PersonsCollecion(), []);
@@ -30,6 +32,9 @@ export default function Teachers() {
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
     const [listPersons, setListPersons] = useState<string[]>([]);
+
+    const [page, setPage] = useState<number>(1);
+    const [infoPage, setInfoPage] = useState<PaginationModel>( pageDefault );
 
     const convertPhone = (cell: any, row: any) => {
         let phoneNumber = cell.replace(/\D/g, '');
@@ -85,11 +90,11 @@ export default function Teachers() {
     ];
 
     const clear = () => {
-        listGeneralTeachers("", "", "");
+        listGeneralTeachers("", "", "", 1);
     }
 
     const onSubmit = () => {
-        listGeneralTeachers(name, email, document);
+        listGeneralTeachers(name, email, document, 1);
     }
 
     const eventButton = [
@@ -143,28 +148,33 @@ export default function Teachers() {
         )
     };
 
-    const listGeneralTeachers = (name: string, email: string, document: string) => {
+    const listGeneralTeachers = (name: string, email: string, document: string, page: number) => {
         setLoading(true);
         setName(name);
         setEmail(email);
+        setPage(page);
         setDocument(document);
 
-        repo.listEmployee(name, email, document).then((result: any) => {
+        repo.listEmployee(name, email, document, page).then((result: any) => {
+            setLoading(false);
+
             if (result instanceof Error) {
-                setLoading(false);
+                setListPersons([]);
+                setInfoPage(pageDefault);
             } else {
                 setListPersons(result?.data);
+                setInfoPage(result?.pagination);
                 setLoading(false);
             }
-        }).catch((error: any) => {
-            setLoading(false);
+        }).catch(() => {
+            setListPersons([]);
+            setInfoPage(pageDefault);
         });
     }
 
     useEffect(() => {
-        listGeneralTeachers(name, email, document);
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []);
+        listGeneralTeachers(name, email, document, page);
+    }, [page]);
 
     const deletePersons = (id: number) => {
         setModalSuccess(true);
@@ -239,6 +249,8 @@ export default function Teachers() {
                             columns={columns}
                             class={styles.table_students}
                             loading={loading}
+                            setPage={setPage}
+                            infoPage={infoPage}
                         />
                     </Card>
                 </div>

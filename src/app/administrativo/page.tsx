@@ -22,6 +22,8 @@ import { convertArrayType } from "@/utils/convertArray";
 import { ValidationForm } from "@/components/formValidation/validation";
 
 import ValidationFields from "@/validators/fields";
+import { PaginationModel } from "@/types/pagination";
+import pageDefault from "@/utils/pageDetault";
 
 export default function Administrative() {
     const repoDrop = useMemo(() => new DropDownsCollection(), []);
@@ -44,9 +46,18 @@ export default function Administrative() {
 
     const [modalSuccess, setModalSuccess] = useState<boolean>(false);
     const [log, setLog] = useState<number | null>(null);
-    const [loading, setLoading] = useState<boolean>(false);
     const [successMessage, setSuccessMessage] = useState<string>('');
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
+    const [loading, setLoading] = useState<boolean>(false);
+    
+    const [loadingListType, setLoadingListType] = useState<boolean>(false);
+    const [pageType, setPageType] = useState<number>(1);
+    const [infoPageType, setInfoPageType] = useState<PaginationModel>( pageDefault );
+    
+    const [loadingListPlace, setLoadingListPlace] = useState<boolean>(false);
+    const [pagePlace, setPagePlace] = useState<number>(1);
+    const [infoPagePlace, setInfoPagePlace] = useState<PaginationModel>( pageDefault );
 
     const [edit, setEdit] = useState<boolean>(false);
 
@@ -184,7 +195,7 @@ export default function Administrative() {
                 setLocaleName(null);
                 setAdressName(null);
                 setLog(0);
-                listGeneral();
+                listGeneral(pagePlace);
             }
         }).catch((error: any) => {
             setErrorMessage(error.message);
@@ -226,7 +237,7 @@ export default function Administrative() {
                 setTypeName(null);
                 setProductLocaleName(null);
                 setLog(0);
-                listGeneralProductType();
+                listGeneralProductType(pageType);
             }
         }).catch((error) => {
             setErrorMessage(error.message);
@@ -238,37 +249,47 @@ export default function Administrative() {
         });
     }
 
-    const listGeneral = () => {
-        setLoading(true);
+    const listGeneral = (page: number) => {
+        setLoadingListPlace(true);
+        setPagePlace(page);
+
         repo.list().then((result: any) => {
+            setLoadingListPlace(false);
+
             if (result instanceof Error) {
-                setLoading(false);
+                setListLocales([]);
             } else {
-                setLoading(false);
                 setListLocales(result);
             }
-        }).catch((error: any) => {
-            setLoading(false);
+        }).catch(() => {
+            setListLocales([]);
         });
     }
 
-    const listGeneralProductType = () => {
+    const listGeneralProductType = (page: number) => {
+        setLoadingListType(true);
+        setPageType(page);
+
         repoType.list().then((result: any) => {
+            setLoadingListType(false);
+
             if (result instanceof Error) {
-                console.log("erro");
+                setListProductType([]);
             } else {
                 setListProductType(result);
             }
-        }).catch((error: any) => {
-
+        }).catch(() => {
+            setListProductType([]);
         });
     }
 
     useEffect(() => {
-        listGeneral();
-        listGeneralProductType();
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []);
+        listGeneralProductType(pageType);
+    }, [pageType]);
+
+    useEffect(() => {
+        listGeneral(pagePlace);
+    }, [pagePlace]);
 
     const detailsLocale = (id: number) => {
         setEdit(true);
@@ -324,7 +345,7 @@ export default function Administrative() {
                 setLocaleName(null);
                 setAdressName(null);
                 setLog(0);
-                listGeneral();
+                listGeneral(pagePlace);
             }
         }).catch((error: any) => {
             setErrorMessage(error.message);
@@ -351,7 +372,7 @@ export default function Administrative() {
                 setTypeName(null);
                 setProductLocaleName(null);
                 setLog(0);
-                listGeneralProductType();
+                listGeneralProductType(pageType);
             }
         }).catch((error: any) => {
             setErrorMessage(error.message);
@@ -391,7 +412,9 @@ export default function Administrative() {
                             data={listLocales}
                             columns={columns}
                             class={styles.table_locale_adm}
-                            loading={loading}
+                            loading={loadingListPlace}
+                            setPage={setPagePlace}
+                            infoPage={infoPagePlace}
                         />
                     </Card>
                 </div>
@@ -405,7 +428,9 @@ export default function Administrative() {
                             data={listProductType}
                             columns={columns2}
                             class={styles.product_type_adm}
-                            loading={loading}
+                            loading={loadingListType}
+                            setPage={setPageType}
+                            infoPage={infoPageType}
                         />
                     </Card>
                 </div>
