@@ -162,7 +162,7 @@ export default function Students() {
                 setLoading(false);
                 setListPersons([]);
             } else {
-                setListPersons(result);
+                setListPersons(result.data);
                 setLoading(false);
             }
         }).catch((error: any) => {

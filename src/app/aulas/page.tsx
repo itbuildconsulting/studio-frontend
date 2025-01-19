@@ -78,11 +78,11 @@ export default function Class() {
             text: `Hora`,
         },
         {
-            dataField: 'teacherId',
+            dataField: 'teacher',
             text: `Professor`
         },
         {
-            dataField: 'productId',
+            dataField: 'productType',
             text: `Tipo de Produto`
         },
         {
