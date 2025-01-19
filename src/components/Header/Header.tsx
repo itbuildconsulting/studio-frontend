@@ -12,10 +12,10 @@ export default function Header({ handleMenuOpen }: HeaderProps) {
             <div>
 
             </div>
-            <div className='flex items-center'>
+            {/*<div className='flex items-center'>
                 <div className={`${styles.notification_header}`}>
                     <div className={`${styles.bagde_notification_header}`}>
-                        <span>3</span> {/* Integrar e colocar o número de notificações */}
+                        <span>3</span> 
                     </div>
                     {IconNotification}
                 </div>
@@ -28,7 +28,7 @@ export default function Header({ handleMenuOpen }: HeaderProps) {
                         <span>{IconArrowBack}</span>
                     </div>
                 </div>
-            </div>
+            </div>*/}
         </header>
     )
 }

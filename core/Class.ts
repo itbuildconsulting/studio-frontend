@@ -102,7 +102,7 @@ export default class ClassRepository implements ClassRepository {
         kickback: number | null,
         kickbackRule: string | null,
         productTypeId: string | null,
-        students: string[] | null,
+        bikes: string[] | null,
         active: boolean
     ): Promise<[]> {
         const req = {
@@ -115,7 +115,7 @@ export default class ClassRepository implements ClassRepository {
             kickback,
             kickbackRule,
             productTypeId,
-            students,
+            bikes,
             active
         };
         return conectAPI(req, `/class/${id}`, "PUT");
