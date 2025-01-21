@@ -18,6 +18,10 @@ import Link from "next/link";
 import { convertArray, convertArrayType } from "@/utils/convertArray";
 import { ValidationForm } from "@/components/formValidation/validation";
 
+import listValidate from '../../json/validate.json';
+import { PaginationModel } from "@/types/pagination";
+import pageDefault from "@/utils/pageDetault";
+
 export default function Products() {
     const repoDrop = useMemo(() => new DropDownsCollection(), []);
     const repo = useMemo(() => new ProductCollection(), []);
@@ -45,48 +49,10 @@ export default function Products() {
     const [listProduct, setListProduct] = useState<string[]>([]);
     const [edit, setEdit] = useState<boolean>(false);
 
-    const [dropdownValidate] = useState<any>(
-        [
-            {
-                name: '10 dias',
-                id: 10
-            },
-            {
-                name: '15 dias',
-                id: 15
-            },
-            {
-                name: '20 dias',
-                id: 20
-            },
-            {
-                name: '25 dias',
-                id: 25
-            },
-            {
-                name: '30 dias',
-                id: 30
-            },
-            {
-                name: '45 dias',
-                id: 45
-            },
-            {
-                name: '60 dias',
-                id: 60
-            }
-            ,
-            {
-                name: '120 dias',
-                id: 120
-            }
-            ,
-            {
-                name: '365 dias',
-                id: 365
-            }
-        ]
-    );
+    const [dropdownValidate] = useState<any>(listValidate.validate);
+
+    const [page, setPage] = useState<number>(1);
+    const [infoPage, setInfoPage] = useState<PaginationModel>( pageDefault );
 
     const actionLocaleName = (cell: any, row: any) => {
         return cell?.place?.name || " - ";
@@ -174,7 +140,7 @@ export default function Products() {
                 setModalProductAdd(false);
                 setSuccessMessage(edit ? "Edição realizada com sucesso!" : "Cadastro realizado com sucesso!");
                 setLog(0);
-                listGeneralProduct();
+                listGeneralProduct(1);
             }
         }).catch((error) => {
             setErrorMessage(error.message);
@@ -203,7 +169,6 @@ export default function Products() {
     const SuccessStatus = () => {
         return (
             <div className="flex flex-col items-center gap-4">
-
                 {log === 0 ?
                     <svg className="mt-4 pb-2" width="135" height="135" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1} stroke={"var(--primary)"}>
                         <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -224,24 +189,29 @@ export default function Products() {
         )
     };
 
-    const listGeneralProduct = () => {
+    const listGeneralProduct = (page: number) => {
+        setPage(page);
         setLoading(true);
-        repo.list().then((result: any) => {
-            if (result instanceof Error) {
-                setLoading(false);
-            } else {
-                setListProduct(result);
-                setLoading(false);
-            }
-        }).catch((error: any) => {
+
+        repo.list(page).then((result: any) => {
             setLoading(false);
+
+            if (result instanceof Error) {
+                setListProduct([]);
+                setInfoPage(pageDefault);
+            } else {
+                setListProduct(result?.data);
+                setInfoPage(result?.pagination);
+            }
+        }).catch(() => {
+            setListProduct([]);
+            setInfoPage(pageDefault);
         });
     }
 
     useEffect(() => {
-        listGeneralProduct();
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []);
+        listGeneralProduct(page);
+    }, [page]);
 
     const detailsProduct = (id: number) => {
         setEdit(true);
@@ -261,9 +231,7 @@ export default function Products() {
                 setValue(result.value);
                 setStatus(result.active);
             }
-        }).catch((error: any) => {
-
-        });
+        }).catch(() => {});
     };
 
     const deleteProduct = (id: number) => {
@@ -319,6 +287,8 @@ export default function Products() {
                             columns={columns}
                             class={styles.table_locale_adm}
                             loading={loading}
+                            setPage={setPage}
+                            infoPage={infoPage}
                         />
                     </Card>
                 </div>
@@ -375,16 +345,6 @@ export default function Products() {
                             required
                         />
                     </div>
-                    {/* <div className="col-span-6">
-                        <AuthSelect
-                            label='Local'
-                            value={localeName}
-                            options={convertArray(dropdownPlace)}
-                            changeValue={setLocaleName}
-                            edit={edit}
-                            required
-                        />
-                    </div> */}
                     <div className="col-span-6">
                         <AuthInput
                             label="Valor"

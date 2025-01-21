@@ -18,6 +18,8 @@ import { EventBtn } from "@/types/btn";
 import { convertArray, convertArrayType } from "@/utils/convertArray";
 
 import listTimes from '../../json/time.json';
+import { PaginationModel } from "@/types/pagination";
+import pageDefault from "@/utils/pageDetault";
 
 export default function Class() {
     const repo = useMemo(() => new ClassCollecion(), []);
@@ -28,6 +30,8 @@ export default function Class() {
     const [teacherId, setTeacherId] = useState<string>("");
     const [type, setType] = useState<string>("");
     const [classses, setClasses] = useState<string[]>([]);
+    const [page, setPage] = useState<number>(1);
+    const [infoPage, setInfoPage] = useState<PaginationModel>( pageDefault );
     const [loading, setLoading] = useState<any>(false);
 
     const [dropdownType, setDropdownType] = useState<string[]>([]);
@@ -49,23 +53,28 @@ export default function Class() {
         })
     }
 
-    const listClass = (dateF: string, timeF: string, teacherF: string, typeF: string) => {
+    const listClass = (dateF: string, timeF: string, teacherF: string, typeF: string, page: number) => {
         setDate(dateF);
         setTime(timeF);
         setTeacherId(teacherF);
         setType(typeF);
+        setPage(page);
         setLoading(true);
-        repo.listClass(dateF, timeF, teacherF, typeF).then((result: any) => {
+
+        repo.listClass(dateF, timeF, teacherF, typeF, page).then((result: any) => {
             setLoading(false);
 
             if (result instanceof Error) {
                 setClasses([]);
+                setInfoPage(pageDefault);
             } else {
                 setClasses(result.data);
+                setInfoPage(result.pagination);
             }
         }).catch(() => {
             setLoading(false);
             setClasses([]);
+            setInfoPage(pageDefault);
         });
     }
 
@@ -99,11 +108,11 @@ export default function Class() {
     ];
 
     const clear = () => {
-        listClass("", "", "", "");
+        listClass("", "", "", "", 1);
     }
 
     const onSubmit = () => {
-        listClass(date, time, teacherId, type);
+        listClass(date, time, teacherId, type, 1);
     }
 
     const eventButton: EventBtn[] = [
@@ -120,11 +129,13 @@ export default function Class() {
     ];
 
     useEffect(() => {
-        listClass(date, time, teacherId, type);
+        listClass(date, time, teacherId, type, page);
+    }, [page]);
 
+    useEffect(() => {
         repoDrop.dropdown('persons/employee/dropdown').then(setDropdownTeacher);
         repoDrop.dropdown('productTypes/dropdown').then(setDropdownType);
-    }, []);
+    }, [])
 
     return (
         <PageDefault title={"Aulas"}>
@@ -182,6 +193,8 @@ export default function Class() {
                             columns={columns}
                             class={styles.table_students}
                             loading={loading}
+                            setPage={setPage}
+                            infoPage={infoPage}
                         />
                     </Card>
                 </div>

@@ -26,7 +26,7 @@ export default function MenuSideBar(props: MenuSideBarProps) {
                         <Image src={LogoShort} alt='Logo Studio Raphael Oliveira' />
 
                         <div className={`${styles.close_menu}`} onClick={props.handleMenuOpen}>
-                            {IconClose(16, 16, '#003D58')}
+                            {IconClose('16', '16', '#003D58')}
                         </div>
                     </div>
                     <div>

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "@/data/context/AuthContext";
+import { PrivateRoute } from "@/components/privateRoute/privateRoute";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -15,11 +16,13 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  
+
   return (
     <AuthProvider>
       <html lang="pt">
-        <body className={inter.className}>{children}</body>
+        <PrivateRoute>
+          <body className={inter.className}>{children}</body>
+        </PrivateRoute>
       </html>
     </AuthProvider>
   );

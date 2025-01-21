@@ -5,5 +5,4 @@ export default interface User {
     token: string,
     provider: string | undefined,
     imageURL: string | null,
-
 }

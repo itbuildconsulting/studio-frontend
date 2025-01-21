@@ -22,6 +22,8 @@ import { convertArrayType } from "@/utils/convertArray";
 import { ValidationForm } from "@/components/formValidation/validation";
 
 import ValidationFields from "@/validators/fields";
+import { PaginationModel } from "@/types/pagination";
+import pageDefault from "@/utils/pageDetault";
 
 export default function Administrative() {
     const repoDrop = useMemo(() => new DropDownsCollection(), []);
@@ -44,9 +46,12 @@ export default function Administrative() {
 
     const [modalSuccess, setModalSuccess] = useState<boolean>(false);
     const [log, setLog] = useState<number | null>(null);
-    const [loading, setLoading] = useState<boolean>(false);
     const [successMessage, setSuccessMessage] = useState<string>('');
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
+    const [loading, setLoading] = useState<boolean>(false);
+    const [loadingListType, setLoadingListType] = useState<boolean>(false);
+    const [loadingListPlace, setLoadingListPlace] = useState<boolean>(false);
 
     const [edit, setEdit] = useState<boolean>(false);
 
@@ -239,35 +244,43 @@ export default function Administrative() {
     }
 
     const listGeneral = () => {
-        setLoading(true);
+        setLoadingListPlace(true);
+
         repo.list().then((result: any) => {
+            setLoadingListPlace(false);
+
             if (result instanceof Error) {
-                setLoading(false);
+                setListLocales([]);
             } else {
-                setLoading(false);
                 setListLocales(result);
             }
-        }).catch((error: any) => {
-            setLoading(false);
+        }).catch(() => {
+            setListLocales([]);
         });
     }
 
     const listGeneralProductType = () => {
+        setLoadingListType(true);
+
         repoType.list().then((result: any) => {
+            setLoadingListType(false);
+
             if (result instanceof Error) {
-                console.log("erro");
+                setListProductType([]);
             } else {
                 setListProductType(result);
             }
-        }).catch((error: any) => {
-
+        }).catch(() => {
+            setListProductType([]);
         });
     }
 
     useEffect(() => {
-        listGeneral();
         listGeneralProductType();
-        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
+
+    useEffect(() => {
+        listGeneral();
     }, []);
 
     const detailsLocale = (id: number) => {
@@ -391,7 +404,7 @@ export default function Administrative() {
                             data={listLocales}
                             columns={columns}
                             class={styles.table_locale_adm}
-                            loading={loading}
+                            loading={loadingListPlace}
                         />
                     </Card>
                 </div>
@@ -405,7 +418,7 @@ export default function Administrative() {
                             data={listProductType}
                             columns={columns2}
                             class={styles.product_type_adm}
-                            loading={loading}
+                            loading={loadingListType}
                         />
                     </Card>
                 </div>
