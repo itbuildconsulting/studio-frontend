@@ -50,14 +50,8 @@ export default function Administrative() {
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
     const [loading, setLoading] = useState<boolean>(false);
-    
     const [loadingListType, setLoadingListType] = useState<boolean>(false);
-    const [pageType, setPageType] = useState<number>(1);
-    const [infoPageType, setInfoPageType] = useState<PaginationModel>( pageDefault );
-    
     const [loadingListPlace, setLoadingListPlace] = useState<boolean>(false);
-    const [pagePlace, setPagePlace] = useState<number>(1);
-    const [infoPagePlace, setInfoPagePlace] = useState<PaginationModel>( pageDefault );
 
     const [edit, setEdit] = useState<boolean>(false);
 
@@ -195,7 +189,7 @@ export default function Administrative() {
                 setLocaleName(null);
                 setAdressName(null);
                 setLog(0);
-                listGeneral(pagePlace);
+                listGeneral();
             }
         }).catch((error: any) => {
             setErrorMessage(error.message);
@@ -237,7 +231,7 @@ export default function Administrative() {
                 setTypeName(null);
                 setProductLocaleName(null);
                 setLog(0);
-                listGeneralProductType(pageType);
+                listGeneralProductType();
             }
         }).catch((error) => {
             setErrorMessage(error.message);
@@ -249,9 +243,8 @@ export default function Administrative() {
         });
     }
 
-    const listGeneral = (page: number) => {
+    const listGeneral = () => {
         setLoadingListPlace(true);
-        setPagePlace(page);
 
         repo.list().then((result: any) => {
             setLoadingListPlace(false);
@@ -266,9 +259,8 @@ export default function Administrative() {
         });
     }
 
-    const listGeneralProductType = (page: number) => {
+    const listGeneralProductType = () => {
         setLoadingListType(true);
-        setPageType(page);
 
         repoType.list().then((result: any) => {
             setLoadingListType(false);
@@ -284,12 +276,12 @@ export default function Administrative() {
     }
 
     useEffect(() => {
-        listGeneralProductType(pageType);
-    }, [pageType]);
+        listGeneralProductType();
+    }, []);
 
     useEffect(() => {
-        listGeneral(pagePlace);
-    }, [pagePlace]);
+        listGeneral();
+    }, []);
 
     const detailsLocale = (id: number) => {
         setEdit(true);
@@ -345,7 +337,7 @@ export default function Administrative() {
                 setLocaleName(null);
                 setAdressName(null);
                 setLog(0);
-                listGeneral(pagePlace);
+                listGeneral();
             }
         }).catch((error: any) => {
             setErrorMessage(error.message);
@@ -372,7 +364,7 @@ export default function Administrative() {
                 setTypeName(null);
                 setProductLocaleName(null);
                 setLog(0);
-                listGeneralProductType(pageType);
+                listGeneralProductType();
             }
         }).catch((error: any) => {
             setErrorMessage(error.message);
@@ -413,8 +405,6 @@ export default function Administrative() {
                             columns={columns}
                             class={styles.table_locale_adm}
                             loading={loadingListPlace}
-                            setPage={setPagePlace}
-                            infoPage={infoPagePlace}
                         />
                     </Card>
                 </div>
@@ -429,8 +419,6 @@ export default function Administrative() {
                             columns={columns2}
                             class={styles.product_type_adm}
                             loading={loadingListType}
-                            setPage={setPageType}
-                            infoPage={infoPageType}
                         />
                     </Card>
                 </div>

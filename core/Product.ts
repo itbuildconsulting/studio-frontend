@@ -66,8 +66,8 @@ export default class ProductRepository implements ProductRepository {
         return conectAPI(req, "/products", "POST");
     }
 
-    async list(): Promise<[]> {
-        return conectAPI(null, "/products", "GET");
+    async list(page: number): Promise<[]> {
+        return conectAPI(null, `/products?page=${page}`, "GET");
     }
 
     async details(id: number): Promise<[]> {

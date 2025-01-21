@@ -172,6 +172,6 @@ export default class PersonsRepository implements PersonsRepository {
     }
 
     async delete(id: number): Promise<[]> {
-        return conectAPI(null, `/persons/${id}`, "DELETE");
+        return conectAPI(null, `/persons/remove/${id}`, "POST");
     }
 }

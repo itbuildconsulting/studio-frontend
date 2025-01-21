@@ -169,7 +169,6 @@ export default function Products() {
     const SuccessStatus = () => {
         return (
             <div className="flex flex-col items-center gap-4">
-
                 {log === 0 ?
                     <svg className="mt-4 pb-2" width="135" height="135" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1} stroke={"var(--primary)"}>
                         <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -194,7 +193,7 @@ export default function Products() {
         setPage(page);
         setLoading(true);
 
-        repo.list().then((result: any) => {
+        repo.list(page).then((result: any) => {
             setLoading(false);
 
             if (result instanceof Error) {
@@ -232,9 +231,7 @@ export default function Products() {
                 setValue(result.value);
                 setStatus(result.active);
             }
-        }).catch((error: any) => {
-
-        });
+        }).catch(() => {});
     };
 
     const deleteProduct = (id: number) => {

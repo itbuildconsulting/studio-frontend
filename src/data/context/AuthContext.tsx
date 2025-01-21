@@ -2,13 +2,12 @@
 
 import React, { createContext, ReactNode, useState } from 'react';
 import Cookies from 'js-cookie';
-import User from '../../model/User';
 
 import { useRouter } from "next/navigation";
 import { UserAuth } from '@/types/auth';
 import { CookiesAuth } from '@/shared/enum';
 interface AuthContextProps<> {
-    user?: User | null | undefined,
+    user?: UserAuth | null | undefined,
     load?: boolean,
     loginError?: boolean,
     msgError?: string[],
@@ -21,27 +20,22 @@ interface AuthContextProps<> {
 const AuthContext = createContext<AuthContextProps>({});
 
 function managementCookie({logado, expiresIn, token, name }: UserAuth) {
-
-    //const dataString = expireAt;
-    //const partes = dataString.split('T')[0].split('-');
-    /* const ano = parseInt(partes[0]);
-    const mes = parseInt(partes[1]) - 1; 
-    const dia = parseInt(partes[2]); */
-
     const data = new Date(expiresIn);
 
     if (logado) {
         Cookies.set(CookiesAuth.USERLOGADO, String(logado), {
             expires: data
-        })
+        });
         Cookies.set(CookiesAuth.USERTOKEN, String(token), {
             expires: data
-        })
+        });
         Cookies.set(CookiesAuth.USERNAME, String(name), {
             expires: data
         })
     } else {
         Cookies.remove(CookiesAuth.USERLOGADO);
+        Cookies.remove(CookiesAuth.USERTOKEN);
+        Cookies.remove(CookiesAuth.USERNAME);
     }
 }
 
@@ -51,7 +45,7 @@ interface AuthProviderProps {
 
 export function AuthProvider({ children }: AuthProviderProps) {
     const [load, setLoad] = useState(false);
-    const [user, setUser] = useState<User | null | undefined>();
+    const [user, setUser] = useState<UserAuth | null | undefined>();
     const [loginError, setLoginError] = useState<boolean>(false);
     const [msgError, setMsgError] = useState<string[]>([]);
 
@@ -65,7 +59,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
     async function sessionConfig(sistemUser: UserAuth) {
         if (sistemUser?.token) {
-            setUser(user);
+            setUser({ logado: true, expiresIn: sistemUser?.expiresIn, token: sistemUser?.token, name: sistemUser?.name});
             managementCookie({ logado: true, expiresIn: sistemUser?.expiresIn, token: sistemUser?.token, name: sistemUser?.name});
             setLoad(false);
         } else {
@@ -196,6 +190,10 @@ export function AuthProvider({ children }: AuthProviderProps) {
     }
 
     async function logout() {
+        Cookies.remove(CookiesAuth.USERLOGADO);
+        Cookies.remove(CookiesAuth.USERTOKEN);
+        Cookies.remove(CookiesAuth.USERNAME);
+        
         try {
             setLoad(true)
             return 'Test';

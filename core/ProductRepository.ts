@@ -10,7 +10,7 @@ export default interface ProductRepository {
         placeId: number | null,
         active: boolean
     ): Promise<Product[]>;
-    list(): Promise<Product[]>;
+    list(page: number): Promise<Product[]>;
     details(id: number): Promise<Product[]>
     edit(
         id: number | null,
