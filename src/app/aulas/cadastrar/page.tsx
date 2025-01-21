@@ -4,7 +4,6 @@ import Card from "@/components/Card/Card";
 import AuthInput from "@/components/auth/AuthInput";
 import AuthSelect from "@/components/auth/AuthSelect";
 import SingleCalendar from "@/components/date/SingleCalendar";
-import TimePickerCalendar from "@/components/date/TimePickerCalendar";
 import PageDefault from "@/components/template/default";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
@@ -15,7 +14,6 @@ import Modal from "@/components/Modal/Modal";
 import Loading from "@/components/loading/Loading";
 
 import DropdownType from "../../../model/Dropdown";
-import AuthSelectMulti from "@/components/auth/AuthSelectMulti";
 import useConvertDate from "@/data/hooks/useConvertDate";
 import { convertDate } from "@/utils/formatterText";
 import { EventBtn } from "@/types/btn";
@@ -23,6 +21,8 @@ import BikeView from "@/components/BikeView/BikeView";
 import { convertArray, convertArrayType } from "@/utils/convertArray";
 import { ValidationForm } from "@/components/formValidation/validation";
 import ValidationFields from "@/validators/fields";
+
+import listTimes from '../../../json/time.json';
 
 export default function AddClass() {
     const repo = useMemo(() => new ClassCollection(), []);
@@ -195,29 +195,7 @@ export default function AddClass() {
                                         <AuthSelect
                                             label="Horário"
                                             value={time}
-                                            options={
-                                                [
-                                                    { "label": "05:00", "value": "05:00" },
-                                                    { "label": "06:00", "value": "06:00" },
-                                                    { "label": "07:00", "value": "07:00" },
-                                                    { "label": "08:00", "value": "08:00" },
-                                                    { "label": "09:00", "value": "09:00" },
-                                                    { "label": "10:00", "value": "10:00" },
-                                                    { "label": "11:00", "value": "11:00" },
-                                                    { "label": "12:00", "value": "12:00" },
-                                                    { "label": "13:00", "value": "13:00" },
-                                                    { "label": "14:00", "value": "14:00" },
-                                                    { "label": "15:00", "value": "15:00" },
-                                                    { "label": "16:00", "value": "16:00" },
-                                                    { "label": "17:00", "value": "17:00" },
-                                                    { "label": "18:00", "value": "18:00" },
-                                                    { "label": "19:00", "value": "19:00" },
-                                                    { "label": "20:00", "value": "20:00" },
-                                                    { "label": "21:00", "value": "21:00" },
-                                                    { "label": "22:00", "value": "22:00" },
-                                                    { "label": "23:00", "value": "23:00" }
-                                                ]
-                                            }
+                                            options={ listTimes?.time }
                                             changeValue={setTime}
                                             edit={edit}
                                             required
