@@ -269,7 +269,7 @@ export default function AddTeachers() {
         setLoading(true);
         setErrorMessage(null);
 
-        const validationError = ValidationFields({ "Nome": name, "Data de Nascimento": birthday, "Telefone": phone, "Status": String(status), "Cep": zipCode, "Estado": state, "Cidade": city, "Endereço": address, "Pais": country });
+        const validationError = ValidationFields({ "Nome": name, "Data de Nascimento": birthday, "Telefone": phone, "Cep": zipCode, "Estado": state, "Cidade": city, "Endereço": address, "Pais": country });
 
         if (validationError) {
             setErrorMessage(validationError);
@@ -417,11 +417,11 @@ export default function AddTeachers() {
                                     label="Status"
                                     options={[
                                         {
-                                            value: 1,
+                                            value: true,
                                             label: "Ativo"
                                         },
                                         {
-                                            value: 0,
+                                            value: false,
                                             label: "Inativo"
                                         }
                                     ]}

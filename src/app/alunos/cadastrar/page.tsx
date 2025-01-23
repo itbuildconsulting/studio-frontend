@@ -212,6 +212,14 @@ export default function Students() {
         )
     }
 
+    function converterDate(str: any) {
+        if (str) {
+            return str.split("/").reverse().join("-");
+        } else {
+            return str;
+        }
+    }
+
     const SuccessStatus = () => {
         return (
             <div className="flex flex-col items-center gap-4">
@@ -278,7 +286,7 @@ export default function Students() {
                 setErrorMessage(null);
             }, 2500);
         } else {
-            repo?.create(name, document, email, phone, birthday, height, weight, shoes, password, contract, frequency, false, "0", zipCode, state, city, address, country, status).then((result: any) => {
+            repo?.create(name, document, email, phone, converterDate(birthday), height, weight, shoes, password, contract, frequency, false, "0", zipCode, state, city, address, country, status).then((result: any) => {
                 if (result instanceof Error) {
                     const message: any = JSON.parse(result.message);
                     setErrorMessage(message.error);
