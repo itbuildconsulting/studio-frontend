@@ -28,16 +28,16 @@ export default function Header({ handleMenuOpen }: HeaderProps) {
                         <span>3</span>
                     </div>
                     {IconNotification}
-                </div> */}
+                </div>
                 <div className={`${styles.user_header}`}>
                     <div className={`${styles.user_icon_header}`}>
                         {IconPeople('16px', '16px', "var(--secondary)")}
                     </div>
                     <div className={`${styles.user_name_header}`}>
                         <span>Olá, {userNameAuth}</span>
-                        {/* <span>{IconArrowBack}</span> */}
+                        <span>{IconArrowBack}</span>
                     </div>
-                </div>
+                </div>*/}
             </div>
         </header>
     )

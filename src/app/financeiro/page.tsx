@@ -34,7 +34,8 @@ export default function Financial() {
       };
 
     const convertValue = (cell: number) => {
-        return cell.toLocaleString('pt-br', { style: 'currency', currency: 'BRL' })
+        const newValue = cell / 100;
+        return newValue.toLocaleString('pt-br', { style: 'currency', currency: 'BRL' })
         //return cell;
     }
 

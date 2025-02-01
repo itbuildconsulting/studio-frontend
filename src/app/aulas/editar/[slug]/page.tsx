@@ -56,6 +56,8 @@ export default function AddClass() {
     const [dropdownStudent, setDropdownStudent] = useState<DropdownType[]>([]);
     const [dropdownProduct, setDropdownProduct] = useState<DropdownType[]>([]);
 
+    
+
     const [dropdownCommission] = useState<any>(
         [
             {
@@ -131,6 +133,11 @@ export default function AddClass() {
         });
     }, [])
 
+    const onUpdateBikes = (updatedBikes: any[]) => {
+        console.log(updatedBikes)
+        setBikes(updatedBikes);
+    };
+
     const onSubmit = () => {
         const validationError = ValidationFields({ "Data": date, "Hora": time, "Professor": String(teacher), "Tipo de Produto": String(typeProduct) });
 
@@ -141,7 +148,7 @@ export default function AddClass() {
             return;
         }
 
-        repo?.edit(+searchParams?.slug, convertDate(date), time, teacher, limit, canCommission, commissionValue, commissionRules, product, students, true).then((result: any) => {
+        repo?.edit(+searchParams?.slug, convertDate(date), time, teacher, limit, canCommission, commissionValue, commissionRules, typeProduct, bikes, true).then((result: any) => {
             if (result instanceof Error) {
                 const message: any = JSON.parse(result.message);
                 setErrorMessage(message.error);
@@ -260,7 +267,7 @@ export default function AddClass() {
                                         <AuthSelect
                                             label="Quantidade de alunos"
                                             value={qtdStudents}
-                                            options={[{ label: '1', value: 1 }, { label: '2', value: 2 }, { label: '3', value: 3 }, { label: '4', value: 4 }, { label: '5', value: 5 }, { label: '6', value: 6 }, { label: '7', value: 7 }, { label: '8', value: 8 }, { label: '9', value: 9 }, { label: '10', value: 10 }]}
+                                            options={[{ label: '12', value: 12 }]}
                                             changeValue={setQtdStudents}
                                             edit={edit}
                                             required
@@ -421,7 +428,7 @@ export default function AddClass() {
                                     </div>
 
                                 </div>*/}
-                                <BikeView bikes={bikes} totalBikes={12} />
+                                <BikeView bikes={bikes} totalBikes={12} onUpdateBikes={onUpdateBikes}/>
                             </div>
                         </div>
                     </Card>
