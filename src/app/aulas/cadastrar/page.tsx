@@ -23,6 +23,9 @@ import { ValidationForm } from "@/components/formValidation/validation";
 import ValidationFields from "@/validators/fields";
 
 import listTimes from '../../../json/time.json';
+import AuthSelectMulti from "@/components/auth/AuthSelectMulti";
+import { format } from "date-fns";
+import { getDatesForWeekday } from "../../../../core/CreateRecurringClass";
 
 export default function AddClass() {
     const repo = useMemo(() => new ClassCollection(), []);
@@ -43,9 +46,19 @@ export default function AddClass() {
     const [commissionValue, setCommissionValue] = useState<number | null>(null);
     const [edit] = useState<boolean>(false);
 
+    const [weekdays, setWeekdays] = useState<string[] | null>(null);
+    const [recurring, setRecurring] = useState<string[] | null>(null);
+
     const [dropdownType, setDropdownType] = useState<string[]>([]);
     const [dropdownEmployee, setDropdownEmployee] = useState<DropdownType[]>([]);
     const [dropdownStudent, setDropdownStudent] = useState<DropdownType[]>([]);
+
+    const [isRecurring, setIsRecurring] = useState(false);
+
+    // Função para alternar entre os tipos de cadastro
+    const handleToggleCadastro = (isRecurrence: boolean) => {
+        setIsRecurring(isRecurrence);
+    };
 
     const [dropdownCommission] = useState<any>(
         [
@@ -124,6 +137,17 @@ export default function AddClass() {
         });
     }
 
+    const onSubmit2 = () => {
+        const year = 2025;
+        const weekday = 'Monday'; // Dia da semana (pode ser 'Monday', 'Wednesday', etc.)
+
+        const dates = getDatesForWeekday(weekday, year);
+
+        // Exibe as datas formatadas para visualização
+        const formattedDates = dates.map(date => format(date, 'yyyy-MM-dd'));
+        console.log(formattedDates);
+    }
+
     const eventButton: EventBtn[] = [
         {
             name: "Cancelar",
@@ -132,7 +156,7 @@ export default function AddClass() {
         },
         {
             name: "Cadastrar",
-            function: onSubmit,
+            function: isRecurring ? onSubmit2 : onSubmit,
             class: "btn-primary"
         },
     ];
@@ -172,6 +196,33 @@ export default function AddClass() {
         )
     };
 
+    interface MultiValue<T> {
+        value: any;
+        label: string;
+        // Pode adicionar outras propriedades, conforme necessário
+      }
+
+    interface SelectType {
+        value: number | string; // Pode ser número ou string dependendo do caso
+        label: string;
+      }
+
+      const options2: MultiValue<SelectType>[] = [
+        { value: 0, label: "Segunda" },
+        { value: 1, label: "Terça" },
+        { value: 2, label: "Quarta" },
+        { value: 3, label: "Quinta" },
+        { value: 4, label: "Sexta" },
+        { value: 5, label: "Sábado" },
+        { value: 6, label: "Domingo" },
+      ];
+
+      const optionsRecurring: MultiValue<SelectType>[] = [
+        { value: 0, label: "1 mês" },
+        { value: 1, label: "6 meses" },
+        { value: 2, label: "1 ano" },
+      ];
+      
     return (
         <PageDefault title={"Cadastrar Aulas"}>
             <div className="grid grid-cols-12">
@@ -181,27 +232,80 @@ export default function AddClass() {
                         eventsButton={eventButton}
                         loading={loading}
                     >
-                        <div className="grid grid-cols-12 gap-8">
+                        <div className="grid grid-cols-12 gap-x-8">
                             <div className="col-span-7">
-                                <div className="grid grid-cols-12 gap-x-8">
-                                    <div className="col-span-12 sm:col-span-6">
-                                        <SingleCalendar
-                                            label="Data"
-                                            date={formatterDate(date)}
-                                            setValue={setDate}
-                                        />
-                                    </div>
-                                    <div className="col-span-12 sm:col-span-6">
-                                        <AuthSelect
-                                            label="Horário"
-                                            value={time}
-                                            options={ listTimes?.time }
-                                            changeValue={setTime}
-                                            edit={edit}
-                                            required
-                                        />
 
+                                <button onClick={() => handleToggleCadastro(true)}>
+                                    Cadastrar por recorrência
+                                </button>
+
+                                <button onClick={() => handleToggleCadastro(false)}>
+                                    Cadastrar por data
+                                </button>
+                            </div>
+                            
+                            <div className="col-span-7">
+                                {isRecurring ? (
+                                    <div className="grid grid-cols-12 gap-x-8">
+
+                                        <div className="col-span-12 sm:col-span-6">
+                                            <AuthSelect
+                                                label="Recorrência"
+                                                value={recurring}
+                                                options={ optionsRecurring }
+                                                changeValue={setRecurring}
+                                                edit={edit}
+                                                required
+                                            />
+                                        </div>
+                                        <div className="col-span-12 sm:col-span-6">
+                                            <AuthSelectMulti
+                                                label="Dias da semana"
+                                                value={weekdays}
+                                                options={options2}
+                                                changeValue={setWeekdays}
+                                            
+                                            />
+                                        </div>
+
+                                        <div className="col-span-12 sm:col-span-6">
+                                            <AuthSelect
+                                                label="Horário"
+                                                value={time}
+                                                options={ listTimes?.time }
+                                                changeValue={setTime}
+                                                edit={edit}
+                                                required
+                                            />
+                                        </div>
                                     </div>
+                                
+                                 ) : (
+                                    
+                                    <div className="grid grid-cols-12 gap-x-8">
+                                        <div className="col-span-12 sm:col-span-6">
+                                            <SingleCalendar
+                                                label="Data"
+                                                date={formatterDate(date)}
+                                                setValue={setDate}
+                                            />
+                                        </div>
+                                        <div className="col-span-12 sm:col-span-6">
+                                            <AuthSelect
+                                                label="Horário"
+                                                value={time}
+                                                options={ listTimes?.time }
+                                                changeValue={setTime}
+                                                edit={edit}
+                                                required
+                                            />
+
+                                        </div>
+                                        
+                                    </div>
+                                 )}
+
+                                <div className="grid grid-cols-12 gap-x-8">
                                     <div className="col-span-12 sm:col-span-6">
                                         <AuthSelect
                                             label='Tipo de Produto'
@@ -212,6 +316,7 @@ export default function AddClass() {
                                             required
                                         />
                                     </div>
+
                                 </div>
                                 <hr className="mt-3 mb-5 pb-3" style={{ borderColor: "#F4F5F6" }} />
                                 <div className="grid grid-cols-12 gap-x-8">
