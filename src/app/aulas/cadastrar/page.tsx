@@ -24,8 +24,9 @@ import ValidationFields from "@/validators/fields";
 
 import listTimes from '../../../json/time.json';
 import AuthSelectMulti from "@/components/auth/AuthSelectMulti";
-import { format } from "date-fns";
-import { getDatesForWeekday } from "../../../../core/CreateRecurringClass";
+import { format, startOfYear } from "date-fns";
+import { getDatesForWeekdays } from "../../../../core/CreateRecurringClass";
+import { CalendarDate, CalendarFrequency } from "@/components/icons";
 
 export default function AddClass() {
     const repo = useMemo(() => new ClassCollection(), []);
@@ -37,6 +38,7 @@ export default function AddClass() {
 
     const [date, setDate] = useState<string>("");
     const [time, setTime] = useState<string>("");
+    const [timeArr, setTimeArr] = useState<string[]>([]);
     const [typeProduct, setTypeProduct] = useState<string | null>(null);
     const [teacher, setTeacher] = useState<string>("");
     const [limit, setLimit] = useState<number>(0);
@@ -46,8 +48,8 @@ export default function AddClass() {
     const [commissionValue, setCommissionValue] = useState<number | null>(null);
     const [edit] = useState<boolean>(false);
 
-    const [weekdays, setWeekdays] = useState<string[] | null>(null);
-    const [recurring, setRecurring] = useState<string[] | null>(null);
+    const [weekdays, setWeekdays] = useState<string[]>([]);
+    const [recurring, setRecurring] = useState<number>(1);
 
     const [dropdownType, setDropdownType] = useState<string[]>([]);
     const [dropdownEmployee, setDropdownEmployee] = useState<DropdownType[]>([]);
@@ -139,13 +141,45 @@ export default function AddClass() {
 
     const onSubmit2 = () => {
         const year = 2025;
-        const weekday = 'Monday'; // Dia da semana (pode ser 'Monday', 'Wednesday', etc.)
-
-        const dates = getDatesForWeekday(weekday, year);
+        const dates: any = getDatesForWeekdays(weekdays, year, date, recurring);
 
         // Exibe as datas formatadas para visualização
-        const formattedDates = dates.map(date => format(date, 'yyyy-MM-dd'));
+        const formattedDates = dates.map((date: string | number | Date) => format(date, 'yyyy-MM-dd'));
         console.log(formattedDates);
+
+        setLoading(true);
+        setErrorMessage(null);
+        setSuccessMessage("");
+
+        //const validationError = ValidationFields({ "Data": date, "Hora": time, "Professor": teacher, "Tipo de Produto": typeProduct });
+
+        
+
+        repo?.createM(formattedDates, timeArr, teacher, limit, JSON.parse(canCommission), commissionValue, commissionRules, typeProduct, students, true).then((result: any) => {
+            if (result instanceof Error) {
+                const message: any = JSON.parse(result.message);
+                setErrorMessage(message.error);
+                setLoading(false);
+                setLog(1);
+                setTimeout(() => {
+                    setErrorMessage(null);
+                }, 2500);
+            } else {
+                setModalSuccess(true);
+                setLoading(false);
+                setSuccessMessage("Cadastro realizado com sucesso!");
+                setLog(0);
+            }
+        }).catch((error) => {
+            setErrorMessage(error.message);
+            setTimeout(() => {
+                setErrorMessage(null);
+            }, 2500);
+            setLog(1);
+            setLoading(false);
+        });
+
+        
     }
 
     const eventButton: EventBtn[] = [
@@ -208,20 +242,22 @@ export default function AddClass() {
       }
 
       const options2: MultiValue<SelectType>[] = [
-        { value: 0, label: "Segunda" },
-        { value: 1, label: "Terça" },
-        { value: 2, label: "Quarta" },
-        { value: 3, label: "Quinta" },
-        { value: 4, label: "Sexta" },
-        { value: 5, label: "Sábado" },
-        { value: 6, label: "Domingo" },
+        { value: 'Monday', label: "Segunda" },
+        { value: 'Tuesday', label: "Terça" },
+        { value: 'Wednesday', label: "Quarta" },
+        { value: 'Thursday', label: "Quinta" },
+        { value: 'Friday', label: "Sexta" },
+        { value: 'Saturday', label: "Sábado" },
+        { value: 'Sunday', label: "Domingo" },
       ];
 
       const optionsRecurring: MultiValue<SelectType>[] = [
-        { value: 0, label: "1 mês" },
-        { value: 1, label: "6 meses" },
-        { value: 2, label: "1 ano" },
+        { value: 4, label: "1 mês" },
+        { value: 24, label: "6 meses" },
+        { value: 48, label: "1 ano" },
       ];
+
+      const newTimes: MultiValue<SelectType>[] = listTimes?.time;
       
     return (
         <PageDefault title={"Cadastrar Aulas"}>
@@ -235,12 +271,12 @@ export default function AddClass() {
                         <div className="grid grid-cols-12 gap-x-8">
                             <div className="col-span-7">
 
-                                <button onClick={() => handleToggleCadastro(true)}>
-                                    Cadastrar por recorrência
+                                <button className="recurringButton" onClick={() => handleToggleCadastro(true)}>
+                                    {CalendarFrequency()} Cadastrar por recorrência
                                 </button>
 
-                                <button onClick={() => handleToggleCadastro(false)}>
-                                    Cadastrar por data
+                                <button className="recurringButton" onClick={() => handleToggleCadastro(false)}>
+                                    {CalendarDate()} Cadastrar por data
                                 </button>
                             </div>
                             
@@ -248,6 +284,13 @@ export default function AddClass() {
                                 {isRecurring ? (
                                     <div className="grid grid-cols-12 gap-x-8">
 
+                                        <div className="col-span-12 sm:col-span-6">
+                                            <SingleCalendar
+                                                label="Data de Início"
+                                                date={formatterDate(date)}
+                                                setValue={setDate}
+                                            />
+                                        </div>
                                         <div className="col-span-12 sm:col-span-6">
                                             <AuthSelect
                                                 label="Recorrência"
@@ -269,13 +312,11 @@ export default function AddClass() {
                                         </div>
 
                                         <div className="col-span-12 sm:col-span-6">
-                                            <AuthSelect
+                                            <AuthSelectMulti
                                                 label="Horário"
-                                                value={time}
-                                                options={ listTimes?.time }
-                                                changeValue={setTime}
-                                                edit={edit}
-                                                required
+                                                value={timeArr}
+                                                options={ newTimes }
+                                                changeValue={setTimeArr}
                                             />
                                         </div>
                                     </div>

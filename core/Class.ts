@@ -72,6 +72,33 @@ export default class ClassRepository implements ClassRepository {
         return conectAPI(req, "/class", "POST");
     }
 
+    async createM (
+        date: [],
+        time: string[],
+        teacherId: string | null,
+        limit: number,
+        hasCommission: boolean,
+        kickback: number | null,
+        kickbackRule: string,
+        productTypeId: string | null,
+        students: string[],
+        active: boolean
+    ): Promise<[]> {
+        const req = {
+            date,
+            time,
+            teacherId,
+            limit,
+            hasCommission,
+            kickback,
+            kickbackRule,
+            productTypeId,
+            students,
+            active
+        };
+        return conectAPI(req, "/class/multiple/", "POST");
+    }
+
     async listClass (
         date: string | null,
         time: string | null,

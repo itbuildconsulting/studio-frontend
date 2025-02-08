@@ -434,3 +434,7 @@ input.select-multi__input {
   border: 1px solid #000;
   text-align: center;
 }
+
+.recurringButton{
+  width: 250px !important;
+}

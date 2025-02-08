@@ -14,6 +14,19 @@ export default interface ClassRepository {
         active: boolean
     ): Promise<Class[]>;
 
+    create(
+        date: [],
+        time: string[],
+        teacherId: string | null,
+        limit: number,
+        hasCommission: boolean,
+        kickback: number | null,
+        kickbackRule: string,
+        productId: string | null,
+        students: string[],
+        active: boolean
+    ): Promise<Class[]>;
+
     edit(
         id: number | null,
         date: string | null,

@@ -1,48 +1,59 @@
-// Função para gerar todas as datas que caem no dia da semana especificado durante um ano
-// No arquivo onde a função é definida
-import { addWeeks, startOfYear, isSameDay, format, getDay } from 'date-fns';
+import { addWeeks, startOfYear, getDay, format } from 'date-fns';
 
-// Função para gerar todas as datas que caem no dia da semana especificado durante um ano
-export const getDatesForWeekday = (weekDay: string, year: number): Date[] => {
+// Função para gerar todas as datas que caem nos dias da semana especificados durante um ano
+export const getDatesForWeekdays = (weekDays: string[], year: number, date2: string, weekNumbers: number): Date[] => {
   // Inicializa a data de início como 1º de janeiro do ano fornecido
-  let currentDate = startOfYear(new Date(year, 0, 1)); // 1º de janeiro do ano
-  
-  // Mapeia os dias da semana para números (0 - Sunday, 1 - Monday, ..., 6 - Saturday)
-  const weekDaysMap: any = {
-    Sunday: 0,
-    Monday: 1,
-    Tuesday: 2,
-    Wednesday: 3,
-    Thursday: 4,
-    Friday: 5,
-    Saturday: 6,
-  };
 
-  const targetDay: any = weekDaysMap[weekDay]; // Converte o dia da semana para o número correspondente
+    const resultDates: Date[] = [];
   
-  // Ajusta a data para o primeiro dia do ano que corresponde ao 'weekDay'
-  let dayOfWeek = getDay(currentDate);
-  let daysToAdd = targetDay - dayOfWeek;
-  if (daysToAdd <= 0) {
-    daysToAdd += 7; // Se o dia do ano for anterior ao 'weekDay', pula para a próxima semana
-  }
+    // Mapeia os dias da semana para números (0 - Sunday, 1 - Monday, ..., 6 - Saturday)
+    const weekDaysMap: any = {
+      Sunday: 0,
+      Monday: 1,
+      Tuesday: 2,
+      Wednesday: 3,
+      Thursday: 4,
+      Friday: 5,
+      Saturday: 6,
+    };
   
-  currentDate = addWeeks(currentDate, 0); // Ajusta a data para o primeiro dia da semana correspondente
-  
-  // Avança até o primeiro dia desejado da semana
-  currentDate.setDate(currentDate.getDate() + daysToAdd); 
+    // Para cada dia da semana fornecido
+    weekDays.forEach(weekDay => {
+      // Cria uma nova data de início para cada iteração
 
-  const resultDates: Date[] = [];
-  // Itera sobre as semanas do ano (52 semanas)
-  for (let i = 0; i < 104; i++) {
-    resultDates.push(currentDate);
-    
-    // Avança para a próxima semana
-    currentDate = addWeeks(currentDate, 1);
-  }
+      // Separar a string em partes (dia, mês, ano)
+        let [day, month, year2]: any = date2.split("/");
+
+        // Reformatar para o formato "YYYY-MM-DD", que é interpretado corretamente
+        let formattedDateString = `${year2}-${month}-${day}`;
+
+        // Criar um objeto Date a partir da string reformulada
+        let date = new Date(formattedDateString);
+        console.log(date)
+      
+      
+      const targetDay = weekDaysMap[weekDay]; // Converte o dia da semana para o número correspondente
+      
+      let dayOfWeek = getDay(date); // Pega o dia da semana de 1º de janeiro
+      let daysToAdd = targetDay - dayOfWeek;
+  
+      if (daysToAdd < 0) {
+        daysToAdd += 7; // Se o dia do ano for anterior ao 'weekDay', pula para a próxima semana
+      }
+  
+      // Ajusta a data inicial para o primeiro 'weekDay' encontrado
+      date.setDate(date.getDate() + daysToAdd);
+  
+      // Agora, avançamos para a próxima semana de acordo com o dia da semana desejado
+      for (let i = 0; i < weekNumbers; i++) { // 104 semanas cobrem 2 anos
+        resultDates.push(date);
+        date = addWeeks(date, 1); // Avança para a próxima semana
+      }
+    });
+  
+     // Ordena as datas em ordem crescente
+  resultDates.sort((a, b) => a.getTime() - b.getTime()); // Ordena as datas pelo valor de tempo
 
   return resultDates;
-};
-
-
+  };
 
