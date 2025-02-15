@@ -53,4 +53,8 @@ export default interface ClassRepository {
     details(
         id: number,
     ): Promise<Class[]>;
+
+    cancel(
+        id: number,
+    ): Promise<Class[]>;
 }

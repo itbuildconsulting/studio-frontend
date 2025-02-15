@@ -149,4 +149,9 @@ export default class ClassRepository implements ClassRepository {
         };
         return conectAPI(req, `/class/${id}`, "PUT");
     }
+
+    async cancel (id: number): Promise<[]> {
+        return conectAPI(null, `/class/cancelClass/${id}`, "GET");
+    }
+
 }

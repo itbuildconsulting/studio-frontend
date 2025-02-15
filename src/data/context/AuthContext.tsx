@@ -90,9 +90,13 @@ export function AuthProvider({ children }: AuthProviderProps) {
                 }
             );
             if (resp.status === 200) {
-                router.push("/dashboard");
-
                 const authResp = await resp.json();
+                if(authResp.level == "2"){
+                    router.push("/aulas");
+                }else{
+                    router.push("/dashboard");
+                }
+                console.log(authResp)
                 await sessionConfig(authResp);
                 setLoad(false);
             } else if (resp.status === 500) {

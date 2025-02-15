@@ -20,6 +20,9 @@ import { convertArray, convertArrayType } from "@/utils/convertArray";
 import listTimes from '../../json/time.json';
 import { PaginationModel } from "@/types/pagination";
 import pageDefault from "@/utils/pageDetault";
+import { ActionButtonDinamic } from "@/utils/actionTableDinamic";
+
+
 
 export default function Class() {
     const repo = useMemo(() => new ClassCollecion(), []);
@@ -45,12 +48,34 @@ export default function Class() {
         return cell ? "Ativo" : "Inativo";
     }
 
+    const handleDelete = (id: any) => {
+        
+        repo?.cancel(id).then((result: any) => {
+            if (result instanceof Error) {
+                console.log('AQUIII')
+            } else {
+                console.log('Deu ruim')
+            }
+
+        }).catch((error) => {
+
+        });
+    }
+
     const handleActionButton = (cell: number, row: any) => {
-        return actionButton({
-            id: cell,
-            editURL: "/aulas/editar/",
-            changeStatus: () => { }
-        })
+        console.log(cell)
+        return (
+            <ActionButtonDinamic 
+                id={10} 
+                links={[
+                    {
+                        href: "#", 
+                        label: 'Cancelar Aula',
+                        onClick: () => handleDelete(cell)
+                    }
+                ]}
+            />
+        )
     }
 
     const listClass = (dateF: string, timeF: string, teacherF: string, typeF: string, page: number) => {

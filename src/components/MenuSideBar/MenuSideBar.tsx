@@ -7,6 +7,7 @@ import LogoShort from '../../../public/images/logo_sudio_short.png'
 import MenuItem from './MenuItem';
 import { usePathname } from 'next/navigation';
 import useAuthData from '@/data/hooks/useAuthData';
+import { checkUserLevel } from '../../../core/CheckUserLevel';
 
 interface MenuSideBarProps {
     menuMobileOpen: boolean,
@@ -17,6 +18,10 @@ export default function MenuSideBar(props: MenuSideBarProps) {
     const pathname = usePathname();
 
     const { logout } = useAuthData();
+
+    const hasAccess = checkUserLevel('1');
+
+    
 
     return (
         <>
@@ -30,15 +35,23 @@ export default function MenuSideBar(props: MenuSideBarProps) {
                         </div>
                     </div>
                     <div>
-                        <ul>
-                            <MenuItem url="/dashboard" text="Home" icon={IconHome} className={pathname === "/dashboard" ? "active" : ""} />
-                            <MenuItem url="/aulas" text="Aulas" icon={IconClass} className={pathname === "/aulas" ? "active" : ""} />
-                            <MenuItem url="/alunos" text="Alunos" icon={IconStudents} className={pathname === "/alunos" ? "active" : ""} />
-                            <MenuItem url="/financeiro" text="Financeiro" icon={IconFinance} className={pathname === "/financeiro" ? "active" : ""} />
-                            <MenuItem url="/funcionarios" text="Funcionários" icon={IconWorkers} className={pathname === "/funcionarios" ? "active" : ""} />
-                            <MenuItem url="/produtos" text="Produtos" icon={IconProducts} className={pathname === "/produtos" ? "active" : ""} />
-                            <MenuItem url="/administrativo" text="Administrativo" icon={IconAdmin} className={pathname === "/administrativo" ? "active" : ""} />
-                        </ul>
+                        {!hasAccess ? 
+                            <ul>                           
+                                <MenuItem url="/aulas" text="Aulas" icon={IconClass} className={pathname === "/aulas" ? "active" : ""} />
+                            </ul>
+
+                            :
+                            <ul>  
+                                <MenuItem url="/dashboard" text="Home" icon={IconHome} className={pathname === "/dashboard" ? "active" : ""} />
+                                <MenuItem url="/aulas" text="Aulas" icon={IconClass} className={pathname === "/aulas" ? "active" : ""} />
+                                <MenuItem url="/alunos" text="Alunos" icon={IconStudents} className={pathname === "/alunos" ? "active" : ""} />
+                                <MenuItem url="/financeiro" text="Financeiro" icon={IconFinance} className={pathname === "/financeiro" ? "active" : ""} />
+                                <MenuItem url="/funcionarios" text="Funcionários" icon={IconWorkers} className={pathname === "/funcionarios" ? "active" : ""} />
+                                <MenuItem url="/produtos" text="Produtos" icon={IconProducts} className={pathname === "/produtos" ? "active" : ""} />
+                                <MenuItem url="/administrativo" text="Administrativo" icon={IconAdmin} className={pathname === "/administrativo" ? "active" : ""} />
+                            </ul>
+                            }
+                            
                     </div>
                 </div>
                 <div>
