@@ -11,16 +11,17 @@ interface TitleProps {
     url?: string | undefined,
     hasFooter?: boolean,
     eventsButton?: any,
-    loading?: boolean
+    loading?: boolean,
+    customClass?: string
 }
 
 export default function Card({
-    title, children, hasButton, setShowModal, url, hasFooter, eventsButton, loading
+    title, children, hasButton, setShowModal, url, hasFooter, eventsButton, loading, customClass = ''
 }: TitleProps) {
     const router = useRouter();
 
     return (
-        <div className={`${styles.bg_card}`}>
+        <div className={`${styles.bg_card} ${customClass}`}>
             <div className='flex justify-between'>
                 {title && <h4 style={{ marginBottom: "32px" }}>{title}</h4>}
 
