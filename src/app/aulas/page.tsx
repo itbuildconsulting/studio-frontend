@@ -62,7 +62,7 @@ export default function Class() {
         });
     }
 
-    const handleActionButton = (cell: number, row: any) => {
+    /*const handleActionButton = (cell: number, row: any) => {
         console.log(cell)
         return (
             <ActionButtonDinamic 
@@ -76,6 +76,13 @@ export default function Class() {
                 ]}
             />
         )
+    }*/
+    const handleActionButton = (cell: number, row: any) => {
+        return actionButton({
+            id: cell,
+            editURL: "/aulas/editar/",
+            changeStatus: () => { }
+        })
     }
 
     const listClass = (dateF: string, timeF: string, teacherF: string, typeF: string, page: number) => {

@@ -269,15 +269,17 @@ export default function AddClass() {
                         loading={loading}
                     >
                         <div className="grid grid-cols-12 gap-x-8">
-                            <div className="col-span-7">
+                            <div className="col-span-12 flex  gap-2 mb-8">
 
-                                <button className="recurringButton" onClick={() => handleToggleCadastro(true)}>
+                                <button className={`recurringButton ${isRecurring === false ? 'btn-primary' : 'btn-outline-primary'} px-5 flex items-center gap-1`} onClick={() => handleToggleCadastro(false)}>
+                                    {CalendarDate()} Cadastrar por data
+                                </button>
+
+                                <button className={`recurringButton ${isRecurring === false ? 'btn-outline-primary' : 'btn-primary'} px-5 flex items-center gap-1 `} onClick={() => handleToggleCadastro(true)}>
                                     {CalendarFrequency()} Cadastrar por recorrência
                                 </button>
 
-                                <button className="recurringButton" onClick={() => handleToggleCadastro(false)}>
-                                    {CalendarDate()} Cadastrar por data
-                                </button>
+                                
                             </div>
                             
                             <div className="col-span-7">

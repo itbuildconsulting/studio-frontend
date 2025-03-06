@@ -73,7 +73,8 @@ const BikeView: React.FC<BikeStatusProps> = ({ bikes, totalBikes, onUpdateBikes 
                 return (
                     <div className="flex flex-col items-center text-red-500">
                         {BikeBusy()}
-                        <span className='text-xs'>{bike?.studentName.split(' ')[0]}</span>
+                        {/*<span className='text-xs'>{bike?.studentName.split(' ')[0]}</span>*/}
+                        <span className='text-xs'>{bike?.studentName}</span>
                     </div>
                 );
             } else if (bike.status === 'disable') {

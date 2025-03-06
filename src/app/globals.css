@@ -436,5 +436,6 @@ input.select-multi__input {
 }
 
 .recurringButton{
-  width: 250px !important;
+  width: 300px !important;
+  height: 40px !important;
 }
