@@ -34,7 +34,7 @@ export default function Class() {
     const [type, setType] = useState<string>("");
     const [classses, setClasses] = useState<string[]>([]);
     const [page, setPage] = useState<number>(1);
-    const [infoPage, setInfoPage] = useState<PaginationModel>( pageDefault );
+    const [infoPage, setInfoPage] = useState<PaginationModel>(pageDefault);
     const [loading, setLoading] = useState<any>(false);
 
     const [dropdownType, setDropdownType] = useState<string[]>([]);
@@ -162,11 +162,13 @@ export default function Class() {
 
     useEffect(() => {
         listClass(date, time, teacherId, type, page);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [page]);
 
     useEffect(() => {
         repoDrop.dropdown('persons/employee/dropdown').then(setDropdownTeacher);
         repoDrop.dropdown('productTypes/dropdown').then(setDropdownType);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
 
     return (
@@ -189,7 +191,7 @@ export default function Class() {
                                 <AuthSelect
                                     label='Hora'
                                     value={time}
-                                    options={ listTimes?.time }
+                                    options={listTimes?.time}
                                     changeValue={setTime}
                                 />
                             </div>
