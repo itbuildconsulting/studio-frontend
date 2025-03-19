@@ -11,7 +11,7 @@ import ClassCollecion from "../../../core/Class";
 import { actionButton } from "@/utils/actionTable";
 import SingleCalendar from "@/components/date/SingleCalendar";
 import TimePickerCalendar from "@/components/date/TimePickerCalendar";
-import DropDownsCollection from "../../../core/DropDowns";
+import DropDownsCollection from "../../../core/DropDowns"; 
 import AuthSelect from "@/components/auth/AuthSelect";
 import Time from "@/components/time/time";
 import { EventBtn } from "@/types/btn";

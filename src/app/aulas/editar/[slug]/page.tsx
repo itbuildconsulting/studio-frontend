@@ -134,7 +134,6 @@ export default function AddClass() {
     }, [])
 
     const onUpdateBikes = (updatedBikes: any[]) => {
-        console.log(updatedBikes)
         setBikes(updatedBikes);
     };
 
