@@ -185,6 +185,15 @@ const columns = [
                   required
                 />
               </div>
+              <div className="col-span-12 sm:col-span-6 xl:col-span-4">
+                <AuthInput
+                  label="Antecedência"
+                  value={antecedence}
+                  type="number"
+                  changeValue={setAntecedence}
+                  required
+                />
+              </div>
             </div>
 
 

@@ -50,6 +50,7 @@ export default function MenuSideBar(props: MenuSideBarProps) {
                                 <MenuItem url="/produtos" text="Produtos" icon={IconProducts} className={pathname === "/produtos" ? "active" : ""} />
                                 <MenuItem url="/creditos" text="Créditos" icon={IconDollar} className={pathname === "/creditos" ? "active" : ""} />
                                 <MenuItem url="/administrativo" text="Administrativo" icon={IconAdmin} className={pathname === "/administrativo" ? "active" : ""} />
+                                <MenuItem url="/configuracoes" text="Configuracoes" icon={IconAdmin} className={pathname === "/configuracoes" ? "active" : ""} />
                             </ul>
                             }
                             
