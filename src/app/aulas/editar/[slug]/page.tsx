@@ -82,6 +82,7 @@ export default function AddClass() {
         repoDrop.dropdown('persons/employee/dropdown').then(setDropdownEmployee);
         repoDrop.dropdown('persons/student/dropdown').then(setDropdownStudent);
 
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     useEffect(() => {
@@ -131,6 +132,7 @@ export default function AddClass() {
             setLog(1);
             setLoading(false);
         });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
 
     const onUpdateBikes = (updatedBikes: any[]) => {

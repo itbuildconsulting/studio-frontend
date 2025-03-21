@@ -23,6 +23,10 @@ import { ValidationForm } from "@/components/formValidation/validation";
 import ValidationFields from "@/validators/fields";
 
 import listTimes from '../../../json/time.json';
+import AuthSelectMulti from "@/components/auth/AuthSelectMulti";
+import { format, startOfYear } from "date-fns";
+import { getDatesForWeekdays } from "../../../../core/CreateRecurringClass";
+import { CalendarDate, CalendarFrequency } from "@/components/icons";
 
 export default function AddClass() {
     const repo = useMemo(() => new ClassCollection(), []);
@@ -34,6 +38,7 @@ export default function AddClass() {
 
     const [date, setDate] = useState<string>("");
     const [time, setTime] = useState<string>("");
+    const [timeArr, setTimeArr] = useState<string[]>([]);
     const [typeProduct, setTypeProduct] = useState<string | null>(null);
     const [teacher, setTeacher] = useState<string>("");
     const [limit, setLimit] = useState<number>(0);
@@ -43,9 +48,19 @@ export default function AddClass() {
     const [commissionValue, setCommissionValue] = useState<number | null>(null);
     const [edit] = useState<boolean>(false);
 
+    const [weekdays, setWeekdays] = useState<string[]>([]);
+    const [recurring, setRecurring] = useState<number>(1);
+
     const [dropdownType, setDropdownType] = useState<string[]>([]);
     const [dropdownEmployee, setDropdownEmployee] = useState<DropdownType[]>([]);
     const [dropdownStudent, setDropdownStudent] = useState<DropdownType[]>([]);
+
+    const [isRecurring, setIsRecurring] = useState(false);
+
+    // Função para alternar entre os tipos de cadastro
+    const handleToggleCadastro = (isRecurrence: boolean) => {
+        setIsRecurring(isRecurrence);
+    };
 
     const [dropdownCommission] = useState<any>(
         [
@@ -124,6 +139,49 @@ export default function AddClass() {
         });
     }
 
+    const onSubmit2 = () => {
+        const year = 2025;
+        const dates: any = getDatesForWeekdays(weekdays, year, date, recurring);
+
+        // Exibe as datas formatadas para visualização
+        const formattedDates = dates.map((date: string | number | Date) => format(date, 'yyyy-MM-dd'));
+        console.log(formattedDates);
+
+        setLoading(true);
+        setErrorMessage(null);
+        setSuccessMessage("");
+
+        //const validationError = ValidationFields({ "Data": date, "Hora": time, "Professor": teacher, "Tipo de Produto": typeProduct });
+
+        
+
+        repo?.createM(formattedDates, timeArr, teacher, limit, JSON.parse(canCommission), commissionValue, commissionRules, typeProduct, students, true).then((result: any) => {
+            if (result instanceof Error) {
+                const message: any = JSON.parse(result.message);
+                setErrorMessage(message.error);
+                setLoading(false);
+                setLog(1);
+                setTimeout(() => {
+                    setErrorMessage(null);
+                }, 2500);
+            } else {
+                setModalSuccess(true);
+                setLoading(false);
+                setSuccessMessage("Cadastro realizado com sucesso!");
+                setLog(0);
+            }
+        }).catch((error) => {
+            setErrorMessage(error.message);
+            setTimeout(() => {
+                setErrorMessage(null);
+            }, 2500);
+            setLog(1);
+            setLoading(false);
+        });
+
+        
+    }
+
     const eventButton: EventBtn[] = [
         {
             name: "Cancelar",
@@ -132,7 +190,7 @@ export default function AddClass() {
         },
         {
             name: "Cadastrar",
-            function: onSubmit,
+            function: isRecurring ? onSubmit2 : onSubmit,
             class: "btn-primary"
         },
     ];
@@ -172,6 +230,35 @@ export default function AddClass() {
         )
     };
 
+    interface MultiValue<T> {
+        value: any;
+        label: string;
+        // Pode adicionar outras propriedades, conforme necessário
+      }
+
+    interface SelectType {
+        value: number | string; // Pode ser número ou string dependendo do caso
+        label: string;
+      }
+
+      const options2: MultiValue<SelectType>[] = [
+        { value: 'Monday', label: "Segunda" },
+        { value: 'Tuesday', label: "Terça" },
+        { value: 'Wednesday', label: "Quarta" },
+        { value: 'Thursday', label: "Quinta" },
+        { value: 'Friday', label: "Sexta" },
+        { value: 'Saturday', label: "Sábado" },
+        { value: 'Sunday', label: "Domingo" },
+      ];
+
+      const optionsRecurring: MultiValue<SelectType>[] = [
+        { value: 4, label: "1 mês" },
+        { value: 24, label: "6 meses" },
+        { value: 48, label: "1 ano" },
+      ];
+
+      const newTimes: MultiValue<SelectType>[] = listTimes?.time;
+      
     return (
         <PageDefault title={"Cadastrar Aulas"}>
             <div className="grid grid-cols-12">
@@ -181,27 +268,93 @@ export default function AddClass() {
                         eventsButton={eventButton}
                         loading={loading}
                     >
-                        <div className="grid grid-cols-12 gap-8">
-                            <div className="col-span-7">
-                                <div className="grid grid-cols-12 gap-x-8">
-                                    <div className="col-span-12 sm:col-span-6">
-                                        <SingleCalendar
-                                            label="Data"
-                                            date={formatterDate(date)}
-                                            setValue={setDate}
-                                        />
-                                    </div>
-                                    <div className="col-span-12 sm:col-span-6">
-                                        <AuthSelect
-                                            label="Horário"
-                                            value={time}
-                                            options={ listTimes?.time }
-                                            changeValue={setTime}
-                                            edit={edit}
-                                            required
-                                        />
+                        <div className="grid grid-cols-12 gap-x-8">
+                            <div className="col-span-7 grid grid-cols-12 gap-x-8 mb-8">
+                                <button className={`recurringButton ${isRecurring === false ? 'btn-primary' : 'btn-outline-primary'} px-5 flex items-center gap-1 col-span-6`} onClick={() => handleToggleCadastro(false)}>
+                                    {CalendarDate()} 
+                                    <span className="w-full">
+                                        Cadastrar por data
+                                        </span>
+                                </button>
 
+                                <button className={`recurringButton ${isRecurring === false ? 'btn-outline-primary' : 'btn-primary'} px-5 flex items-center gap-1 col-span-6 w-full`} onClick={() => handleToggleCadastro(true)}>
+                                    {CalendarFrequency()} 
+                                    <span className="w-full">
+                                        Cadastrar por recorrência
+                                        
+                                        </span>
+                                </button>
+
+                                
+                            </div>
+                            
+                            <div className="col-span-7">
+                                {isRecurring ? (
+                                    <div className="grid grid-cols-12 gap-x-8">
+
+                                        <div className="col-span-12 sm:col-span-6">
+                                            <SingleCalendar
+                                                label="Data de Início"
+                                                date={formatterDate(date)}
+                                                setValue={setDate}
+                                            />
+                                        </div>
+                                        <div className="col-span-12 sm:col-span-6">
+                                            <AuthSelect
+                                                label="Recorrência"
+                                                value={recurring}
+                                                options={ optionsRecurring }
+                                                changeValue={setRecurring}
+                                                edit={edit}
+                                                required
+                                            />
+                                        </div>
+                                        <div className="col-span-12 sm:col-span-6">
+                                            <AuthSelectMulti
+                                                label="Dias da semana"
+                                                value={weekdays}
+                                                options={options2}
+                                                changeValue={setWeekdays}
+                                            
+                                            />
+                                        </div>
+
+                                        <div className="col-span-12 sm:col-span-6">
+                                            <AuthSelectMulti
+                                                label="Horário"
+                                                value={timeArr}
+                                                options={ newTimes }
+                                                changeValue={setTimeArr}
+                                            />
+                                        </div>
                                     </div>
+                                
+                                 ) : (
+                                    
+                                    <div className="grid grid-cols-12 gap-x-8">
+                                        <div className="col-span-12 sm:col-span-6">
+                                            <SingleCalendar
+                                                label="Data"
+                                                date={formatterDate(date)}
+                                                setValue={setDate}
+                                            />
+                                        </div>
+                                        <div className="col-span-12 sm:col-span-6">
+                                            <AuthSelect
+                                                label="Horário"
+                                                value={time}
+                                                options={ listTimes?.time }
+                                                changeValue={setTime}
+                                                edit={edit}
+                                                required
+                                            />
+
+                                        </div>
+                                        
+                                    </div>
+                                 )}
+
+                                <div className="grid grid-cols-12 gap-x-8">
                                     <div className="col-span-12 sm:col-span-6">
                                         <AuthSelect
                                             label='Tipo de Produto'
@@ -212,6 +365,7 @@ export default function AddClass() {
                                             required
                                         />
                                     </div>
+
                                 </div>
                                 <hr className="mt-3 mb-5 pb-3" style={{ borderColor: "#F4F5F6" }} />
                                 <div className="grid grid-cols-12 gap-x-8">
