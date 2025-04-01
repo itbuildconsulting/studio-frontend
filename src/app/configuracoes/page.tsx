@@ -20,7 +20,7 @@ export default function Configuracao() {
   const [numberOfClasses, setNumberOfClasses] = useState(50);
   const [title, setTitle] = useState("");
   const [benefit, setBenefit] = useState("");
-  const [color, setColor] = useState("#00FF00"); // Padrão verde
+  const [color, setColor] = useState('1'); // Padrão verde
   const [antecedence, setAntecedence] = useState(0); // Novo estado para antecedência
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -182,20 +182,21 @@ export default function Configuracao() {
                 <AuthSelect
                   label="Status"
                   options={[
-                    { value: "#00FF00", label: "Verde" },
-                    { value: "#FFFF00", label: "Amarelo" },
-                    { value: "#FFA500", label: "Laranja" },
-                    { value: "#0000FF", label: "Azul" },
-                    { value: "#A020F0", label: "Roxo" },
-                    { value: "#FF0000", label: "Vermelho" },
-                    { value: "#000000", label: "Preto" },
-                    { value: "#FFFFFF #FF0000", label: "Branco e Vermelho" },
-                    { value: "#000000 #FFFFFF", label: "Preto e Branco" },
-                    { value: "#000000 #FF0000 #FFFFFF", label: "Preto / Vermelho / Branco" },
+                    { value: '1', colors: "#00FF00", label: "Verde" },
+                    { value: '2', colors: "#FFFF00", label: "Amarelo" },
+                    { value: '3', colors: "#FFA500", label: "Laranja" },
+                    { value: '4', colors: "#0000FF", label: "Azul" },
+                    { value: '5', colors: "#A020F0", label: "Roxo" },
+                    { value: '6', colors: "#FF0000", label: "Vermelho" },
+                    { value: '7', colors: "#000000", label: "Preto" },
+                    { value: '8', colors: "#FFFFFF #FF0000", label: "Branco e Vermelho" },
+                    { value: '9', colors: "#000000 #FFFFFF", label: "Preto e Branco" },
+                    { value: '10', colors: "#000000 #FF0000 #FFFFFF", label: "Preto / Vermelho / Branco" },
                   ]}
                   value={color}
                   changeValue={setColor}
                   required
+                  showColorIcon={true}
                 />
               </div>
               <div className="col-span-12 sm:col-span-6 xl:col-span-4">
