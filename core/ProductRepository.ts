@@ -11,6 +11,7 @@ export default interface ProductRepository {
         active: boolean
     ): Promise<Product[]>;
     list(page: number): Promise<Product[]>;
+    listFiltered(page: number, productTypeId: string | null): Promise<Product[]>;
     details(id: number): Promise<Product[]>
     edit(
         id: number | null,

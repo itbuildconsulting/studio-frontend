@@ -438,3 +438,8 @@ input.select-multi__input {
   max-height: 500px;
   overflow: auto;
 }
+
+.recurringButton{
+  width: 300px !important;
+  height: 40px !important;
+}
