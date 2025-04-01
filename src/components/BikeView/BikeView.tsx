@@ -34,7 +34,8 @@ const BikeView: React.FC<BikeStatusProps> = ({ bikes, totalBikes, onUpdateBikes 
     const [dropdownStudent, setDropdownStudent] = useState<DropdownType[]>([]);
 
     useEffect(() => {
-            repoDrop.dropdown('persons/student/dropdown').then(setDropdownStudent);    
+        repoDrop.dropdown('persons/student/dropdown').then(setDropdownStudent);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [modalType]);
 
     const closeModal = () => {
@@ -54,13 +55,13 @@ const BikeView: React.FC<BikeStatusProps> = ({ bikes, totalBikes, onUpdateBikes 
 
     const handleUpdateBike = (updatedBike: any) => {
         const bikeExists = bikes.some((bike: any) => bike.bikeNumber === updatedBike.bikeNumber);
-    
+
         const updatedBikes = bikeExists
             ? bikes.map((bike: any) =>
                 bike.bikeNumber === updatedBike.bikeNumber ? updatedBike : bike
             )
             : [...bikes, updatedBike]; // Adiciona a bike se ela não existir
-    
+
         onUpdateBikes(updatedBikes);
     };
 
@@ -68,20 +69,106 @@ const BikeView: React.FC<BikeStatusProps> = ({ bikes, totalBikes, onUpdateBikes 
         // Procura se a bike está no array de bikes
         const bike = bikes.find((b: any) => b.bikeNumber === bikeNumber);
 
+        return (
+            <>
+                <DropDown className="flex flex-col items-center" style={'bg-white'}>
+                    {(bike === undefined || bike?.status === 'available') &&
+                        <div>
+                            {BikeAvalible()}
+                        </div>
+                    }
+
+                    {bike?.status === 'in_use' &&
+                        <div className="flex flex-col items-center text-red-500">
+                            {BikeBusy()}
+                            <span className='text-xs'>{bike?.studentName}</span>
+                        </div>
+                    }
+
+                    {bike?.status === 'maintenance' &&
+                        <div className="flex flex-col items-center text-gray-500">
+                            {BikeDisable()}
+                        </div>
+                    }
+
+                    {bike?.status !== 'maintenance' &&
+                        < Link href={"#"}
+                            onClick={() => {
+                                setSelectedBike(bikeNumber);
+                                setModalType('addStudent');
+                            }}
+                        >
+                            Adicionar Aluno
+                        </Link>
+                    }
+
+                    <Link href={"#"}
+                        onClick={() => {
+                            setSelectedBike(bikeNumber);
+                            setModalType('changeStatus');
+                        }}
+                    >
+                        Mudar Status
+                    </Link>
+
+                </DropDown >
+            </>
+        )
         if (bike) {
             if (bike.status === 'in_use') {
                 return (
-                    <div className="flex flex-col items-center text-red-500">
-                        {BikeBusy()}
-                        {/*<span className='text-xs'>{bike?.studentName.split(' ')[0]}</span>*/}
-                        <span className='text-xs'>{bike?.studentName}</span>
-                    </div>
+                    <DropDown className="flex flex-col items-center" style={'bg-white'}>
+                        <div className="flex flex-col items-center text-red-500">
+                            {BikeBusy()}
+                            <span className='text-xs'>{bike?.studentName}</span>
+                        </div>
+
+                        <Link href={"#"}
+                            onClick={() => {
+                                setSelectedBike(bikeNumber);
+                                setModalType('addStudent');
+                            }}
+                        >
+                            Adicionar Aluno
+                        </Link>
+                        <Link href={"#"}
+                            onClick={() => {
+                                setSelectedBike(bikeNumber);
+                                setModalType('changeStatus');
+                            }}
+                        >
+                            Mudar Status
+                        </Link>
+
+                    </DropDown>
                 );
-            } else if (bike.status === 'disable') {
+            } else if (bike.status === 'maintenance') {
                 return (
-                    <div className="flex flex-col items-center text-gray-500">
-                        {BikeDisable()}
-                    </div>
+                    <>
+                        <DropDown className="flex flex-col items-center" style={'bg-white'}>
+                            <div className="flex flex-col items-center text-gray-500">
+                                {BikeDisable()}
+                            </div>
+
+                            <Link href={"#"}
+                                onClick={() => {
+                                    setSelectedBike(bikeNumber);
+                                    setModalType('addStudent');
+                                }}
+                            >
+                                Adicionar Aluno
+                            </Link>
+                            <Link href={"#"}
+                                onClick={() => {
+                                    setSelectedBike(bikeNumber);
+                                    setModalType('changeStatus');
+                                }}
+                            >
+                                Mudar Status
+                            </Link>
+
+                        </DropDown>
+                    </>
                 );
             }
         }
@@ -89,11 +176,11 @@ const BikeView: React.FC<BikeStatusProps> = ({ bikes, totalBikes, onUpdateBikes 
         // Se não está no array, está disponível
         return (
             <DropDown className="flex flex-col items-center" style={'bg-white'}>
-                <div >                
+                <div >
                     {BikeAvalible()}
                 </div>
 
-                <Link href={"#"} 
+                <Link href={"#"}
                     onClick={() => {
                         setSelectedBike(bikeNumber);
                         setModalType('addStudent');
@@ -101,7 +188,12 @@ const BikeView: React.FC<BikeStatusProps> = ({ bikes, totalBikes, onUpdateBikes 
                 >
                     Adicionar Aluno
                 </Link>
-                <Link href={"#"} >
+                <Link href={"#"}
+                    onClick={() => {
+                        setSelectedBike(bikeNumber);
+                        setModalType('changeStatus');
+                    }}
+                >
                     Mudar Status
                 </Link>
 
@@ -115,12 +207,12 @@ const BikeView: React.FC<BikeStatusProps> = ({ bikes, totalBikes, onUpdateBikes 
                 <div key={rowIndex} className="flex flex-row justify-center mb-6">
                     {row.map((bikeNumber) => (
                         <div key={bikeNumber} className="flex flex-col items-center relative p-5">
-                            {bikeNumber === 0 
-                            ? 
+                            {bikeNumber === 0
+                                ?
                                 <div className="flex flex-col items-center text-red-500">
                                     {BikeBusy()}
                                 </div>
-                            :  
+                                :
                                 renderBikeStatus(bikeNumber)
                             }
                             {bikeNumber === 0 ? <span className="mt-2">Professor</span> : <span className="mt-2 number_bike">{bikeNumber}</span>}
@@ -137,9 +229,13 @@ const BikeView: React.FC<BikeStatusProps> = ({ bikes, totalBikes, onUpdateBikes 
                     showModal={!!modalType}
                     hasFooter={true}
                     onSubmit={() => {
-                        const updatedBike = { bikeNumber: selectedBike, status: 'in_use', studentId: students, studentName: '' };
-                        handleUpdateBike(updatedBike)
-                        closeModal();
+                        if (students) {
+                            let studentName: any = convertArray(dropdownStudent).find((elem: any) => { console.log(elem.value, students); return elem.value === Number(students) }).label;
+                            const updatedBike = { bikeNumber: selectedBike, status: 'in_use', studentId: students, studentName };
+                            handleUpdateBike(updatedBike)
+                            setStudents(null);
+                            closeModal();
+                        }
                     }}
                     loading={false}
                 >
@@ -148,6 +244,39 @@ const BikeView: React.FC<BikeStatusProps> = ({ bikes, totalBikes, onUpdateBikes 
                         value={students}
                         options={convertArray(dropdownStudent)}
                         changeValue={setStudents}
+                        edit={edit}
+                        required
+                    />
+                </Modal>
+            )}
+
+            {modalType === 'changeStatus' && (
+                <Modal
+                    title={`Alterar status - Bike ${selectedBike}`}
+                    btnClose={true}
+                    setShowModal={closeModal}
+                    showModal={!!modalType}
+                    hasFooter={true}
+                    edit={true}
+                    onSubmit={() => {
+                        if (bikeStatus) {
+                            const updatedBike = { bikeNumber: selectedBike, status: bikeStatus, studentId: null, studentName: '' };
+                            handleUpdateBike(updatedBike);
+                            setBikeStatus('');
+                            closeModal();
+                        }
+                    }}
+                    loading={false}
+                >
+                    <AuthSelect
+                        label='Status'
+                        value={bikeStatus}
+                        options={[
+                            { value: 'available', label: 'Disponível' },
+                            //{value: 'in_use', label: 'Em Uso'},
+                            { value: 'maintenance', label: 'Em Manutenção' },
+                        ]}
+                        changeValue={setBikeStatus}
                         edit={edit}
                         required
                     />

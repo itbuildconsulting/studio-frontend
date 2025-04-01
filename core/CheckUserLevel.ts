@@ -21,8 +21,6 @@ export function checkUserLevel(requiredLevel: string): boolean {
     try {
         // Decodifica o token
         const decoded: DecodedToken = jwtDecode(token);
-        console.log(decoded)
-        console.log(requiredLevel, decoded.employee_level)
 
         // Verifica se o nível do usuário corresponde ao nível necessário
         if (decoded.employee_level === requiredLevel) {

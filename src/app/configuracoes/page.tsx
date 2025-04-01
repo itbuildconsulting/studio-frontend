@@ -9,10 +9,11 @@ import Table from "@/components/Table/Table";
 import { PaginationModel } from "@/types/pagination";
 import pageDefault from "@/utils/pageDetault";
 import styles from '../../styles/products.module.css';
+import AuthSelect from "@/components/auth/AuthSelect";
 
 export default function Configuracao() {
 
-// Repositório de Níveis
+  // Repositório de Níveis
   const repo = useMemo(() => new LevelRepository(), []);
 
   const [name, setName] = useState("");
@@ -29,7 +30,7 @@ export default function Configuracao() {
 
   const [listLevels, setListLevels] = useState<string[]>([]);
   const [page, setPage] = useState<number>(1);
-  const [infoPage, setInfoPage] = useState<PaginationModel>( pageDefault );
+  const [infoPage, setInfoPage] = useState<PaginationModel>(pageDefault);
 
   const handleSubmit = async () => {
     setLoading(true);
@@ -77,7 +78,7 @@ export default function Configuracao() {
   const eventButton = [
     {
       name: "Cancelar",
-      function: () => {},
+      function: () => { },
       class: "btn-outline-primary",
     },
     {
@@ -91,45 +92,46 @@ export default function Configuracao() {
     setLoading(true);
 
     repo.list(page).then((result: any) => {
-        setLoading(false);
+      setLoading(false);
 
-        if (result instanceof Error) {
-            setListLevels([]);
-        } else {
-            setListLevels(result?.data);
-        }
-    }).catch(() => {
+      if (result instanceof Error) {
         setListLevels([]);
+      } else {
+        setListLevels(result?.data);
+      }
+    }).catch(() => {
+      setListLevels([]);
     });
-}
+  }
 
-useEffect(() => {
+  useEffect(() => {
     handleListLevel(page);
-}, [page]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [page]);
 
-const columns = [
+  const columns = [
     {
-        dataField: 'name',
-        text: `Nome`,
+      dataField: 'name',
+      text: `Nome`,
     },
     {
-        dataField: 'numberOfClasses',
-        text: `Número de Aulas`,
+      dataField: 'numberOfClasses',
+      text: `Número de Aulas`,
     },
     {
-        dataField: 'title',
-        text: `Título`,
+      dataField: 'title',
+      text: `Título`,
     },
     {
-        dataField: 'benefit',
-        text: `Benefício`,
+      dataField: 'benefit',
+      text: `Benefício`,
     },
     {
-        dataField: 'antecedence',
-        text: `Antecedência de Aulas`,
+      dataField: 'antecedence',
+      text: `Antecedência de Aulas`,
     },
-    
-];
+
+  ];
 
   return (
     <PageDefault title={"Configurações"}>
@@ -177,10 +179,21 @@ const columns = [
                 />
               </div>
               <div className="col-span-12 sm:col-span-6 xl:col-span-4">
-                <AuthInput
-                  label="Cor"
+                <AuthSelect
+                  label="Status"
+                  options={[
+                    { value: "#00FF00", label: "Verde" },
+                    { value: "#FFFF00", label: "Amarelo" },
+                    { value: "#FFA500", label: "Laranja" },
+                    { value: "#0000FF", label: "Azul" },
+                    { value: "#A020F0", label: "Roxo" },
+                    { value: "#FF0000", label: "Vermelho" },
+                    { value: "#000000", label: "Preto" },
+                    { value: "#FFFFFF #FF0000", label: "Branco e Vermelho" },
+                    { value: "#000000 #FFFFFF", label: "Preto e Branco" },
+                    { value: "#000000 #FF0000 #FFFFFF", label: "Preto / Vermelho / Branco" },
+                  ]}
                   value={color}
-                  type="text"
                   changeValue={setColor}
                   required
                 />
@@ -197,14 +210,14 @@ const columns = [
             </div>
 
 
-                <Table
-                    data={listLevels}
-                    columns={columns}
-                    class={styles.table_locale_adm}
-                    loading={loading}
-                    setPage={setPage}
-                    infoPage={infoPage}
-                />
+            <Table
+              data={listLevels}
+              columns={columns}
+              class={styles.table_locale_adm}
+              loading={loading}
+              setPage={setPage}
+              infoPage={infoPage}
+            />
           </Card>
         </div>
       </div>
