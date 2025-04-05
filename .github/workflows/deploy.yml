@@ -32,7 +32,7 @@ jobs:
       - name: Deploy to VPS
         run: |
           ssh -i ~/.ssh/id_rsa root@212.85.2.8 << 'EOF'
-            cd /var/www/seu-projeto/frontend
+            cd /var/www/studio/frontend
             git pull origin main
             npm install
             npm run build
