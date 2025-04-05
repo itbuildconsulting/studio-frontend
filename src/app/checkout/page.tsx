@@ -69,18 +69,18 @@ export default function Checkout() {
         analyzing: '#FFD700', // Dourado
         pending_review: '#F08080', // Vermelho claro
     };
-    
+
     const onSubmit = () => {
 
         const cash = {   // Informações do pagamento em dinheiro
-            "description": "Pagamento em dinheiro", 
+            "description": "Pagamento em dinheiro",
             "confirm": true,   // Se confirmado ou não
             "metadata": {
-              "additional_info": ""
+                "additional_info": ""
             }
-          }
+        }
 
-        repo?.checkout(student,productTemp, cash, 1 , Number(discount)).then((result: any) => {
+        repo?.checkout(student, productTemp, cash, 1, Number(discount)).then((result: any) => {
             if (result instanceof Error) {
                 const message: any = JSON.parse(result.message);
                 setErrorMessage(message.error);
@@ -126,8 +126,15 @@ export default function Checkout() {
 
     useEffect(() => {
         const savedProducts = localStorage.getItem('selectedProduct');
-        setProductTemp(JSON.parse(savedProducts || '[]'));        
+        setProductTemp(JSON.parse(savedProducts || '[]'));
     }, []);
+
+    function calcularDesconto(numero: number, porcentagem: number) {
+        const desconto = (numero * porcentagem) / 100;
+        const resultado = numero - desconto;
+
+        return resultado;
+    }
 
     return (
         <PageDefault title={"Vender Créditos"}>
@@ -149,14 +156,14 @@ export default function Checkout() {
                                 />
                             </div>
                             <div className="col-span-12 md:col-span-6">
-                            <AuthInput
-                                label="Desconto (%)"
-                                value={discount}  // O valor armazenado no estado é o número sem o '%'
-                                type="text"  // Tipo 'text' para poder manipular a máscara
-                                maskType="percent"  // Usando a nova máscara de porcentagem
-                                changeValue={setDiscount}  // Atualiza o estado com o valor sem o '%'
-                                required
-                            />
+                                <AuthInput
+                                    label="Desconto (%)"
+                                    value={discount}  // O valor armazenado no estado é o número sem o '%'
+                                    type="text"  // Tipo 'text' para poder manipular a máscara
+                                    maskType="percent"  // Usando a nova máscara de porcentagem
+                                    changeValue={setDiscount}  // Atualiza o estado com o valor sem o '%'
+                                    required
+                                />
                             </div>
                             <div className="col-span-12 md:col-span-6">
                                 <AuthSelect
@@ -184,20 +191,20 @@ export default function Checkout() {
                                             <div className="flex justify-between mb-3 mt-3">
                                                 <span className={`${styles.summary_text} text-left`}>{item.name}</span>
                                                 <div className="flex items-center">
-                                                    <span className={`${styles.summary_value} text-left`} onClick={() => {
+                                                    <span className={`${styles.summary_value} text-left cursor-pointer`} onClick={() => {
                                                         setProductTemp((prev: any) => {
                                                             return (prev.map((e: any) =>
-                                                                e.id === item.id ? { ...e, qtd: Math.max(e.qtd - 1, 0) } : e
+                                                                e.id === item.id ? { ...e, quantity: Math.max(e.quantity - 1, 0) } : e
                                                             ))
                                                         })
                                                     }}>{IconMinus}</span>
 
-                                                    <span className={`${styles.summary_value} text-left mx-5`}>{item.qtd}</span>
+                                                    <span className={`${styles.summary_value} text-left mx-5`}>{item.quantity}</span>
 
-                                                    <span className={`${styles.summary_value} text-left`} onClick={() => {
+                                                    <span className={`${styles.summary_value} text-left cursor-pointer`} onClick={() => {
                                                         setProductTemp((prev: any) => {
                                                             return (prev.map((e: any) =>
-                                                                e.id === item.id ? { ...e, qtd: e.qtd + 1 } : e
+                                                                e.id === item.id ? { ...e, quantity: e.quantity + 1 } : e
                                                             ))
                                                         })
                                                     }}>{IconPlus}</span>
@@ -208,7 +215,7 @@ export default function Checkout() {
                                                 <span className={`text-left`}>Valor</span>
                                                 <span className={`${styles.summary_text} text-left`}>{Number(item.value).toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}</span>
                                             </div>
-                                            <hr className="opacity-30"/>
+                                            <hr className="opacity-30" />
                                         </div>
                                     );
                                 })}
@@ -216,8 +223,18 @@ export default function Checkout() {
 
                             <div className="flex flex-col">
                                 <div className="flex justify-between mb-2">
-                                    <span className={`text-left`}>Total</span>
-                                    <span className={`${styles.summary_text} text-left`}>{Number(productTemp.reduce((sum: number, item: any) => sum + (item.value * item.qtd), 0)).toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}</span>
+                                    <span className={`text-left`}>Subtotal</span>
+                                    <span className={`text-left`}>{Number(productTemp.reduce((sum: number, item: any) => sum + (item.value * item.quantity), 0)).toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}</span>
+                                </div>
+                                {Number(discount) > 0 &&
+                                    <div className="flex justify-between mb-2">
+                                        <span className={`text-left`}>Desconto</span>
+                                        <span className={`text-left`}>{Number(discount)}%</span>
+                                    </div>
+                                }
+                                <div className="flex justify-between mb-2">
+                                    <span className={`${styles.summary_text} text-left`}>Total</span>
+                                    <span className={`${styles.summary_text} text-left`}>{calcularDesconto(Number(productTemp.reduce((sum: number, item: any) => sum + (item.value * item.quantity), 0)), Number(discount)).toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}</span>
                                 </div>
                             </div>
                         </div>

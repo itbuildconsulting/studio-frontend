@@ -54,7 +54,9 @@ export const PrivateRoute = ({ children }: PrivateRouteProps) => {
             }
         };
 
-        checkAuth();
+        if(!pathname.startsWith('/recuperar-senha')){
+            checkAuth();
+        }
     }, [pathname, router, token]);  // Dependências: pathname, router e token
 
     return <>{children}</>;

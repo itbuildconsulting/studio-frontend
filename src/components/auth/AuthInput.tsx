@@ -75,7 +75,7 @@ const AuthInput = (props: AuthInputProps) => {
                     numericValue = 0; // Se não for número, define 0
                 }
                 numericValue = Math.min(Math.max(numericValue, 0), 100); // Limita entre 0 e 100
-                return `${numericValue}%`;
+                return `${numericValue}`;
     
 
             default:
