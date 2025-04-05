@@ -10,18 +10,25 @@ import { useEffect, useMemo, useState } from "react";
 import styles from '../../styles/products.module.css';
 import AuthSelect from "@/components/auth/AuthSelect";
 
-import ProductCollecion from "../../../core/Product";
+import ProductCollection from "../../../core/Product";
 import DropDownsCollection from "../../../core/DropDowns";
 import Loading from "@/components/loading/Loading";
 import DropDown from "@/components/dropdown/DropDown";
 import Link from "next/link";
+import { convertArray, convertArrayType } from "@/utils/convertArray";
+import { ValidationForm } from "@/components/formValidation/validation";
+
+import listValidate from '../../json/validate.json';
+import { PaginationModel } from "@/types/pagination";
+import pageDefault from "@/utils/pageDetault";
 
 export default function Products() {
     const repoDrop = useMemo(() => new DropDownsCollection(), []);
-    const repo = useMemo(() => new ProductCollecion(), []);
+    const repo = useMemo(() => new ProductCollection(), []);
 
     const [modalProductAdd, setModalProductAdd] = useState<boolean>(false);
 
+    const [id, setId] = useState<number | null>(null); 
     const [productName, setProductName] = useState<string | null>(null);
     const [creditValue, setCreditValue] = useState<number | null>(null);
     const [validity, setValidity] = useState<number | null>(null);
@@ -37,74 +44,22 @@ export default function Products() {
     const [log, setLog] = useState<number | null>(null);
     const [successMessage, setSuccessMessage] = useState<any>(null);
     const [loading, setLoading] = useState<any>(false);
-    const [errorMessage, setErrorMessage] = useState<any>(null);
+    const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
     const [listProduct, setListProduct] = useState<string[]>([]);
     const [edit, setEdit] = useState<boolean>(false);
 
-    const [dropdownValidate] = useState<any>(
-        [
-            {
-                name: '10 dias',
-                id: 10
-            },
-            {
-                name: '15 dias',
-                id: 15
-            },
-            {
-                name: '20 dias',
-                id: 20
-            },
-            {
-                name: '25 dias',
-                id: 25
-            },
-            {
-                name: '30 dias',
-                id: 30
-            },
-            {
-                name: '45 dias',
-                id: 45
-            },
-            {
-                name: '60 dias',
-                id: 60
-            }
-            ,
-            {
-                name: '120 dias',
-                id: 120
-            }
-            ,
-            {
-                name: '365 dias',
-                id: 365
-            }
-        ]
-    );
+    const [dropdownValidate] = useState<any>(listValidate.validate);
+
+    const [page, setPage] = useState<number>(1);
+    const [infoPage, setInfoPage] = useState<PaginationModel>( pageDefault );
 
     const actionLocaleName = (cell: any, row: any) => {
-        return cell?.name;
+        return cell?.place?.name || " - ";
     }
 
     const actionProductTypeName = (cell: any, row: any) => {
         return cell?.name;
-    }
-
-    function convertArray(array: any) {
-        return array.map((item: any) => {
-            const { name, id, ...rest } = item;
-            return { label: name, value: id, ...rest };
-        });
-    }
-
-    function convertArrayType(array: any) {
-        return array.map((item: any) => {
-            const { name, id, place, ...rest } = item;
-            return { label: `${name} - ${place?.name}`, value: id, ...rest };
-        });
     }
 
     const convertValue = (cell: any, row: any) => {
@@ -117,7 +72,7 @@ export default function Products() {
 
     const actionButtonProduct = (cell: any, row: any) => {
         return (
-            <DropDown style={'bg-white'} styleHeader={'bg-white'} className="nav-link">
+            <DropDown style={'bg-white'}>
                 <>...</>
 
                 <Link href={"#"} onClick={() => detailsProduct(cell)}>
@@ -146,7 +101,7 @@ export default function Products() {
             formatter: actionProductTypeName
         },
         {
-            dataField: 'place',
+            dataField: 'productType',
             text: `Local`,
             formatter: actionLocaleName
         },
@@ -170,7 +125,7 @@ export default function Products() {
         setLoading(true);
         setErrorMessage(null);
 
-        (edit ? repo?.edit(productName, Number(creditValue), Number(validity), Number(value), typeProduct, localeName, status) : repo?.create(productName, Number(creditValue), Number(validity), Number(value), typeProduct, localeName, status)).then((result: any) => {
+        (edit ? repo?.edit(id, productName, Number(creditValue), Number(validity), Number(value), typeProduct, localeName, status) : repo?.create(productName, Number(creditValue), Number(validity), Number(value), typeProduct, localeName, status)).then((result: any) => {
             if (result instanceof Error) {
                 const message: any = JSON.parse(result.message);
                 setErrorMessage(message.error);
@@ -185,6 +140,7 @@ export default function Products() {
                 setModalProductAdd(false);
                 setSuccessMessage(edit ? "Edição realizada com sucesso!" : "Cadastro realizado com sucesso!");
                 setLog(0);
+                listGeneralProduct(1);
             }
         }).catch((error) => {
             setErrorMessage(error.message);
@@ -213,7 +169,6 @@ export default function Products() {
     const SuccessStatus = () => {
         return (
             <div className="flex flex-col items-center gap-4">
-
                 {log === 0 ?
                     <svg className="mt-4 pb-2" width="135" height="135" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1} stroke={"var(--primary)"}>
                         <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -234,24 +189,29 @@ export default function Products() {
         )
     };
 
-    const listGeneralProduct = () => {
+    const listGeneralProduct = (page: number) => {
+        setPage(page);
         setLoading(true);
-        repo.list().then((result: any) => {
-            if (result instanceof Error) {
-                setLoading(false);
-            } else {
-                setListProduct(result);
-                setLoading(false);
-            }
-        }).catch((error: any) => {
+
+        repo.list(page).then((result: any) => {
             setLoading(false);
+
+            if (result instanceof Error) {
+                setListProduct([]);
+                setInfoPage(pageDefault);
+            } else {
+                setListProduct(result?.data);
+                setInfoPage(result?.pagination);
+            }
+        }).catch(() => {
+            setListProduct([]);
+            setInfoPage(pageDefault);
         });
     }
 
     useEffect(() => {
-        listGeneralProduct();
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []);
+        listGeneralProduct(page);
+    }, [page]);
 
     const detailsProduct = (id: number) => {
         setEdit(true);
@@ -262,6 +222,7 @@ export default function Products() {
             if (result instanceof Error) {
                 console.log("erro");
             } else {
+                setId(result.id);
                 setProductName(result.name);
                 setCreditValue(result.credit);
                 setValidity(result.validateDate);
@@ -270,9 +231,7 @@ export default function Products() {
                 setValue(result.value);
                 setStatus(result.active);
             }
-        }).catch((error: any) => {
-
-        });
+        }).catch(() => {});
     };
 
     const deleteProduct = (id: number) => {
@@ -328,6 +287,8 @@ export default function Products() {
                             columns={columns}
                             class={styles.table_locale_adm}
                             loading={loading}
+                            setPage={setPage}
+                            infoPage={infoPage}
                         />
                     </Card>
                 </div>
@@ -384,16 +345,6 @@ export default function Products() {
                             required
                         />
                     </div>
-                    {/* <div className="col-span-6">
-                        <AuthSelect
-                            label='Local'
-                            value={localeName}
-                            options={convertArray(dropdownPlace)}
-                            changeValue={setLocaleName}
-                            edit={edit}
-                            required
-                        />
-                    </div> */}
                     <div className="col-span-6">
                         <AuthInput
                             label="Valor"
@@ -423,16 +374,7 @@ export default function Products() {
                             required
                         />
                     </div>
-                    {errorMessage === null ? false :
-                        <div className={` 
-                                        bg-red-400 text-white py-1 px-2
-                                        border border-red-500 rounded-md
-                                        flex flex-row items-center col-span-12
-                                        `}>
-                            {/* {IconWarning} */}
-                            <span className='ml-2 text-sm'>{errorMessage}</span>
-                        </div>
-                    }
+                    <ValidationForm errorMessage={errorMessage} />
                 </div>
             </Modal>
 

@@ -5,57 +5,108 @@ import PageDefault from "@/components/template/default";
 
 import styles from '../../styles/class.module.css';
 import Table from "@/components/Table/Table";
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import AuthInput from "@/components/auth/AuthInput";
+import ClassCollecion from "../../../core/Class";
+import { actionButton } from "@/utils/actionTable";
+import SingleCalendar from "@/components/date/SingleCalendar";
+import DropDownsCollection from "../../../core/DropDowns"; 
+import AuthSelect from "@/components/auth/AuthSelect";
+import Time from "@/components/time/time";
+import { EventBtn } from "@/types/btn";
+import { convertArray, convertArrayType } from "@/utils/convertArray";
+
+import listTimes from '../../json/time.json';
+import { PaginationModel } from "@/types/pagination";
+import pageDefault from "@/utils/pageDetault";
+import { ActionButtonDinamic } from "@/utils/actionTableDinamic";
+
+
 
 export default function Class() {
+    const repo = useMemo(() => new ClassCollecion(), []);
+    const repoDrop = useMemo(() => new DropDownsCollection(), []);
+
     const [date, setDate] = useState<string>("");
+    const [time, setTime] = useState<string>("");
+    const [teacherId, setTeacherId] = useState<string>("");
     const [type, setType] = useState<string>("");
-    const [teacher, setTeacher] = useState<string>("");
+    const [classses, setClasses] = useState<string[]>([]);
+    const [page, setPage] = useState<number>(1);
+    const [infoPage, setInfoPage] = useState<PaginationModel>(pageDefault);
+    const [loading, setLoading] = useState<any>(false);
+
+    const [dropdownType, setDropdownType] = useState<string[]>([]);
+    const [dropdownTeacher, setDropdownTeacher] = useState<string[]>([]);
 
     const convertDate = (cell: any, row: any) => {
-        return cell.split("T")[0].split("-").reverse().join("/") + " - " + cell.split("T")[1];
+        return cell.split("T")[0].split("-").reverse().join("/");
     }
 
     const convertStatus = (cell: any, row: any) => {
         return cell ? "Ativo" : "Inativo";
     }
 
-    let info: any = {
-        rows: [
-            {
-                date: "2024-06-12T08:00:00",
-                tipoAula: "Aula Coletiva",
-                local: "Studio Raphael Oliveira",
-                professor: "Raphael",
-                qtdAlunos: 6,
-                status: true,
-            },
-            {
-                date: "2024-06-12T09:00:00",
-                tipoAula: "Aula Coletiva",
-                local: "Studio Raphael Oliveira",
-                professor: "Raphael",
-                qtdAlunos: 6,
-                status: true,
-            },
-            {
-                date: "2024-06-12T10:00:00",
-                tipoAula: "Aula Individual",
-                local: "Studio Raphael Oliveira",
-                professor: "Raphael",
-                qtdAlunos: 6,
-                status: true,
-            },
-            {
-                date: "2024-06-12T11:00:00",
-                tipoAula: "Bike Coletiva",
-                local: "Studio Raphael Oliveira",
-                professor: "Raphael",
-                qtdAlunos: 6,
-                status: true,
-            },
-        ]
+    const handleDelete = (id: any) => {
+        
+        repo?.cancel(id).then((result: any) => {
+            if (result instanceof Error) {
+                console.log('AQUIII')
+            } else {
+                console.log('Deu ruim')
+            }
+
+        }).catch((error) => {
+
+        });
+    }
+
+    /*const handleActionButton = (cell: number, row: any) => {
+        console.log(cell)
+        return (
+            <ActionButtonDinamic 
+                id={10} 
+                links={[
+                    {
+                        href: "#", 
+                        label: 'Cancelar Aula',
+                        onClick: () => handleDelete(cell)
+                    }
+                ]}
+            />
+        )
+    }*/
+    const handleActionButton = (cell: number, row: any) => {
+        return actionButton({
+            id: cell,
+            editURL: "/aulas/editar/",
+            changeStatus: () => { }
+        })
+    }
+
+    const listClass = (dateF: string, timeF: string, teacherF: string, typeF: string, page: number) => {
+        setDate(dateF);
+        setTime(timeF);
+        setTeacherId(teacherF);
+        setType(typeF);
+        setPage(page);
+        setLoading(true);
+
+        repo.listClass(dateF, timeF, teacherF, typeF, page).then((result: any) => {
+            setLoading(false);
+
+            if (result instanceof Error) {
+                setClasses([]);
+                setInfoPage(pageDefault);
+            } else {
+                setClasses(result.data);
+                setInfoPage(result.pagination);
+            }
+        }).catch(() => {
+            setLoading(false);
+            setClasses([]);
+            setInfoPage(pageDefault);
+        });
     }
 
     const columns = [
@@ -65,37 +116,37 @@ export default function Class() {
             formatter: convertDate
         },
         {
-            dataField: 'tipoAula',
-            text: `Tipo de Aula`,
+            dataField: 'time',
+            text: `Hora`,
         },
         {
-            dataField: 'local',
-            text: `Local`,
-        },
-        {
-            dataField: 'professor',
+            dataField: 'teacher',
             text: `Professor`
         },
         {
-            dataField: 'qtdAlunos',
-            text: `Quantidade de Alunos`
+            dataField: 'productType',
+            text: `Tipo de Produto`
         },
         {
-            dataField: 'status',
+            dataField: 'active',
             text: `Status`,
             formatter: convertStatus
+        },
+        {
+            dataField: 'id',
+            formatter: handleActionButton
         }
     ];
 
     const clear = () => {
-        console.log("Limpei");
+        listClass("", "", "", "", 1);
     }
 
     const onSubmit = () => {
-        console.log("Cadastrei");
+        listClass(date, time, teacherId, type, 1);
     }
 
-    const eventButton = [
+    const eventButton: EventBtn[] = [
         {
             name: "Limpar",
             function: clear,
@@ -108,15 +159,16 @@ export default function Class() {
         },
     ];
 
-    const rowClasses = (row: any) => {
-        if (row.tipoAula === "Aula Coletiva") {
-            return "border_secondary_class";
-        } else if (row.tipoAula === "Bike Coletiva") {
-            return "border_purple_class";
-        } else {
-            return "border_primary_class";
-        }
-    }
+    useEffect(() => {
+        listClass(date, time, teacherId, type, page);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [page]);
+
+    useEffect(() => {
+        repoDrop.dropdown('persons/employee/dropdown').then(setDropdownTeacher);
+        repoDrop.dropdown('productTypes/dropdown').then(setDropdownType);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [])
 
     return (
         <PageDefault title={"Aulas"}>
@@ -128,29 +180,35 @@ export default function Class() {
                     >
                         <div className="grid grid-cols-12 gap-x-8">
                             <div className="col-span-12 md:col-span-3">
-                                <AuthInput
+                                <SingleCalendar
                                     label="Data"
-                                    value={date}
-                                    type='text'
-                                    changeValue={setDate}
-                                    required
+                                    date={date}
+                                    setValue={setDate}
                                 />
                             </div>
                             <div className="col-span-12 md:col-span-3">
-                                <AuthInput
-                                    label="Tipo"
+                                <AuthSelect
+                                    label='Hora'
+                                    value={time}
+                                    options={listTimes?.time}
+                                    changeValue={setTime}
+                                />
+                            </div>
+                            <div className="col-span-12 md:col-span-3">
+                                <AuthSelect
+                                    label='Tipo de Produto'
                                     value={type}
-                                    type='text'
+                                    options={convertArrayType(dropdownType)}
                                     changeValue={setType}
                                     required
                                 />
                             </div>
                             <div className="col-span-12 md:col-span-3">
-                                <AuthInput
-                                    label="Professor"
-                                    value={teacher}
-                                    type='text'
-                                    changeValue={setTeacher}
+                                <AuthSelect
+                                    label='Professor'
+                                    value={teacherId}
+                                    options={convertArray(dropdownTeacher)}
+                                    changeValue={setTeacherId}
                                     required
                                 />
                             </div>
@@ -164,10 +222,12 @@ export default function Class() {
                         url={"/aulas/cadastrar"}
                     >
                         <Table
-                            data={info.rows}
+                            data={classses}
                             columns={columns}
                             class={styles.table_students}
-                            rowClasses={rowClasses}
+                            loading={loading}
+                            setPage={setPage}
+                            infoPage={infoPage}
                         />
                     </Card>
                 </div>

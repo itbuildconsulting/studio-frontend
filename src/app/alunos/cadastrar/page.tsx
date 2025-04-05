@@ -12,7 +12,16 @@ import Loading from "@/components/loading/Loading";
 import Modal from "@/components/Modal/Modal";
 import SingleCalendar from "@/components/date/SingleCalendar";
 
+import listStates from '../../../json/states.json';
+import listCountry from '../../../json/country.json';
+import { EventBtn } from "@/types/btn";
+import { ValidationForm } from "@/components/formValidation/validation";
+import ValidationFields from "@/validators/fields";
+
 export default function Students() {
+    const dropdownStates = listStates?.estados;
+    const dropdownCountry = listCountry?.pais;
+
     const repo = useMemo(() => new PersonsCollecion(), []);
     const router = useRouter();
 
@@ -40,7 +49,7 @@ export default function Students() {
     const [log, setLog] = useState<number | null>(null);
     const [successMessage, setSuccessMessage] = useState<any>(null);
     const [loading, setLoading] = useState<any>(false);
-    const [errorMessage, setErrorMessage] = useState<any>(null);
+    const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
     // Password Control
     var regex = /^(?=.*[a-z]{1})(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,}$/;
@@ -144,22 +153,6 @@ export default function Students() {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [password])
 
-    function removerCaracteresEspeciais(str: any) {
-        if (str) {
-            return str.replace(/[^a-zA-Z0-9]/g, '');
-        } else {
-            return str;
-        }
-    }
-
-    function converterDate(str: any) {
-        if (str) {
-            return str.split("/").reverse().join("-");
-        } else {
-            return str;
-        }
-    }
-
     function validarCPF(cpf: any) {
         if (cpf) {
             cpf = cpf.replace(/[^\d]+/g, ''); // Remove caracteres não numéricos
@@ -219,6 +212,14 @@ export default function Students() {
         )
     }
 
+    function converterDate(str: any) {
+        if (str) {
+            return str.split("/").reverse().join("-");
+        } else {
+            return str;
+        }
+    }
+
     const SuccessStatus = () => {
         return (
             <div className="flex flex-col items-center gap-4">
@@ -246,6 +247,15 @@ export default function Students() {
     const onSubmit = () => {
         setLoading(true);
         setErrorMessage(null);
+
+        const validationError = ValidationFields({ "Nome": name, "Data de Nascimento": birthday, "Telefone": phone, "Status": String(status), "Cep": zipCode, "Estado": state, "Cidade": city, "Endereço": address, "Pais": country });
+
+        if (validationError) {
+            setErrorMessage(validationError);
+            setLoading(false);
+            setTimeout(() => setErrorMessage(null), 2500);
+            return;
+        }
 
         if (!validarCPF(document)) {
             setErrorMessage("Por favor, informe um cpf válido!");
@@ -276,7 +286,7 @@ export default function Students() {
                 setErrorMessage(null);
             }, 2500);
         } else {
-            repo?.create(name, document, email, phone, birthday, height, weight, shoes, password, contract, frequency, false, '', zipCode, state, city, address, country, status).then((result: any) => {
+            repo?.create(name, document, email, phone, converterDate(birthday), height, weight, shoes, password, contract, frequency, false, "0", zipCode, state, city, address, country, status).then((result: any) => {
                 if (result instanceof Error) {
                     const message: any = JSON.parse(result.message);
                     setErrorMessage(message.error);
@@ -302,7 +312,7 @@ export default function Students() {
         }
     }
 
-    const eventButton = [
+    const eventButton: EventBtn[] = [
         {
             name: "Cancelar",
             function: clear,
@@ -446,37 +456,7 @@ export default function Students() {
                                     required
                                 />
                             </div>
-                        </div>
-                        <hr className="mt-3 mb-5 pb-3" style={{ borderColor: "#F4F5F6" }} />
-                        <div className="grid grid-cols-12 gap-x-8">
-                            <div className="col-span-12 sm:col-span-6 xl:col-span-4">
-                                <AuthInput
-                                    label="Contrato"
-                                    value={contract}
-                                    type='text'
-                                    changeValue={setContract}
-                                    required
-                                />
-                            </div>
-                            <div className="col-span-12 sm:col-span-6 xl:col-span-4">
-                                <AuthInput
-                                    label="Frequência"
-                                    value={frequency}
-                                    type='text'
-                                    changeValue={setFrequency}
-                                    required
-                                />
-                            </div>
-                            <div className="col-span-12 sm:col-span-6 xl:col-span-4">
-                                <AuthInput
-                                    label="Aula"
-                                    value={classValue}
-                                    type='text'
-                                    changeValue={setClassValue}
-                                    required
-                                />
-                            </div>
-                        </div>
+                        </div>                       
                         <hr className="mt-3 mb-5 pb-3" style={{ borderColor: "#F4F5F6" }} />
                         <div className="grid grid-cols-12 gap-x-8">
                             <div className="col-span-12 sm:col-span-6 xl:col-span-4">
@@ -489,10 +469,10 @@ export default function Students() {
                                 />
                             </div>
                             <div className="col-span-12 sm:col-span-6 xl:col-span-4">
-                                <AuthInput
+                                <AuthSelect
                                     label="Estado"
+                                    options={dropdownStates}
                                     value={state}
-                                    type='text'
                                     changeValue={setState}
                                     required
                                 />
@@ -518,24 +498,22 @@ export default function Students() {
                                 />
                             </div>
                             <div className="col-span-12 sm:col-span-6 xl:col-span-4">
-                                <AuthInput
+                                {/* <AuthInput
                                     label="Pais"
                                     value={country}
                                     type='text'
                                     changeValue={setCountry}
                                     required
+                                />*/}
+                                <AuthSelect
+                                    label="Pais"
+                                    options={dropdownCountry}
+                                    value={country}
+                                    changeValue={setCountry}
+                                    required
                                 />
                             </div>
-                            {errorMessage === null ? false :
-                                <div className={` 
-                                        bg-red-400 text-white py-1 px-2
-                                        border border-red-500 rounded-md
-                                        flex flex-row items-center col-span-12 w-1/2
-                                        `}>
-                                    {/* {IconWarning} */}
-                                    <span className='ml-2 text-sm'>{errorMessage}</span>
-                                </div>
-                            }
+                            <ValidationForm errorMessage={errorMessage} />
                         </div>
                     </Card>
                 </div>

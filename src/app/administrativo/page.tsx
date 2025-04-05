@@ -10,15 +10,20 @@ import { useEffect, useMemo, useState } from "react";
 import AuthInput from "@/components/auth/AuthInput";
 
 import PlaceCollecion from "../../../core/Place";
-import PlaceRepository from "../../../core/PlaceRepository";
 import ProductTypeCollecion from "../../../core/ProductType";
-import ProductTypeRepository from "../../../core/ProductTypeRepository";
 import DropDownsCollection from "../../../core/DropDowns";
 import Loading from "@/components/loading/Loading";
-import { text } from "stream/consumers";
+
 import DropDown from "@/components/dropdown/DropDown";
 import Link from "next/link";
 import AuthSelect from "@/components/auth/AuthSelect";
+import { Column } from "@/types/table";
+import { convertArrayType } from "@/utils/convertArray";
+import { ValidationForm } from "@/components/formValidation/validation";
+
+import ValidationFields from "@/validators/fields";
+import { PaginationModel } from "@/types/pagination";
+import pageDefault from "@/utils/pageDetault";
 
 export default function Administrative() {
     const repoDrop = useMemo(() => new DropDownsCollection(), []);
@@ -39,28 +44,24 @@ export default function Administrative() {
     const [listProductType, setListProductType] = useState<string[]>([]);
     const [idProductType, setIdProductType] = useState<number>(0);
 
-    const [modalSuccess, setModalSuccess] = useState<any>(false);
+    const [modalSuccess, setModalSuccess] = useState<boolean>(false);
     const [log, setLog] = useState<number | null>(null);
-    const [loading, setLoading] = useState<any>(false);
-    const [successMessage, setSuccessMessage] = useState<any>(null);
-    const [errorMessage, setErrorMessage] = useState<any>(null);
+    const [successMessage, setSuccessMessage] = useState<string>('');
+    const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
+    const [loading, setLoading] = useState<boolean>(false);
+    const [loadingListType, setLoadingListType] = useState<boolean>(false);
+    const [loadingListPlace, setLoadingListPlace] = useState<boolean>(false);
 
     const [edit, setEdit] = useState<boolean>(false);
 
-    function convertArray(array: any) {
-        return array.map((item: any) => {
-            const { name, address, id, ...rest } = item;
-            return { label: `${name} - ${address}`, value: id, ...rest };
-        });
-    }
-
-    const actionLocaleName = (cell: any, row: any) => {
+    const actionLocaleName = (cell: any) => {
         return cell?.name || "Não definido";
     }
 
-    const actionButtonLocale = (cell: any, row: any) => {
+    const actionButtonLocale = (cell: any) => {
         return (
-            <DropDown style={'bg-white'} className="nav-link">
+            <DropDown style={'bg-white'}>
                 <>...</>
 
                 <Link href={"#"} onClick={() => detailsLocale(cell)}>
@@ -74,9 +75,9 @@ export default function Administrative() {
         )
     }
 
-    const actionButtonProductType = (cell: any, row: any) => {
+    const actionButtonProductType = (cell: any) => {
         return (
-            <DropDown style={'bg-white'} className="nav-link">
+            <DropDown style={'bg-white'}>
                 <>...</>
                 <Link href={"#"} onClick={() => detailsProductType(cell)}>
                     Editar
@@ -88,7 +89,7 @@ export default function Administrative() {
         )
     }
 
-    const columns = [
+    const columns: Column[] = [
         {
             dataField: 'name',
             text: `Local`,
@@ -103,7 +104,7 @@ export default function Administrative() {
         }
     ];
 
-    const columns2 = [
+    const columns2: Column[] = [
         {
             dataField: 'name',
             text: `Tipo`,
@@ -160,6 +161,16 @@ export default function Administrative() {
     function onSubmitLocale() {
         setLoading(true);
         setErrorMessage(null);
+        setSuccessMessage('');
+
+        const validationError = ValidationFields({ "Local": localeName, "Endereço": addressName });
+
+        if (validationError) {
+            setErrorMessage(validationError);
+            setLoading(false);
+            setTimeout(() => setErrorMessage(null), 2500);
+            return;
+        }
 
         (edit ? repo?.edit(localeName, addressName, true, idLocales) : repo?.create(localeName, addressName, true)).then((result: any) => {
             if (result instanceof Error) {
@@ -194,6 +205,15 @@ export default function Administrative() {
         setLoading(true);
         setErrorMessage(null);
 
+        const validationError = ValidationFields({ "Nome do Tipo": typeName, "Local": String(productLocaleName) });
+
+        if (validationError) {
+            setErrorMessage(validationError);
+            setLoading(false);
+            setTimeout(() => setErrorMessage(null), 2500);
+            return;
+        }
+
         (edit ? repoType?.edit(typeName, Number(productLocaleName), true, idProductType) : repoType?.create(typeName, Number(productLocaleName), true)).then((result: any) => {
             if (result instanceof Error) {
                 const message: any = JSON.parse(result.message);
@@ -224,36 +244,44 @@ export default function Administrative() {
     }
 
     const listGeneral = () => {
-        setLoading(true);
+        setLoadingListPlace(true);
+
         repo.list().then((result: any) => {
+            setLoadingListPlace(false);
+
             if (result instanceof Error) {
-                setLoading(false);
+                setListLocales([]);
             } else {
-                setLoading(false);
                 setListLocales(result);
             }
-        }).catch((error: any) => {
-            setLoading(false);
+        }).catch(() => {
+            setListLocales([]);
         });
     }
 
     const listGeneralProductType = () => {
+        setLoadingListType(true);
+
         repoType.list().then((result: any) => {
+            setLoadingListType(false);
+
             if (result instanceof Error) {
-                console.log("erro");
+                setListProductType([]);
             } else {
                 setListProductType(result);
             }
-        }).catch((error: any) => {
-
+        }).catch(() => {
+            setListProductType([]);
         });
     }
 
     useEffect(() => {
-        listGeneral();
         listGeneralProductType();
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []);
+    }, [listGeneralProductType]);
+
+    useEffect(() => {
+        listGeneral();
+    }, [listGeneral]);
 
     const detailsLocale = (id: number) => {
         setEdit(true);
@@ -376,7 +404,7 @@ export default function Administrative() {
                             data={listLocales}
                             columns={columns}
                             class={styles.table_locale_adm}
-                            loading={loading}
+                            loading={loadingListPlace}
                         />
                     </Card>
                 </div>
@@ -390,7 +418,7 @@ export default function Administrative() {
                             data={listProductType}
                             columns={columns2}
                             class={styles.product_type_adm}
-                            loading={loading}
+                            loading={loadingListType}
                         />
                     </Card>
                 </div>
@@ -407,38 +435,23 @@ export default function Administrative() {
                 edit={edit}
             >
                 <div>
-                    <div>
-                        <AuthInput
-                            label="Local"
-                            value={localeName}
-                            type='text'
-                            changeValue={setLocaleName}
-                            edit={edit}
-                            required
-                        />
-                    </div>
-                    <div>
-                        <AuthInput
-                            label="Endereço"
-                            value={addressName}
-                            type='text'
-                            changeValue={setAdressName}
-                            edit={edit}
-                            required
-                        />
-                    </div>
-                    <div className="grid grid-cols-12">
-                        {errorMessage === null ? false :
-                            <div className={` 
-                                        bg-red-400 text-white py-1 px-2
-                                        border border-red-500 rounded-md
-                                        flex flex-row items-center col-span-12
-                                        `}>
-                                {/* {IconWarning} */}
-                                <span className='ml-2 text-sm'>{errorMessage}</span>
-                            </div>
-                        }
-                    </div>
+                    <AuthInput
+                        label="Local"
+                        value={localeName}
+                        type='text'
+                        changeValue={setLocaleName}
+                        edit={edit}
+                        required
+                    />
+                    <AuthInput
+                        label="Endereço"
+                        value={addressName}
+                        type='text'
+                        changeValue={setAdressName}
+                        edit={edit}
+                        required
+                    />
+                    <ValidationForm errorMessage={errorMessage} />
                 </div>
             </Modal>
 
@@ -453,38 +466,25 @@ export default function Administrative() {
                 edit={edit}
             >
                 <div>
-                    <div>
-                        <AuthInput
-                            label="Nome do tipo"
-                            value={typeName}
-                            type='text'
-                            changeValue={setTypeName}
-                            edit={edit}
-                            required
-                        />
-                    </div>
-                    <div>
-                        <AuthSelect
-                            label='Local'
-                            value={productLocaleName}
-                            options={convertArray(dropdownPlace)}
-                            changeValue={setProductLocaleName}
-                            edit={edit}
-                            required
-                        />
-                    </div>
+                    <AuthInput
+                        label="Nome do tipo"
+                        value={typeName}
+                        type='text'
+                        changeValue={setTypeName}
+                        edit={edit}
+                        required
+                    />
+                    <AuthSelect
+                        label='Local'
+                        value={productLocaleName}
+                        options={convertArrayType(dropdownPlace)}
+                        changeValue={setProductLocaleName}
+                        edit={edit}
+                        required
+                    />
                 </div>
                 <div className="grid grid-cols-12">
-                    {errorMessage === null ? false :
-                        <div className={` 
-                                        bg-red-400 text-white py-1 px-2
-                                        border border-red-500 rounded-md
-                                        flex flex-row items-center col-span-12
-                                        `}>
-                            {/* {IconWarning} */}
-                            <span className='ml-2 text-sm'>{errorMessage}</span>
-                        </div>
-                    }
+                    <ValidationForm errorMessage={errorMessage} />
                 </div>
             </Modal>
 

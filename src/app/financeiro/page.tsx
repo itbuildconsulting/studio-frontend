@@ -4,77 +4,99 @@ import Card from "@/components/Card/Card";
 import Table from "@/components/Table/Table";
 import AuthInput from "@/components/auth/AuthInput";
 import PageDefault from "@/components/template/default";
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import styles from '../../styles/financial.module.css';
 
+import FinancialCollecion from "../../../core/Financial";
+
 export default function Financial() {
+    
+    const repo = useMemo(() => new FinancialCollecion(), []);
+
     const [product, setProduct] = useState<string>("");
     const [date, setDate] = useState<string>("");
     const [student, setStudent] = useState<string>("");
+    const [loading, setLoading] = useState<boolean>(false);
+    const [financialList, setFinancialList] = useState<string[]>([]);
+
+    const statusColors: any = {
+        processing: '#FFA500', // Laranja
+        authorized: '#87CEEB', // Azul claro
+        paid: '#4CAF50', // Verde
+        refunded: '#FF0000', // Vermelho
+        waiting_payment: '#FFC107', // Amarelo
+        pending_refund: '#FF4500', // Vermelho alaranjado
+        refused: '#8B0000', // Vermelho escuro
+        chargeback: '#8A2BE2', // Roxo
+        analyzing: '#FFD700', // Dourado
+        pending_review: '#F08080', // Vermelho claro
+      };
 
     const convertValue = (cell: number) => {
-        return cell.toLocaleString('pt-br', { style: 'currency', currency: 'BRL' })
+        const newValue = cell / 100;
+        return newValue.toLocaleString('pt-br', { style: 'currency', currency: 'BRL' })
+        //return cell;
     }
 
     const convertDate = (cell: string) => {
         return cell.split("-").reverse().join("/");
     }
 
-    const convertStatus = (cell: number) => {
-
-        return cell === 1 ? "Pago" : cell === 2 ? "Pendente" : cell === 3 ? "Cancelado" : "Não Registrado";
+    const convertStatus = (cell: number) => {        
+        return (
+            <div
+              style={{
+                backgroundColor: statusColors[cell] || '#D3D3D3', // Cor padrão cinza, se o cell não for reconhecido
+                color: '#fff',
+                padding: '5px 10px',
+                borderRadius: '5px',
+                textAlign: 'center',
+                display: 'inline-block',
+                maxWidth: '150px',
+                fontSize: '14px'
+              }}
+            >
+              {cell}
+            </div>
+        );
     }
 
-    let info: any = {
-        rows: [
-            {
-                product: "Aula Coletiva",
-                date: "2024-06-12",
-                student: "Isabela Eliane Lorena Almeida",
-                value: 650,
-                status: 1
-            },
-            {
-                product: "Aula Coletiva",
-                date: "2024-06-12",
-                student: "Isabela Eliane Lorena Almeida",
-                value: 650,
-                status: 2
-            },
-            {
-                product: "Aula Coletiva",
-                date: "2024-06-12",
-                student: "Isabela Eliane Lorena Almeida",
-                value: 650,
-                status: 3
-            },
-            {
-                product: "Aula Coletiva",
-                date: "2024-06-12",
-                student: "Isabela Eliane Lorena Almeida",
-                value: 650,
-                status: 1
+
+    const listFinancial = () => {
+        setLoading(true);
+        repo.getLatestTransactions().then((result: any) => {
+            if (result instanceof Error) {
+                setLoading(false);
+            } else {
+                setFinancialList(result.data);
+                setLoading(false);
             }
-        ]
+        }).catch((error: any) => {
+            setLoading(false);
+        });
     }
+
+    useEffect(() => {
+        listFinancial();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
 
     const columns = [
         {
-            dataField: 'product',
-            text: `Produto`
+            dataField: 'customerName',
+            text: `Nome`
         },
         {
-            dataField: 'date',
+            dataField: 'transactionId',
+            text: `Id da Transação`
+        },
+        {
+            dataField: 'createdAt',
             text: `Data`,
-            formatter: convertDate
         },
         {
-            dataField: 'student',
-            text: `Aluno`,
-        },
-        {
-            dataField: 'value',
+            dataField: 'amount',
             text: `Valor`,
             formatter: convertValue
         },
@@ -90,7 +112,7 @@ export default function Financial() {
     }
 
     const onSubmit = () => {
-        console.log("Cadastrei")
+        listFinancial()
     }
 
 
@@ -152,9 +174,10 @@ export default function Financial() {
                         url={"/aulas/cadastrar"}
                     >
                         <Table
-                            data={info.rows}
+                            data={financialList}
                             columns={columns}
                             class={styles.table_students}
+                            loading={loading}
                         />
                     </Card>
                 </div>

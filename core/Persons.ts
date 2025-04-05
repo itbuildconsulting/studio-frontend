@@ -24,16 +24,16 @@ async function conectAPI(req: object | null, url: string, method: string) {
     }
 
     try {
-        const resp: any = await fetch(
+        const resp = await fetch(
             `${process.env.NEXT_PUBLIC_SERVER_URL_API}${url}`,
             config
         );
 
         if (resp.status === 201) { // Created
-            const authResp: any = await resp.json();
+            const authResp = await resp.json();
             return authResp.data;
         } else if (resp.status === 200) { // List
-            const authResp: any = await resp.json();
+            const authResp = await resp.json();
             return authResp;
         } else {
             const error = await resp?.json();
@@ -66,7 +66,7 @@ export default class PersonsRepository implements PersonsRepository {
         country: string | null,
         active: boolean
     ): Promise<[]> {
-        const req: any = {
+        const req = {
             name,
             identity,
             email,
@@ -79,7 +79,7 @@ export default class PersonsRepository implements PersonsRepository {
             rule,
             frequency,
             employee,
-            employee_level,
+            employee_level: employee_level,
             zipCode,
             state,
             city,
@@ -94,11 +94,13 @@ export default class PersonsRepository implements PersonsRepository {
         name: string | null,
         email: string | null,
         identity: string | null,
+        page: number
     ): Promise<[]> {
-        const req: any = {
+        const req = {
             name,
             email,
-            identity
+            identity,
+            page
         };
         return conectAPI(req, "/persons/employee/filter", "POST");
     }
@@ -107,11 +109,13 @@ export default class PersonsRepository implements PersonsRepository {
         name: string | null,
         email: string | null,
         identity: string | null,
+        page: number
     ): Promise<[]> {
-        const req: any = {
+        const req = {
             name,
             email,
-            identity
+            identity,
+            page
         };
         return conectAPI(req, "/persons/student/filter", "POST");
     }
@@ -121,6 +125,7 @@ export default class PersonsRepository implements PersonsRepository {
     }
 
     async edit(
+        id: number | null,
         name: string | null,
         identity: string | null,
         email: string | null,
@@ -141,7 +146,8 @@ export default class PersonsRepository implements PersonsRepository {
         country: string | null,
         active: boolean
     ): Promise<[]> {
-        const req: any = {
+        const req = {
+            id,
             name,
             identity,
             email,
@@ -154,7 +160,7 @@ export default class PersonsRepository implements PersonsRepository {
             rule,
             frequency,
             employee,
-            employee_level,
+            employee_level: employee_level,
             zipCode,
             state,
             city,
@@ -162,10 +168,10 @@ export default class PersonsRepository implements PersonsRepository {
             country,
             active
         };
-        return conectAPI(req, `/persons`, "PUT");
+        return conectAPI(req, `/persons/${id}`, "PUT");
     }
 
     async delete(id: number): Promise<[]> {
-        return conectAPI(null, `/persons/${id}`, "DELETE");
+        return conectAPI(null, `/persons/remove/${id}`, "POST");
     }
 }

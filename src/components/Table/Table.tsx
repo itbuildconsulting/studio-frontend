@@ -1,17 +1,20 @@
 import useWindowSize from '@/data/hooks/useWindowSize';
 import styles from '../../styles/table.module.css';
+import { Pagination } from '../pagination/pagination';
+import { PaginationModel } from '@/types/pagination';
 
 interface TableProps {
     data: any,
     columns: any,
     class?: any,
     rowClasses?: any,
-    loading?: boolean
+    loading?: boolean,
+    setPage?: (page: number) => void,
+    infoPage?: PaginationModel
 }
 
 export default function Table(props: TableProps) {
     const size: any = useWindowSize();
-
     if (size?.width > 1200) {
         return (
             <>
@@ -22,7 +25,7 @@ export default function Table(props: TableProps) {
                                 return (
                                     <tr key={index} className={`${props?.rowClasses && props?.rowClasses(item)}`}>
                                         {
-                                            props.columns.map((col: any, indexHeader: any) => {
+                                            props.columns.map((col: any, indexHeader: number) => {
                                                 return (
                                                     <td key={indexHeader}>
                                                         <div className='flex flex-col justify-center'>
@@ -36,23 +39,24 @@ export default function Table(props: TableProps) {
                                     </tr>
                                 )
                             })
-                            :
-                            props.loading === true
-                            ?
-                            <div className='flex flex-col gap-4'>
-                                <div className='animated-background' style={{ height: "73px", borderRadius: "16px"}}></div>
-                                <div className='animated-background' style={{ height: "73px", borderRadius: "16px"}}></div>
-                                <div className='animated-background' style={{ height: "73px", borderRadius: "16px"}}></div>
-                                <div className='animated-background' style={{ height: "73px", borderRadius: "16px"}}></div>
-                                <div className='animated-background' style={{ height: "73px", borderRadius: "16px"}}></div>
-                            </div>
-                            :
-                            <div className="flex justify-center items-center" style={{ height: "73px" }}>
-                                Não foram encontrados items há serem listados
-                            </div>
+                                :
+                                props.loading === true
+                                    ?
+                                    <div className='flex flex-col gap-4'>
+                                        <div className='animated-background' style={{ height: "73px", borderRadius: "16px" }}></div>
+                                        <div className='animated-background' style={{ height: "73px", borderRadius: "16px" }}></div>
+                                        <div className='animated-background' style={{ height: "73px", borderRadius: "16px" }}></div>
+                                        <div className='animated-background' style={{ height: "73px", borderRadius: "16px" }}></div>
+                                        <div className='animated-background' style={{ height: "73px", borderRadius: "16px" }}></div>
+                                    </div>
+                                    :
+                                    <div className="flex justify-center items-center" style={{ height: "73px" }}>
+                                        Não foram encontrados items há serem listados
+                                    </div>
                         }
                     </tbody>
                 </table>
+                {props?.infoPage && <Pagination infoPage={props?.infoPage} setPage={props.setPage} />}
             </>
         )
     } else {
@@ -61,11 +65,11 @@ export default function Table(props: TableProps) {
                 <div className={`${styles.bg_table} ${props.class || ""} w-full`}>
                     <div>
                         {
-                            props?.data?.length > 0 ? props?.data?.map((item: any, index: any) => {
+                            props?.data?.length > 0 ? props?.data?.map((item: any, index: number) => {
                                 return (
                                     <div key={index} className={`${styles.bg_table_card} grid grid-cols-12 gap-8`}>
                                         {
-                                            props.columns.map((col: any, indexHeader: any) => {
+                                            props.columns.map((col: any, indexHeader: number) => {
                                                 return (
                                                     <div key={indexHeader} className={'col-span-6 md:col-span-4'} style={{ wordBreak: 'break-word' }}>
                                                         <div className='flex flex-col justify-center'>
@@ -78,7 +82,21 @@ export default function Table(props: TableProps) {
                                         }
                                     </div>
                                 )
-                            }) : ""
+                            })
+                                :
+                                props.loading === true
+                                    ?
+                                    <div className='flex flex-col gap-4'>
+                                        <div className='animated-background' style={{ height: "73px", borderRadius: "16px" }}></div>
+                                        <div className='animated-background' style={{ height: "73px", borderRadius: "16px" }}></div>
+                                        <div className='animated-background' style={{ height: "73px", borderRadius: "16px" }}></div>
+                                        <div className='animated-background' style={{ height: "73px", borderRadius: "16px" }}></div>
+                                        <div className='animated-background' style={{ height: "73px", borderRadius: "16px" }}></div>
+                                    </div>
+                                    :
+                                    <div className="flex justify-center items-center" style={{ height: "73px" }}>
+                                        Não foram encontrados items há serem listados
+                                    </div>
                         }
                     </div>
                 </div>

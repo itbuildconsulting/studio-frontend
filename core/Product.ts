@@ -17,22 +17,23 @@ async function conectAPI(req: object | null, url: string, method: string) {
             method,
             headers: {
                 "Content-Type": "application/json",
+                'Authorization': `Bearer ${token}`
             },
             body: JSON.stringify(req),
         };
     }
 
     try {
-        const resp: any = await fetch(
+        const resp = await fetch(
             `${process.env.NEXT_PUBLIC_SERVER_URL_API}${url}`,
             config
         );
 
         if (resp.status === 201) { // Created
-            const authResp: any = await resp.json();
+            const authResp = await resp.json();
             return authResp.data;
         } else if (resp.status === 200) { // List
-            const authResp: any = await resp.json();
+            const authResp = await resp.json();
             return authResp;
         } else {
             const error = await resp?.json();
@@ -53,7 +54,7 @@ export default class ProductRepository implements ProductRepository {
         placeId: number | null,
         active: boolean
     ): Promise<[]> {
-        const req: any = {
+        const req = {
             name,
             credit,
             validateDate,
@@ -65,8 +66,12 @@ export default class ProductRepository implements ProductRepository {
         return conectAPI(req, "/products", "POST");
     }
 
-    async list(): Promise<[]> {
-        return conectAPI(null, "/products", "GET");
+    async list(page: number): Promise<[]> {
+        return conectAPI(null, `/products?page=${page}`, "GET");
+    }
+
+    async listFiltered(page: number, productTypeId: string | null): Promise<[]> {
+        return conectAPI(null, `/products?page=${page}&pageSize=10&productTypeId=${productTypeId}`, "GET");
     }
 
     async details(id: number): Promise<[]> {
@@ -74,6 +79,7 @@ export default class ProductRepository implements ProductRepository {
     }
 
     async edit(
+        id: number | null,
         name: string | null,
         credit: number | null,
         validateDate: number | null,
@@ -82,7 +88,7 @@ export default class ProductRepository implements ProductRepository {
         placeId: number | null,
         active: boolean
     ): Promise<[]> {
-        const req: any = {
+        const req = {
             name,
             credit,
             validateDate,
@@ -91,7 +97,7 @@ export default class ProductRepository implements ProductRepository {
             placeId,
             active
         };
-        return conectAPI(req, `/products`, "PUT");
+        return conectAPI(req, `/products/${id}`, "PUT");
     }
 
     async delete(id: number): Promise<[]> {

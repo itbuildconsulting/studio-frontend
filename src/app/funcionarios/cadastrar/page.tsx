@@ -12,7 +12,17 @@ import SingleCalendar from "@/components/date/SingleCalendar";
 import Loading from "@/components/loading/Loading";
 import Modal from "@/components/Modal/Modal";
 
+import searchCEP from "@/utils/searchCEP";
+
+import listStates from '../../../json/states.json';
+import listCountry from '../../../json/country.json';
+import { ValidationForm } from "@/components/formValidation/validation";
+import ValidationFields from "@/validators/fields";
+
 export default function AddTeachers() {
+    const dropdownStates = listStates?.estados;
+    const dropdownCountry = listCountry?.pais;
+
     const repo = useMemo(() => new PersonsCollecion(), []);
 
     const router = useRouter();
@@ -39,7 +49,7 @@ export default function AddTeachers() {
     const [log, setLog] = useState<number | null>(null);
     const [successMessage, setSuccessMessage] = useState<any>(null);
     const [loading, setLoading] = useState<any>(false);
-    const [errorMessage, setErrorMessage] = useState<any>(null);
+    const [errorMessage, setErrorMessage] = useState<string | string[] | null>(null);
 
     const [dropdownLevel] = useState<any>(
         [
@@ -259,6 +269,15 @@ export default function AddTeachers() {
         setLoading(true);
         setErrorMessage(null);
 
+        const validationError = ValidationFields({ "Nome": name, "Data de Nascimento": birthday, "Telefone": phone, "Cep": zipCode, "Estado": state, "Cidade": city, "Endereço": address, "Pais": country });
+
+        if (validationError) {
+            setErrorMessage(validationError);
+            setLoading(false);
+            setTimeout(() => setErrorMessage(null), 2500);
+            return;
+        }
+
         if (!validarCPF(document)) {
             setErrorMessage("Por favor, informe um cpf válido!");
             setLoading(false);
@@ -326,6 +345,16 @@ export default function AddTeachers() {
             class: "btn-primary"
         },
     ];
+
+    function handleSearchCEP(zipCode: string | null) {
+        searchCEP({
+            zipCode,
+            setAddress,
+            setCity,
+            setState,
+            setErrorMessage
+        })
+    }
 
     return (
         <PageDefault title={"Cadastrar Professores"}>
@@ -479,17 +508,30 @@ export default function AddTeachers() {
                                     value={zipCode}
                                     type='text'
                                     changeValue={setZipCode}
+                                    blurValue={handleSearchCEP}
                                     required
                                 />
                             </div>
                             <div className="col-span-12 sm:col-span-6 xl:col-span-4">
-                                <AuthInput
+                                {/*  {
+                                    state
+                                        ?
+                                        <AuthInput
+                                            label="Estado"
+                                            value={state}
+                                            type='text'
+                                            changeValue={setState}
+                                            required
+                                        />
+                                        : */}
+                                <AuthSelect
                                     label="Estado"
+                                    options={dropdownStates}
                                     value={state}
-                                    type='text'
                                     changeValue={setState}
                                     required
                                 />
+                                {/* } */}
                             </div>
                             <div className="col-span-12 sm:col-span-6 xl:col-span-4">
                                 <AuthInput
@@ -512,24 +554,27 @@ export default function AddTeachers() {
                                 />
                             </div>
                             <div className="col-span-12 sm:col-span-6 xl:col-span-4">
-                                <AuthInput
+                                {/*  {
+                                    country
+                                        ?
+                                        <AuthInput
+                                            label="Pais"
+                                            value={country}
+                                            type='text'
+                                            changeValue={setCountry}
+                                            required
+                                        />
+                                        : */}
+                                <AuthSelect
                                     label="Pais"
+                                    options={dropdownCountry}
                                     value={country}
-                                    type='text'
                                     changeValue={setCountry}
                                     required
                                 />
+                                {/* } */}
                             </div>
-                            {errorMessage === null ? false :
-                                <div className={` 
-                                        bg-red-400 text-white py-1 px-2
-                                        border border-red-500 rounded-md
-                                        flex flex-row items-center col-span-12 w-1/2
-                                        `}>
-                                    {/* {IconWarning} */}
-                                    <span className='ml-2 text-sm'>{errorMessage}</span>
-                                </div>
-                            }
+                            <ValidationForm errorMessage={errorMessage} />
                         </div>
                     </Card>
                 </div>

@@ -77,7 +77,7 @@ label {
 input,
 select,
 .loading-input,
-.rmdp-container input  {
+.rmdp-container input {
   height: 56px;
   border-radius: 4px;
   border: 1px solid var(--primary);
@@ -119,7 +119,7 @@ select,
 }
 
 .rmdp-arrow-container:hover .rmdp-arrow {
-  border: solid #FFFFFF !important;
+  border: solid #ffffff !important;
   border-width: 0 2px 2px 0 !important;
 }
 
@@ -188,6 +188,7 @@ hr {
 .active {
   background-color: #f0f3f7;
 }
+
 /* END - Estado de ativo do menu */
 
 .container-content {
@@ -283,6 +284,7 @@ hr {
   0% {
     background-position: -468px 0;
   }
+
   100% {
     background-position: 468px 0;
   }
@@ -301,22 +303,23 @@ hr {
   position: relative;
 }
 
-
 @keyframes rotate {
   from {
-      transform: rotate(0deg);
+    transform: rotate(0deg);
   }
-  to { 
-      transform: rotate(360deg);
+
+  to {
+    transform: rotate(360deg);
   }
 }
 
 @-webkit-keyframes rotate {
   from {
-      -webkit-transform: rotate(0deg);
+    -webkit-transform: rotate(0deg);
   }
-  to { 
-      -webkit-transform: rotate(360deg);
+
+  to {
+    -webkit-transform: rotate(360deg);
   }
 }
 
@@ -342,7 +345,7 @@ hr {
   position: relative;
   display: flex;
   align-items: center;
-  margin-bottom: .375rem;
+  margin-bottom: 0.375rem;
   cursor: pointer;
 }
 
@@ -353,7 +356,7 @@ hr {
   border: 1px solid var(--primary);
   color: #000;
   text-align: center;
-  padding: .5rem 1rem;
+  padding: 0.5rem 1rem;
   border-radius: 6px;
   font-size: 12px;
   font-weight: 500;
@@ -370,4 +373,73 @@ hr {
 .tooltip:hover .tooltiptext {
   visibility: visible;
 }
+
 /* tooltip */
+
+/* TimePicker */
+.rmdp-time-picker input {
+  margin-bottom: 0;
+  height: 2rem;
+}
+
+/* Select Multi */
+.select-multi__control {
+  border-radius: 4px !important;
+  border: 1px solid var(--primary) !important;
+  padding: 14px 0 14px 20px;
+  color: var(--primary);
+  font-size: 1rem;
+  font-weight: 500;
+  margin-bottom: 2rem;
+  background-color: var(--backgroundColor);
+}
+
+.select-multi__input-container,
+input.select-multi__input {
+  height: 1rem !important;
+}
+
+.select-multi__placeholder {
+  color: var(--primary) !important;
+}
+
+.select-multi__control--is-focused {
+  box-shadow: none !important;
+}
+
+.select-multi__value-container {
+  padding: 0 !important;
+}
+
+.select-multi__multi-value {
+  background-color: var(--shadow) !important;
+  color: #ffffff !important;
+}
+
+.select-multi__multi-value__label {
+  color: #ffffff !important;
+}
+
+.number_bike {
+  font-size: 11px;
+  position: absolute;
+  top: 40px;
+  right: 10px;
+  width: 25px;
+  height: 25px;
+  padding: 5px;
+  background-color: white;
+  border-radius: 100px;
+  border: 1px solid #000;
+  text-align: center;
+}
+
+.overflow-alunos {
+  max-height: 500px;
+  overflow: auto;
+}
+
+.recurringButton{
+  width: 100% !important;
+  height: 40px !important;
+}

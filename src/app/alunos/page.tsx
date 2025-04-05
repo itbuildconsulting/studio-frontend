@@ -13,6 +13,10 @@ import Link from "next/link";
 import PersonsCollecion from "../../../core/Persons";
 import Loading from "@/components/loading/Loading";
 import Modal from "@/components/Modal/Modal";
+import { EventBtn } from "@/types/btn";
+import { convertUpdateAt } from "@/utils/formatterText";
+import { PaginationModel } from "@/types/pagination";
+import pageDefault from "@/utils/pageDetault";
 
 export default function Students() {
     const repo = useMemo(() => new PersonsCollecion(), []);
@@ -29,6 +33,9 @@ export default function Students() {
 
     const [listPersons, setListPersons] = useState<string[]>([]);
 
+    const [page, setPage] = useState<number>(1);
+    const [infoPage, setInfoPage] = useState<PaginationModel>( pageDefault );
+
     const convertPhone = (cell: any, row: any) => {
         let phoneNumber = cell.replace(/\D/g, '');
         let formattedNumber = '(' + phoneNumber.substring(0, 2) + ') ' + phoneNumber.substring(2, 7) + '-' + phoneNumber.substring(7);
@@ -37,7 +44,7 @@ export default function Students() {
     }
 
     const convertDate = (cell: any, row: any) => {
-        return cell.split("-").reverse().join("/");
+        return convertUpdateAt(cell);
     }
 
     const convertStatus = (cell: any, row: any) => {
@@ -46,7 +53,7 @@ export default function Students() {
 
     const actionButtonProduct = (cell: any, row: any) => {
         return (
-            <DropDown style={'bg-white'} styleHeader={'bg-white'} className="nav-link">
+            <DropDown style={'bg-white'}>
                 <>...</>
 
                 <Link href={`/alunos/editar/${cell}`}>
@@ -91,17 +98,14 @@ export default function Students() {
     ];
 
     const clear = () => {
-        setName("");
-        setEmail("");
-        setDocument("");
-        //listGeneralStudent();
+        listGeneralStudent("", "", "", 1);
     }
 
     const onSubmit = () => {
-        listGeneralStudent();
+        listGeneralStudent(name, email, document, 1);
     }
 
-    const eventButton = [
+    const eventButton: EventBtn[] = [
         {
             name: "Limpar",
             function: clear,
@@ -152,24 +156,33 @@ export default function Students() {
         )
     };
 
-    const listGeneralStudent = () => {
+    const listGeneralStudent = (name: string, email: string, document: string, page: number) => {
+        setName(name);
+        setEmail(email);
+        setDocument(document);
+        setPage(page);
         setLoading(true);
-        repo.listStudent(name, email, document).then((result: any) => {
+
+        repo.listStudent(name, email, document, page).then((result: any) => {
             if (result instanceof Error) {
                 setLoading(false);
+                setListPersons([]);
+                setInfoPage(pageDefault);
             } else {
-                setListPersons(result);
+                setListPersons(result.data);
+                setInfoPage(result.pagination);
                 setLoading(false);
             }
         }).catch((error: any) => {
             setLoading(false);
+            setListPersons([]);
+            setInfoPage(pageDefault);
         });
     }
 
     useEffect(() => {
-        listGeneralStudent();
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []);
+        listGeneralStudent(name, email, document, page);
+    }, [page]);
 
     const deletePersons = (id: number) => {
         setModalSuccess(true);
@@ -244,6 +257,8 @@ export default function Students() {
                             columns={columns}
                             class={styles.table_students}
                             loading={loading}
+                            setPage={setPage}
+                            infoPage={infoPage}
                         />
                     </Card>
                 </div>

@@ -7,30 +7,33 @@ interface TitleProps {
     title?: string,
     children: any,
     hasButton?: boolean,
-    setShowModal?: any,
-    url?: any,
+    setShowModal?: (e: boolean) => void,
+    url?: string | undefined,
     hasFooter?: boolean,
     eventsButton?: any,
-    loading?: boolean
+    loading?: boolean,
+    customClass?: string
 }
 
-export default function Card(props: TitleProps) {
+export default function Card({
+    title, children, hasButton, setShowModal, url, hasFooter, eventsButton, loading, customClass = ''
+}: TitleProps) {
     const router = useRouter();
 
     return (
-        <div className={`${styles.bg_card}`}>
+        <div className={`${styles.bg_card} ${customClass}`}>
             <div className='flex justify-between'>
-                {props.title && <h4 style={{ marginBottom: "32px" }}>{props.title}</h4>}
+                {title && <h4 style={{ marginBottom: "32px" }}>{title}</h4>}
 
-                {props.hasButton && <button className="btn-outline-primary" onClick={() => props.setShowModal ? props.setShowModal(true) : router.push(props.url)}><p>Adicionar</p></button>}
+                {hasButton && <button className="btn-outline-primary" onClick={() => setShowModal ? setShowModal(true) : router.push(`${url}`)}><p>Adicionar</p></button>}
             </div>
-            {props.children}
+            {children}
             {
-                props.hasFooter &&
+                hasFooter &&
                 <div className={`${styles.footer_card}`}>
                     {
-                        props.eventsButton.map((btn: any) => {
-                            if(props.loading && (btn.name === "Cadastrar" || btn.name === "Editar")) {
+                        eventsButton.map((btn: any) => {
+                            if(loading && (btn.name === "Cadastrar" || btn.name === "Editar")) {
                                 return (
                                     <button key={btn.name} className={btn.class} onClick={() => btn.function()}>
                                         <div className='load'/>

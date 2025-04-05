@@ -1,26 +1,33 @@
 'use client'
 
-import { useEffect, useState } from "react";;
+import { ReactNode, useEffect, useState } from "react";
 import Header from "../Header/Header";
 import MenuSideBar from "../MenuSideBar/MenuSideBar";
 import useWindowSize from "@/data/hooks/useWindowSize";
 
-export default function PageDefault(props: any) {
+type WindowSizeType = {
+    width?: number | undefined;
+};
+
+interface SizeProps {
+    title: string;
+    children: ReactNode;
+}
+
+export default function PageDefault(props: SizeProps) {
     const [menuMobileOpen, setMenuMobileOpen] = useState<boolean>(false);
 
-    const size = useWindowSize();
+    const size: WindowSizeType = useWindowSize();
 
     const handleMenuOpen = () => {
         setMenuMobileOpen(!menuMobileOpen);
     };
 
-    /* Evita o menu ficar aberto ao renderizar o tamanho da tela */
     useEffect(() => {
-        if (size.width < 1200) {
+        if (size.width && size.width < 1200) {
             setMenuMobileOpen(false);
         }
-    }, [size.width])
-    /* END - Evita o menu ficar aberto ao renderizar o tamanho da tela */
+    }, [size.width]);
 
     return (
         <main>
@@ -38,5 +45,5 @@ export default function PageDefault(props: any) {
                 </div>
             </div>
         </main>
-    )
+    );
 }

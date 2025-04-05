@@ -1,50 +1,53 @@
-import React, { createContext, useEffect, useState } from 'react';
-import Cookies from 'js-cookie';
-import User from '../../model/User';
-import Router from 'next/router';
-import { stringify } from 'querystring';
-import { useRouter } from "next/navigation";
+'use client'
 
-interface AuthContextProps {
-    user?: User | null | undefined,
+import React, { createContext, ReactNode, useState } from 'react';
+import Cookies from 'js-cookie';
+
+import { useRouter } from "next/navigation";
+import { UserAuth } from '@/types/auth';
+import { CookiesAuth } from '@/shared/enum';
+interface AuthContextProps<> {
+    user?: UserAuth | null | undefined,
     load?: boolean,
     loginError?: boolean,
-    msgError?: Array<{}>,
-    login?: (email: string, senha: string) => Promise<any>,
-    cadastrar?: ((email: string, senha: string) => Promise<any>) | undefined,
-    logout?: () => Promise<any>
+    msgError?: string[],
+    login?: (email: string, senha: string) => void,
+    recoverPassword?: ((email: string) => void) | undefined,
+    resetPassword?: ((password: string) => void) | undefined,
+    logout?: () => void
 }
 
 const AuthContext = createContext<AuthContextProps>({});
 
-function managementCookie(logado: boolean, expireAt: string, token: string) {
-
-    const dataString = expireAt;
-    const partes = dataString.split('T')[0].split('-');
-    const ano = parseInt(partes[0]);
-    const mes = parseInt(partes[1]) - 1; // Os meses em JavaScript são base 0 (0 - janeiro, 1 - fevereiro, etc.)
-    const dia = parseInt(partes[2]);
-
-    const data = new Date(expireAt);
+function managementCookie({logado, expiresIn, token, name }: UserAuth) {
+    const data = new Date(expiresIn);
 
     if (logado) {
-        Cookies.set('admin-template-sci-auth', String(logado), {
+        Cookies.set(CookiesAuth.USERLOGADO, String(logado), {
             expires: data
-        })
-        Cookies.set('admin-user-sci-auth', String(token), {
+        });
+        Cookies.set(CookiesAuth.USERTOKEN, String(token), {
+            expires: data
+        });
+        Cookies.set(CookiesAuth.USERNAME, String(name), {
             expires: data
         })
     } else {
-        Cookies.remove('admin-template-sci-auth');
+        Cookies.remove(CookiesAuth.USERLOGADO);
+        Cookies.remove(CookiesAuth.USERTOKEN);
+        Cookies.remove(CookiesAuth.USERNAME);
     }
 }
 
+interface AuthProviderProps {
+    children: ReactNode
+}
 
-export function AuthProvider(props: any) {
+export function AuthProvider({ children }: AuthProviderProps) {
     const [load, setLoad] = useState(false);
-    const [user, setUser] = useState<User | null | undefined>();
+    const [user, setUser] = useState<UserAuth | null | undefined>();
     const [loginError, setLoginError] = useState<boolean>(false);
-    const [msgError, setMsgError] = useState<Array<{}>>([]);
+    const [msgError, setMsgError] = useState<string[]>([]);
 
     const router = useRouter();
 
@@ -54,32 +57,29 @@ export function AuthProvider(props: any) {
         setTimeout(() => {setMsgError([]); setLoginError(false)}, time * 1000)
     }
 
-    async function sessionConfig(sistemUser: any) {
+    async function sessionConfig(sistemUser: UserAuth) {
         if (sistemUser?.token) {
-            //const user = await normalizeUser(firebaseUser)
-            setUser(user);
-            managementCookie(true, sistemUser?.expiresIn, sistemUser?.token);
+            setUser({ logado: true, expiresIn: sistemUser?.expiresIn, token: sistemUser?.token, name: sistemUser?.name});
+            managementCookie({ logado: true, expiresIn: sistemUser?.expiresIn, token: sistemUser?.token, name: sistemUser?.name});
             setLoad(false);
-            //return user.email
         } else {
             setUser(null);
-            managementCookie(false, '', '');
+            managementCookie({ logado: false, expiresIn: '', token: '', name: ''});
             setLoad(false);
             return false
         }
     }
 
     async function login(email: string, password: string) {
-        console.log("Aquiii")
         setLoad(true);
 
-        const req: any = {
+        const req = {
             "email": email,
             "password": password
         }
 
         try {
-            const resp: any = await fetch(
+            const resp = await fetch(
                 `${process.env.NEXT_PUBLIC_SERVER_URL_API}/login`,
                 {
                     method: 'POST',
@@ -90,8 +90,13 @@ export function AuthProvider(props: any) {
                 }
             );
             if (resp.status === 200) {
-                router.push("/dashboard");
-                const authResp: any = await resp.json();
+                const authResp = await resp.json();
+                if(authResp.level == "2"){
+                    router.push("/aulas");
+                }else{
+                    router.push("/dashboard");
+                }
+                console.log(authResp)
                 await sessionConfig(authResp);
                 setLoad(false);
             } else if (resp.status === 500) {
@@ -99,7 +104,7 @@ export function AuthProvider(props: any) {
                 showErro('Erro desconhecido - Entre em contato com o Suporte');
             } else {
                 setLoad(false);
-                const authResp: any = await resp.json();
+                const authResp = await resp.json();
                 showErro(authResp.error);
             }
         } catch {
@@ -111,61 +116,90 @@ export function AuthProvider(props: any) {
         }
     }
 
-    /*     async function perfil(token: string) {
-    
-            const config = {
-                method: 'GET',
-                headers: { 'Authorization': `Bearer ${token}` },
-            };
-    
-            try {
-                const resp: any = await fetch(
-                    `${process.env.NEXT_PUBLIC_SERVER_URL_API}/auth/profile`,
-                    config
-                );
-                setLoad(true)
-                if (resp.status === 200) {
-                    const authResp: any = await resp.json();
-    
-                    console.log(authResp.data)
-    
-                    Cookies.set('admin-user-sci-info', JSON.stringify(authResp.data), {
-                        expires: 1
-                    })
-                    console.log('AQUIII')
-                    Router.push('/construcao');
-    
-                } else {
-                    setLoginError(true);
-                    const authResp: any = await resp.json();
-                    setMsgError(authResp.errors)
-                }
-    
-            } finally {
-                setLoad(false);
-                return true;
-            }
-    
-    
-        } */
+    async function recoverPassword(email: string) {
+        setLoad(true);
 
-    async function cadastrar(email: string, password: string) {
+        const req = {
+            "email": email
+        }
+
         try {
-            setLoad(true)
-            //const resp = await firebase.auth().createUserWithEmailAndPassword(email, password)
-            //await sessionConfig(resp.user);
-            Router.push('/construcao')
+            const resp = await fetch(
+                `${process.env.NEXT_PUBLIC_SERVER_URL_API}/request-reset`,
+                {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(req),
+                }
+            );
+            
+            if (resp.status === 200) {
+                setLoad(false);
+                const authResp = await resp.json();
+            } else if (resp.status === 500) {
+                setLoad(false);
+                showErro('Erro desconhecido - Entre em contato com o Suporte');
+            } else {
+                setLoad(false);
+                const authResp = await resp.json();
+                showErro(authResp.error);
+            }
+        } catch {
+            setLoad(false);
+            showErro('Erro desconhecido - Entre em contato com o Suporte');
         } finally {
-            setLoad(false)
+            setLoad(false);
+            return true;
+        }
+    }
+    async function resetPassword(password: string) {
+        setLoad(true);
+
+        const req = {
+            "password": password
+        }
+
+        try {
+            const resp = await fetch(
+                `${process.env.NEXT_PUBLIC_SERVER_URL_API}/reset`,
+                {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(req),
+                }
+            );
+            
+            if (resp.status === 200) {
+                setLoad(false);
+                const authResp = await resp.json();
+            } else if (resp.status === 500) {
+                setLoad(false);
+                showErro('Erro desconhecido - Entre em contato com o Suporte');
+            } else {
+                setLoad(false);
+                const authResp = await resp.json();
+                showErro(authResp.error);
+            }
+        } catch {
+            setLoad(false);
+            showErro('Erro desconhecido - Entre em contato com o Suporte');
+        } finally {
+            setLoad(false);
             return true;
         }
     }
 
     async function logout() {
+        Cookies.remove(CookiesAuth.USERLOGADO);
+        Cookies.remove(CookiesAuth.USERTOKEN);
+        Cookies.remove(CookiesAuth.USERNAME);
+        
         try {
             setLoad(true)
-            //await firebase.auth().signOut()
-            // await sessionConfig(null);
             return 'Test';
         } finally {
             setLoad(false)
@@ -180,10 +214,11 @@ export function AuthProvider(props: any) {
             loginError,
             msgError,
             login,
-            cadastrar,
+            recoverPassword,
+            resetPassword,
             logout
         }}>
-            {props.children}
+            {children}
         </AuthContext.Provider>
     )
 }

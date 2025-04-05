@@ -1,11 +1,11 @@
 import Cookies from 'js-cookie'
 import Link from 'next/link'
-import React, { useEffect, useState } from 'react'
+import React, { ReactElement, useEffect, useState } from 'react'
 
 interface MenuItensProps {
     url?: string,
     text: string,
-    icon: any,
+    icon: ReactElement,
     className?: string,
     onClick?: () => void
 }
@@ -22,7 +22,7 @@ const MenuItem = (props: MenuItensProps) => {
         )
     }
 
-    const [userData, setUserData] = useState<any>({});
+    /* const [userData, setUserData] = useState({});
 
     const dataUser = Cookies.get('admin-user-sci-info')
 
@@ -31,7 +31,7 @@ const MenuItem = (props: MenuItensProps) => {
             setUserData(JSON.parse(dataUser));
         }
     }, [dataUser])
-
+ */
     return (
         <li onClick={props.onClick} className={`${props.className}`}>
             {props.url ? (

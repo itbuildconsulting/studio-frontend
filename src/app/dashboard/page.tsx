@@ -9,39 +9,62 @@ import { IconPeople } from "@/components/icons";
 
 import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, BarElement, Title, Tooltip, Legend, Filler, } from "chart.js";
 import { Bar, Line } from "react-chartjs-2";
+import { useEffect, useMemo, useState } from "react";
+
+import TotalSalesRepository from "../../../core/TotalSales";
+import FrequencyStudentsRepository from "../../../core/FrequencyStudents";
+import { getDatesOfWeek } from "@/utils/getDatesOfWeek";
+
+import Cookies from 'js-cookie';
+import { CookiesAuth } from "@/shared/enum";
 
 export default function Home() {
+    const repo = useMemo(() => new TotalSalesRepository(), []);
+    const repoFreq = useMemo(() => new FrequencyStudentsRepository(), []);
+
+    const [totalSales, setTotalSales] = useState<any>([]);
+    const [frequency, setFrequency] = useState<any>([]);
+    const [userNameAuth, setUserNameAuth] = useState<string | null>(null);
 
     ChartJS.register(CategoryScale, LineElement, BarElement, LinearScale, PointElement, Title, Tooltip, Legend, Filler);
 
     const LineChart = () => {
-        // X - axis lable
-        const labels = ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun"];
+        const dateMonth: number = new Date().getMonth();
+        const months: string[] = ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"];
 
-        // Data want to show on chart
-        const datasets = [20, 40, 30, 30, 45, 60, 67, 43];
+        const startIndex: number = (dateMonth - 5 + 12) % 12;
+
+        const labels: string[] = [
+            ...months.slice(startIndex, 12),
+            ...months.slice(0, dateMonth + 1),
+        ].slice(-6);
+
+        const datasets = labels.map((month, index) => {
+            const monthIndex = (startIndex + index) % 12 + 1;
+            const salesData = totalSales.find((data: any) => data.month === monthIndex);
+            return salesData?.totalSales || 0
+        });
+
+        const maxSales = totalSales && Math.max(...totalSales?.map(( elem: any ) => elem.totalSales))
 
         const data = {
             labels: labels,
             datasets: [
                 {
-                    // Title of Graph
                     label: "Total de Vendas",
                     data: datasets,
                     fill: true,
                     borderColor: "#003D58",
                     backgroundColor: 'rgba(0, 61, 88, 0.30)',
-                    tension: 0.05,
+                    tension: 0.25,
                 },
-                // insert similar in dataset object for making multi line chart
             ],
         };
 
-        // To make configuration
         const options = {
             plugins: {
                 legend: {
-                    display: false, // Remover o título do gráfico
+                    display: false,
                 },
             },
             scales: {
@@ -51,9 +74,9 @@ export default function Home() {
                     },
                     display: true,
                     min: 0,
-                    max: 50,
+                    max: maxSales,
                     ticks: {
-                        stepSize: 10 // Define o intervalo de 10 em 10 no eixo y
+                        stepSize: 12500
                     }
                 },
                 x: {
@@ -62,7 +85,7 @@ export default function Home() {
                     },
                     display: true,
                     grid: {
-                        display: false, // Oculta a grade vertical
+                        display: false,
                     },
 
                 },
@@ -73,21 +96,24 @@ export default function Home() {
     }
 
     const BarChart = () => {
-        const today = new Date().getDay() - 1; // Obtém o dia atual (0 para Domingo, 1 para Segunda, ..., 6 para Sábado)
+        const today = new Date().getDay() - 1;
 
         const labels = ['SEG', 'TER', 'QUA', 'QUI', 'SEX', 'SAB', 'DOM'];
 
         const backgroundColors = labels.map((day, index) => {
-            return index === today ? '#003D58' : '#F0F3F7'; // Vermelho para o dia atual, Azul para os outros dias
+            return index === today ? '#003D58' : '#F0F3F7';
         });
 
-        const datasets = [10, 8, 10, 4, 10, 10, 2];
+        const datasets = labels.map((week, index) => {
+            const weekIndex = (today + index) % 7 + 1;
+            const frequencyData = frequency.find((data: any) => data.dayOfWeek === weekIndex);
+            return frequencyData?.attendanceCount || 0
+        });
 
         const data = {
             labels: labels,
             datasets: [
                 {
-                    // Title of Graph
                     label: "My Bar Chart",
                     data: datasets,
                     backgroundColor:
@@ -103,14 +129,13 @@ export default function Home() {
                         topRight: 8,
                     },
                 },
-                // insert similar in dataset object for making multi bar chart
             ],
         };
 
         const options = {
             plugins: {
                 legend: {
-                    display: false, // Remover o título do gráfico
+                    display: false,
                 },
                 tooltip: {
                     callbacks: {
@@ -136,13 +161,13 @@ export default function Home() {
                         text: "x-axis Lable",
                     },
                     ticks: {
-                        color: '#003D58' // Define a cor dos nomes das barras
+                        color: '#003D58'
                     },
                     display: true,
                     grid: {
-                        color: "transparent", // Define a cor da linha do eixo X como transparente
-                        drawBorder: false, // Não desenhar borda do eixo X
-                        display: false, // Remover linhas verticais
+                        color: "transparent",
+                        drawBorder: false,
+                        display: false,
                     },
                 },
             },
@@ -296,8 +321,40 @@ export default function Home() {
         }
     }
 
+    useEffect(() => {
+        const year: number = new Date().getFullYear();
+        const datesWeek: string[] = getDatesOfWeek();
+        
+        repo.consult(String(year)).then((result: any) => {
+            if (result instanceof Error) {
+                //setLoading(false);
+            } else {
+                //setLoading(false);
+                setTotalSales(result?.data);
+            }
+        }).catch((error: any) => {
+            //setLoading(false);
+        });
+
+        repoFreq.consult(String(datesWeek?.shift()), String(datesWeek?.pop())).then((result: any) => {
+            if (result instanceof Error) {
+                //setLoading(false);
+            } else {
+                //setLoading(false);
+                setFrequency(result?.data);
+            }
+        }).catch((error: any) => {
+            //setLoading(false);
+        });
+    }, [])
+
+    useEffect(() => {
+        const username = Cookies.get(CookiesAuth.USERNAME) || '';
+        setUserNameAuth(username);
+      }, []);
+
     return (
-        <PageDefault title={"Bem-vindo, Fulano"}>
+        <PageDefault title={`Bem-vindo, ${userNameAuth}`}>
             <div className="grid grid-rows-auto grid-cols-12 gap-6 lg:gap-8">
                 <div className="col-span-12 lg:col-span-4">
                     <Card title="Frequência de alunos">

@@ -1,5 +1,3 @@
-import Link from "next/link";
-
 import LogoShort from '../../../public/images/logo_sudio_short.png'
 
 import styles from '../../styles/notfound.module.css';

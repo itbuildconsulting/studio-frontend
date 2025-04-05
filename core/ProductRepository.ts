@@ -10,9 +10,11 @@ export default interface ProductRepository {
         placeId: number | null,
         active: boolean
     ): Promise<Product[]>;
-    list(): Promise<Product[]>;
+    list(page: number): Promise<Product[]>;
+    listFiltered(page: number, productTypeId: string | null): Promise<Product[]>;
     details(id: number): Promise<Product[]>
     edit(
+        id: number | null,
         name: string | null,
         credit: number | null,
         validateDate: number | null,

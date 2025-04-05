@@ -13,6 +13,10 @@ import DropDown from "@/components/dropdown/DropDown";
 import Link from "next/link";
 import Modal from "@/components/Modal/Modal";
 import Loading from "@/components/loading/Loading";
+import { actionButton } from "@/utils/actionTable";
+import { convertUpdateAt } from "@/utils/formatterText";
+import { PaginationModel } from "@/types/pagination";
+import pageDefault from "@/utils/pageDetault";
 
 export default function Teachers() {
     const repo = useMemo(() => new PersonsCollecion(), []);
@@ -25,9 +29,12 @@ export default function Teachers() {
     const [log, setLog] = useState<number | null>(null);
     const [successMessage, setSuccessMessage] = useState<any>(null);
     const [loading, setLoading] = useState<any>(false);
-    const [errorMessage, setErrorMessage] = useState<any>(null);
+    const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
     const [listPersons, setListPersons] = useState<string[]>([]);
+
+    const [page, setPage] = useState<number>(1);
+    const [infoPage, setInfoPage] = useState<PaginationModel>( pageDefault );
 
     const convertPhone = (cell: any, row: any) => {
         let phoneNumber = cell.replace(/\D/g, '');
@@ -37,27 +44,19 @@ export default function Teachers() {
     }
 
     const convertDate = (cell: any, row: any) => {
-        return cell.split("-").reverse().join("/");
+        return convertUpdateAt(cell);
     }
 
     const convertStatus = (cell: any, row: any) => {
         return cell ? "Ativo" : "Inativo";
     }
 
-    const actionButtonProduct = (cell: any, row: any) => {
-        return (
-            <DropDown style={'bg-white'} styleHeader={'bg-white'} className="nav-link">
-                <>...</>
-
-                <Link href={`/funcionarios/editar/${cell}`}>
-                    Editar
-                </Link>
-                <Link href={'#'} onClick={() => deletePersons(cell)}>
-                    Excluir
-                </Link>
-
-            </DropDown>
-        )
+    const handleActionButton = (cell: number, row: any) => {
+        return actionButton({ 
+            id: cell,
+            editURL: "/funcionarios/editar/", 
+            changeStatus: deletePersons
+        })
     }
 
     const columns = [
@@ -86,16 +85,16 @@ export default function Teachers() {
         },
         {
             dataField: 'id',
-            formatter: actionButtonProduct
+            formatter: handleActionButton
         }
     ];
 
     const clear = () => {
-        listGeneralTeachers("", "", "");
+        listGeneralTeachers("", "", "", 1);
     }
 
     const onSubmit = () => {
-        listGeneralTeachers(name, email, document);
+        listGeneralTeachers(name, email, document, 1);
     }
 
     const eventButton = [
@@ -149,28 +148,33 @@ export default function Teachers() {
         )
     };
 
-    const listGeneralTeachers = (name: string, email: string, document: string) => {
+    const listGeneralTeachers = (name: string, email: string, document: string, page: number) => {
         setLoading(true);
         setName(name);
         setEmail(email);
+        setPage(page);
         setDocument(document);
 
-        repo.listEmployee(name, email, document).then((result: any) => {
+        repo.listEmployee(name, email, document, page).then((result: any) => {
+            setLoading(false);
+
             if (result instanceof Error) {
-                setLoading(false);
+                setListPersons([]);
+                setInfoPage(pageDefault);
             } else {
-                setListPersons(result);
+                setListPersons(result?.data);
+                setInfoPage(result?.pagination);
                 setLoading(false);
             }
-        }).catch((error: any) => {
-            setLoading(false);
+        }).catch(() => {
+            setListPersons([]);
+            setInfoPage(pageDefault);
         });
     }
 
     useEffect(() => {
-        listGeneralTeachers(name, email, document);
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []);
+        listGeneralTeachers(name, email, document, page);
+    }, [page]);
 
     const deletePersons = (id: number) => {
         setModalSuccess(true);
@@ -245,6 +249,8 @@ export default function Teachers() {
                             columns={columns}
                             class={styles.table_students}
                             loading={loading}
+                            setPage={setPage}
+                            infoPage={infoPage}
                         />
                     </Card>
                 </div>

@@ -17,22 +17,23 @@ async function conectAPI(req: object | null, url: string, method: string) {
             method,
             headers: {
                 "Content-Type": "application/json",
+                'Authorization': `Bearer ${token}`
             },
             body: JSON.stringify(req),
         };
     }
 
     try {
-        const resp: any = await fetch(
+        const resp = await fetch(
             `${process.env.NEXT_PUBLIC_SERVER_URL_API}${url}`,
             config
         );
 
         if (resp.status === 201) { // Created
-            const authResp: any = await resp.json();
+            const authResp = await resp.json();
             return authResp.data;
         } else if (resp.status === 200) { // List
-            const authResp: any = await resp.json();
+            const authResp = await resp.json();
             return authResp;
         } else {
             const error = await resp?.json();
@@ -49,7 +50,7 @@ export default class ProductTypeRepository implements ProductTypeRepository {
         placeId: number | null,
         active: boolean
     ): Promise<[]> {
-        const req: any = {
+        const req = {
             name,
             placeId,
             active
@@ -71,7 +72,7 @@ export default class ProductTypeRepository implements ProductTypeRepository {
         active: boolean,
         id: number
     ): Promise<[]> {
-        const req: any = {
+        const req = {
             name,
             placeId,
             active

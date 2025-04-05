@@ -11,6 +11,9 @@ import PersonsCollecion from "../../../../../core/Persons";
 import SingleCalendar from "@/components/date/SingleCalendar";
 import Loading from "@/components/loading/Loading";
 import Modal from "@/components/Modal/Modal";
+import { EventBtn } from "@/types/btn";
+import { ValidationForm } from "@/components/formValidation/validation";
+import ValidationFields from "@/validators/fields";
 
 export default function EditStudents() {
     const edit: boolean = true;
@@ -19,6 +22,7 @@ export default function EditStudents() {
     const searchParams = useParams()
     const router = useRouter();
 
+    const [id, setId] = useState<number | null>(null);
     const [name, setName] = useState<string | null>(null);
     const [document, setDocument] = useState<string | null>(null);
     const [email, setEmail] = useState<string | null>(null);
@@ -268,6 +272,7 @@ export default function EditStudents() {
                     setErrorMessage(null);
                 }, 2500);
             } else {
+                setId(result?.id);
                 setName(result.name)
                 setDocument(result.identity)
                 setEmail(result.email)
@@ -294,11 +299,20 @@ export default function EditStudents() {
             setLog(1);
             setLoading(false);
         });
-    }, [])
+    }, [repo, searchParams?.slug])
 
     const onSubmit = () => {
         setLoading(true);
         setErrorMessage(null);
+
+        const validationError = ValidationFields({ "Nome": name, "Data de Nascimento": birthday, "Telefone": phone, "Status": String(status), "Cep": zipCode, "Estado": state, "Cidade": city, "Endereço": address, "Pais": country });
+
+        if (validationError) {
+            setErrorMessage(validationError);
+            setLoading(false);
+            setTimeout(() => setErrorMessage(null), 2500);
+            return;
+        }
 
         if (!validarCPF(document)) {
             setErrorMessage("Por favor, informe um cpf válido!");
@@ -329,7 +343,7 @@ export default function EditStudents() {
                 setErrorMessage(null);
             }, 2500);
         } else {
-            repo?.edit(name, removerCaracteresEspeciais(document), email, removerCaracteresEspeciais(phone), converterDate(birthday), height, weight, shoes, password, '', '', true, level, zipCode, state, city, address, country, status).then((result: any) => {
+            repo?.edit(id, name, removerCaracteresEspeciais(document), email, removerCaracteresEspeciais(phone), converterDate(birthday), height, weight, shoes, password, '', '', true, "0", zipCode, state, city, address, country, status).then((result: any) => {
                 if (result instanceof Error) {
                     const message: any = JSON.parse(result.message);
                     setErrorMessage(message.error);
@@ -355,7 +369,7 @@ export default function EditStudents() {
         }
     }
 
-    const eventButton = [
+    const eventButton:EventBtn[] = [
         {
             name: "Cancelar",
             function: clear,
@@ -513,19 +527,6 @@ export default function EditStudents() {
                         <hr className="mt-3 mb-5 pb-3" style={{ borderColor: "#F4F5F6" }} />
                         <div className="grid grid-cols-12 gap-x-8">
                             <div className="col-span-12 sm:col-span-6 xl:col-span-4">
-                                <AuthSelect
-                                    label="Nível"
-                                    options={dropdownLevel}
-                                    value={level}
-                                    changeValue={setLevel}
-                                    edit={edit}
-                                    required
-                                />
-                            </div>
-                        </div>
-                        <hr className="mt-3 mb-5 pb-3" style={{ borderColor: "#F4F5F6" }} />
-                        <div className="grid grid-cols-12 gap-x-8">
-                            <div className="col-span-12 sm:col-span-6 xl:col-span-4">
                                 <AuthInput
                                     label="CEP"
                                     value={zipCode}
@@ -577,16 +578,7 @@ export default function EditStudents() {
                                     required
                                 />
                             </div>
-                            {errorMessage === null ? false :
-                                <div className={` 
-                                        bg-red-400 text-white py-1 px-2
-                                        border border-red-500 rounded-md
-                                        flex flex-row items-center col-span-12 w-1/2
-                                        `}>
-                                    {/* {IconWarning} */}
-                                    <span className='ml-2 text-sm'>{errorMessage}</span>
-                                </div>
-                            }
+                            <ValidationForm errorMessage={errorMessage} />
                         </div>
                     </Card>
                 </div>
