@@ -299,7 +299,7 @@ export default function EditStudents() {
             setLog(1);
             setLoading(false);
         });
-    }, [])
+    }, [repo, searchParams?.slug])
 
     const onSubmit = () => {
         setLoading(true);

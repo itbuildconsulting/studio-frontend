@@ -456,37 +456,7 @@ export default function Students() {
                                     required
                                 />
                             </div>
-                        </div>
-                        <hr className="mt-3 mb-5 pb-3" style={{ borderColor: "#F4F5F6" }} />
-                        <div className="grid grid-cols-12 gap-x-8">
-                            <div className="col-span-12 sm:col-span-6 xl:col-span-4">
-                                <AuthInput
-                                    label="Contrato"
-                                    value={contract}
-                                    type='text'
-                                    changeValue={setContract}
-                                    required
-                                />
-                            </div>
-                            <div className="col-span-12 sm:col-span-6 xl:col-span-4">
-                                <AuthInput
-                                    label="Frequência"
-                                    value={frequency}
-                                    type='text'
-                                    changeValue={setFrequency}
-                                    required
-                                />
-                            </div>
-                            <div className="col-span-12 sm:col-span-6 xl:col-span-4">
-                                <AuthInput
-                                    label="Aula"
-                                    value={classValue}
-                                    type='text'
-                                    changeValue={setClassValue}
-                                    required
-                                />
-                            </div>
-                        </div>
+                        </div>                       
                         <hr className="mt-3 mb-5 pb-3" style={{ borderColor: "#F4F5F6" }} />
                         <div className="grid grid-cols-12 gap-x-8">
                             <div className="col-span-12 sm:col-span-6 xl:col-span-4">
@@ -499,13 +469,6 @@ export default function Students() {
                                 />
                             </div>
                             <div className="col-span-12 sm:col-span-6 xl:col-span-4">
-                                {/* <AuthInput
-                                    label="Estado"
-                                    value={state}
-                                    type='text'
-                                    changeValue={setState}
-                                    required
-                                />*/}
                                 <AuthSelect
                                     label="Estado"
                                     options={dropdownStates}

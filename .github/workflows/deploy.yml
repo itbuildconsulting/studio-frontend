@@ -1,0 +1,31 @@
+name: Deploy Frontend
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: Setup SSH
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.DEPLOY_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -H 212.85.2.8 >> ~/.ssh/known_hosts
+
+      - name: Deploy to VPS
+        run: |
+          ssh -i ~/.ssh/id_rsa root@212.85.2.8 << 'EOF'
+            cd /var/www/seu-projeto/frontend
+            git pull origin main
+            npm install
+            npm run build
+            pm2 restart frontend
+          EOF
