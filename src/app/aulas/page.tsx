@@ -10,7 +10,6 @@ import AuthInput from "@/components/auth/AuthInput";
 import ClassCollecion from "../../../core/Class";
 import { actionButton } from "@/utils/actionTable";
 import SingleCalendar from "@/components/date/SingleCalendar";
-import TimePickerCalendar from "@/components/date/TimePickerCalendar";
 import DropDownsCollection from "../../../core/DropDowns"; 
 import AuthSelect from "@/components/auth/AuthSelect";
 import Time from "@/components/time/time";
@@ -20,6 +19,9 @@ import { convertArray, convertArrayType } from "@/utils/convertArray";
 import listTimes from '../../json/time.json';
 import { PaginationModel } from "@/types/pagination";
 import pageDefault from "@/utils/pageDetault";
+import { ActionButtonDinamic } from "@/utils/actionTableDinamic";
+
+
 
 export default function Class() {
     const repo = useMemo(() => new ClassCollecion(), []);
@@ -45,6 +47,35 @@ export default function Class() {
         return cell ? "Ativo" : "Inativo";
     }
 
+    const handleDelete = (id: any) => {
+        
+        repo?.cancel(id).then((result: any) => {
+            if (result instanceof Error) {
+                console.log('AQUIII')
+            } else {
+                console.log('Deu ruim')
+            }
+
+        }).catch((error) => {
+
+        });
+    }
+
+    /*const handleActionButton = (cell: number, row: any) => {
+        console.log(cell)
+        return (
+            <ActionButtonDinamic 
+                id={10} 
+                links={[
+                    {
+                        href: "#", 
+                        label: 'Cancelar Aula',
+                        onClick: () => handleDelete(cell)
+                    }
+                ]}
+            />
+        )
+    }*/
     const handleActionButton = (cell: number, row: any) => {
         return actionButton({
             id: cell,

@@ -277,11 +277,11 @@ export default function Administrative() {
 
     useEffect(() => {
         listGeneralProductType();
-    }, []);
+    }, [listGeneralProductType]);
 
     useEffect(() => {
         listGeneral();
-    }, []);
+    }, [listGeneral]);
 
     const detailsLocale = (id: number) => {
         setEdit(true);

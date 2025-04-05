@@ -70,6 +70,10 @@ export default class ProductRepository implements ProductRepository {
         return conectAPI(null, `/products?page=${page}`, "GET");
     }
 
+    async listFiltered(page: number, productTypeId: string | null): Promise<[]> {
+        return conectAPI(null, `/products?page=${page}&pageSize=10&productTypeId=${productTypeId}`, "GET");
+    }
+
     async details(id: number): Promise<[]> {
         return conectAPI(null, `/products/${id}`, "GET");
     }

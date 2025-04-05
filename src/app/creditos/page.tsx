@@ -9,14 +9,21 @@ import { useEffect, useMemo, useState } from "react";
 import styles from '../../styles/financial.module.css';
 
 import ProductCollecion from "../../../core/Product";
+import DropDownsCollection from "../../../core/DropDowns";
+import AuthSelect from "@/components/auth/AuthSelect";
+import { convertArrayType } from "@/utils/convertArray";
 
 export default function Credit() {
     
     const repo = useMemo(() => new ProductCollecion(), []);
+    const repoDrop = useMemo(() => new DropDownsCollection(), []);
 
-    const [productType, setProductType] = useState<string>("");
+    const [typeProduct, setTypeProduct] = useState<string | null>(null);
     const [loading, setLoading] = useState<boolean>(false);
     const [productList, setProductList] = useState<string[]>([]);
+    const [edit] = useState<boolean>(false);
+
+    const [dropdownType, setDropdownType] = useState<string[]>([]);
 
     const statusColors: any = {
         processing: '#FFA500', // Laranja
@@ -35,10 +42,6 @@ export default function Credit() {
         const newValue = cell / 100;
         return newValue.toLocaleString('pt-br', { style: 'currency', currency: 'BRL' })
         //return cell;
-    }
-
-    const convertDate = (cell: string) => {
-        return cell.split("-").reverse().join("/");
     }
 
     const convertStatus = (cell: number) => {        
@@ -63,7 +66,7 @@ export default function Credit() {
 
     const listProducts = () => {
         setLoading(true);
-        repo.list(1).then((result: any) => {
+        repo.listFiltered(1, typeProduct).then((result: any) => {
             if (result instanceof Error) {
                 setLoading(false);
             } else {
@@ -76,8 +79,7 @@ export default function Credit() {
     }
 
     useEffect(() => {
-        listProducts();
-        // eslint-disable-next-line react-hooks/exhaustive-deps
+        repoDrop.dropdown('productTypes/dropdown').then(setDropdownType);
     }, []);
 
     const columns = [
@@ -136,12 +138,13 @@ export default function Credit() {
                         eventsButton={eventButton}
                     >
                         <div className="grid grid-cols-12 gap-x-8">
-                            <div className="col-span-12 md:col-span-3">
-                                <AuthInput
-                                    label="Tipo de Produto"
-                                    value={productType}
-                                    type='text'
-                                    changeValue={setProductType}
+                            <div className="col-span-12 sm:col-span-4">
+                                <AuthSelect
+                                    label='Tipo de Produto'
+                                    value={typeProduct}
+                                    options={convertArrayType(dropdownType)}
+                                    changeValue={setTypeProduct}
+                                    edit={edit}
                                     required
                                 />
                             </div>

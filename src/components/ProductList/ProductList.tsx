@@ -1,7 +1,10 @@
+
+import React, { useState } from 'react';
 import useWindowSize from '@/data/hooks/useWindowSize';
 import styles from '../../styles/credit.module.css';
 import { Pagination } from '../pagination/pagination';
 import { PaginationModel } from '@/types/pagination';
+import { useRouter } from 'next/navigation';  // Importando o hook useRouter
 
 interface ProductListProps {
     data: any,
@@ -12,6 +15,8 @@ interface ProductListProps {
     setPage?: (page: number) => void,
     infoPage?: PaginationModel
 }
+
+
 
 type Product = {
     id: number;
@@ -32,8 +37,28 @@ type Product = {
     };
 };
 
-
 export default function Table(props: ProductListProps) {
+    const [selectedProducts, setSelectedProducts] = useState<any>([]);
+    const router = useRouter();  // Usando o useRouter para navegação
+
+    // Função que será chamada ao clicar em "Selecionar"
+    const handleSelect = (product: Product) => {
+        const productData = [{ productId: product.id, quantity: 1, name: product.name, value: product.value }];
+        
+        // Salva os dados no LocalStorage
+        localStorage.setItem('selectedProduct', JSON.stringify(productData));
+
+        // Atualiza o estado local com a seleção
+        setSelectedProducts(productData);
+
+        // Confirmação no console
+        console.log(`Produto selecionado: ${productData}, Quantidade: 1`);
+
+        // Redireciona para a página de checkout
+        router.push('/checkout');  // Redireciona para a página de checkout
+
+    };
+    
     return (
         <>
             {
@@ -52,7 +77,6 @@ export default function Table(props: ProductListProps) {
                                                     <div className="flex flex-col">
                                                         <span className={`${styles.item_simple_text} text-left`}>Validade</span>
                                                         <span className={`${styles.item_name} text-left`}>{item.validateDate} dias</span>
-
                                                     </div>
                                                     <div className="flex flex-col">
                                                         <span className={`${styles.item_simple_text} text-left`}>Valor</span>
@@ -60,7 +84,7 @@ export default function Table(props: ProductListProps) {
                                                     </div>
                                                 </div>
                                                 <div className="flex justify-center">
-                                                    <button className={`${styles.item_btn}`} onClick={() => { console.log('selecionei') }}>Selecionar</button>
+                                                    <button className={`${styles.item_btn}`} onClick={() => handleSelect(item)}>Selecionar</button>
                                                 </div>
                                             </div>
                                         </div>
@@ -86,5 +110,5 @@ export default function Table(props: ProductListProps) {
             }
 
         </>
-    )
+    );
 }
