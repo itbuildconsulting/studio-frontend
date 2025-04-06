@@ -48,9 +48,10 @@ const AuthSelect = ({
                             style={{ margin: '0' }}
                         >
                             {showColorIcon &&
-                                options.find((option: any) => option.value === value).colors.split(' ').map((elem: string) => {
+                                options.find((option: any) => option.value === value).colors.split(' ').map((elem: string, idx: number) => {
                                     return (
                                         <div
+                                            key={idx}
                                             style={{
                                                 width: '16px',
                                                 height: '16px',
@@ -89,9 +90,10 @@ const AuthSelect = ({
                                             className="flex items-center px-4 py-2 cursor-pointer hover:bg-gray-100"
                                         >
                                             {showColorIcon &&
-                                                option.colors.split(' ').map((elem: string) => {
+                                                option.colors.split(' ').map((elem: string, idx: number) => {
                                                     return (
                                                         <div
+                                                            key={idx}
                                                             style={{
                                                                 width: '16px',
                                                                 height: '16px',
