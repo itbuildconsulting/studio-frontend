@@ -23,18 +23,12 @@ jobs:
           file ~/.ssh/id_rsa
           ssh-keyscan -H 212.85.2.8 >> ~/.ssh/known_hosts
 
-      - name: Test SSH Connection
-        shell: bash
-        run: |
-          ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no root@212.85.2.8 "echo ✅ Conectado com sucesso!"
-
-
       - name: Deploy to VPS
         run: |
           ssh -i ~/.ssh/id_rsa root@212.85.2.8 << 'EOF'
-            cd /var/www/studio/frontend
+            cd /var/www/studio/studio-frontend
             git pull origin main
             npm install
             npm run build
-            pm2 restart frontend
+            pm2 restart studio-frontend
           EOF
