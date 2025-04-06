@@ -27,8 +27,9 @@ jobs:
         run: |
           ssh -i ~/.ssh/id_rsa root@212.85.2.8 << 'EOF'
             cd /var/www/studio/studio-frontend
-            git pull origin main
+            GIT_SSH_COMMAND='ssh -i ~/.ssh/studio-frontend-deploy' git pull origin main
             npm install
             npm run build
-            pm2 restart studio-frontend
+            pm2 restart studio-frontend || pm2 start npm --name studio-frontend -- start
+            pm2 save
           EOF
