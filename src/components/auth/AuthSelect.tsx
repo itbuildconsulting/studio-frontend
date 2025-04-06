@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { Key, useEffect, useState } from "react";
 
 interface AuthSelectProps {
     label: string;
@@ -48,7 +48,7 @@ const AuthSelect = ({
                             style={{ margin: '0' }}
                         >
                             {showColorIcon &&
-                                options.find((option: any) => option.value === value).colors.split(' ').map((elem: string, idx: number) => {
+                                options.find((option: any) => option.value === value).colors.split(' ').map((elem: string, idx: Key) => {
                                     return (
                                         <div
                                             key={idx}
@@ -90,7 +90,7 @@ const AuthSelect = ({
                                             className="flex items-center px-4 py-2 cursor-pointer hover:bg-gray-100"
                                         >
                                             {showColorIcon &&
-                                                option.colors.split(' ').map((elem: string, idx: number) => {
+                                                option.colors.split(' ').map((elem: string, idx: Key) => {
                                                     return (
                                                         <div
                                                             key={idx}
