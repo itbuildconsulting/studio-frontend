@@ -10,6 +10,8 @@ import { PaginationModel } from "@/types/pagination";
 import pageDefault from "@/utils/pageDetault";
 import styles from '../../styles/products.module.css';
 import AuthSelect from "@/components/auth/AuthSelect";
+import Modal from "@/components/Modal/Modal";
+import Loading from "@/components/loading/Loading";
 
 export default function Configuracao() {
 
@@ -36,6 +38,13 @@ export default function Configuracao() {
     setLoading(true);
     setErrorMessage(null);
 
+    // Validar se todos os campos obrigatórios estão preenchidos
+    if (!name || !numberOfClasses || !title || !benefit || !color || !antecedence) {
+      setErrorMessage("Todos os campos são obrigatórios!");
+      setLoading(false);
+      return; // Impede o envio caso algum campo esteja vazio
+    }
+
     // Dados a serem enviados para o backend
     const data = {
       name,
@@ -51,8 +60,9 @@ export default function Configuracao() {
       if (result instanceof Error) {
         // Se ocorrer um erro
         const message: any = JSON.parse(result.message);
-        setErrorMessage(message.error);
-        setLoading(false);
+        setErrorMessage(message.message);
+        setLoading(false);        
+        setModalSuccess(true);
         setLog(1);
         setTimeout(() => {
           setErrorMessage(null);
@@ -62,11 +72,14 @@ export default function Configuracao() {
         setModalSuccess(true);
         setLoading(false);
         setSuccessMessage("Nível criado com sucesso!");
+        handleListLevel(page);
         setLog(0);
       }
     }).catch((error) => {
       // Se houver erro na requisição
       setErrorMessage(error.message);
+      setModalSuccess(true);
+      setLoading(false);
       setTimeout(() => {
         setErrorMessage(null);
       }, 2500);
@@ -132,6 +145,44 @@ export default function Configuracao() {
     },
 
   ];
+
+  const handleClosed = () => {
+    setModalSuccess(false);
+  }
+
+  const LoadingStatus = () => {
+    return (
+        <div className="flex flex-col items-center gap-4">
+            <Loading />
+            <h5>Carregando...</h5>
+            <div style={{ height: "56px" }}></div>
+        </div>
+    )
+  }
+
+  const SuccessStatus = () => {
+    return (
+        <div className="flex flex-col items-center gap-4">
+
+            {log === 0 ?
+                <svg className="mt-4 pb-2" width="135" height="135" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1} stroke={"var(--primary)"}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                :
+                <svg className="mt-4 pb-2" width="135" height="135" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1} stroke={"var(--primary)"}>
+                    <path stroke-linecap="round" stroke-linejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                </svg>
+            }
+
+            <h5 className="text-gray-700">{log === 0 ? successMessage : errorMessage}</h5>
+
+            <button className="btn-outline-primary px-5 mt-5" onClick={() => handleClosed()}>
+                Fechar
+            </button>
+
+        </div>
+    )
+};
 
   return (
     <PageDefault title={"Configurações"}>
@@ -211,6 +262,10 @@ export default function Configuracao() {
             </div>
 
 
+            
+          </Card>
+
+          <Card>
             <Table
               data={listLevels}
               columns={columns}
@@ -222,6 +277,26 @@ export default function Configuracao() {
           </Card>
         </div>
       </div>
+
+      <Modal
+          btnClose={false}
+          showModal={modalSuccess}
+          setShowModal={setModalSuccess}
+          hrefClose={'/proprietarios'}
+          isModalStatus={true}
+      >
+          <div
+              className={`rounded-lg bg-white w-full py-10 px-10 flex flex-col m-auto`}
+          >
+
+              {loading ? <LoadingStatus /> : <SuccessStatus />}
+
+              <div className="">
+
+              </div>
+          </div>
+
+      </Modal>
     </PageDefault>
   );
 }

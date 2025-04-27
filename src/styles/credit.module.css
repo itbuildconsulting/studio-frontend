@@ -4,6 +4,12 @@
   gap: 10px;
 }
 
+@media (max-width: 1550px) {
+  .product_card {
+    grid-template-columns: repeat(5, minmax(100px, 2fr));
+  }
+}
+
 @media (max-width: 1024px) {
   .product_card {
     grid-template-columns: repeat(3, minmax(100px, 1fr));

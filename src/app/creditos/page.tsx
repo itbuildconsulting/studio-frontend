@@ -80,6 +80,7 @@ export default function Credit() {
 
     useEffect(() => {
         repoDrop.dropdown('productTypes/dropdown').then(setDropdownType);
+        listProducts();
     }, []);
 
     const columns = [

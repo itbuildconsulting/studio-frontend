@@ -78,9 +78,9 @@ export default function Table(props: ProductListProps) {
                                                         <span className={`${styles.item_simple_text} text-left`}>Validade</span>
                                                         <span className={`${styles.item_name} text-left`}>{item.validateDate} dias</span>
                                                     </div>
-                                                    <div className="flex flex-col">
-                                                        <span className={`${styles.item_simple_text} text-left`}>Valor</span>
-                                                        <span className={`${styles.item_name} text-left`}>{Number(item.value).toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}</span>
+                                                    <div className="flex flex-col text-end">
+                                                        <span className={`${styles.item_simple_text} text-right`}>Valor</span>
+                                                        <span className={`${styles.item_name} text-right`}>{Number(item.value).toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}</span>
                                                     </div>
                                                 </div>
                                                 <div className="flex justify-center">

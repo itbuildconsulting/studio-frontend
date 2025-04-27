@@ -6,8 +6,10 @@ import { Key, useEffect, useState } from "react";
 import Link from "next/link";
 import AuthDefault from "@/components/template/auth";
 import useAuthData from '@/data/hooks/useAuthData';
+import { useParams } from 'next/navigation';
 
 export default function ResetPassword() {
+    const { slug } = useParams();
     const { resetPassword, loginError, msgError, load } = useAuthData();
 
     const [password, setPassword] = useState<string>('');
@@ -28,7 +30,7 @@ export default function ResetPassword() {
     const handleSubmit = async () => {
         if (resetPassword) {
             try {
-                await resetPassword(password);
+                await resetPassword(password, String(slug));
             } catch (e) {
                 setError(['Erro desconhecido - Entre em contato com o Suporte']);
                 //showErro('Erro desconhecido');

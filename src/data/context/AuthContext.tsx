@@ -13,7 +13,7 @@ interface AuthContextProps<> {
     msgError?: string[],
     login?: (email: string, senha: string) => void,
     recoverPassword?: ((email: string) => void) | undefined,
-    resetPassword?: ((password: string) => void) | undefined,
+    resetPassword?: ((password: string, token: string) => void) | undefined,
     logout?: () => void
 }
 
@@ -125,7 +125,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
         try {
             const resp = await fetch(
-                `${process.env.NEXT_PUBLIC_SERVER_URL_API}/request-reset`,
+                `${process.env.NEXT_PUBLIC_SERVER_URL_API}/password/request-reset`,
                 {
                     method: 'POST',
                     headers: {
@@ -154,16 +154,17 @@ export function AuthProvider({ children }: AuthProviderProps) {
             return true;
         }
     }
-    async function resetPassword(password: string) {
+    async function resetPassword(password: string, token: string) {
         setLoad(true);
 
         const req = {
-            "password": password
+            "newPassword": password,
+            "token": token
         }
 
         try {
             const resp = await fetch(
-                `${process.env.NEXT_PUBLIC_SERVER_URL_API}/reset`,
+                `${process.env.NEXT_PUBLIC_SERVER_URL_API}/password/reset`,
                 {
                     method: 'POST',
                     headers: {
