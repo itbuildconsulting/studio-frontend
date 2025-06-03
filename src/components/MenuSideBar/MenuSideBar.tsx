@@ -1,7 +1,7 @@
 import Image from 'next/image';
 import styles from '../../styles/menu.module.css';
 
-import { IconAdmin, IconClass, IconClose, IconDollar, IconFinance, IconHome, IconLeave, IconProducts, IconStudents, IconWorkers } from "../icons"
+import { IconAdmin, IconAdminFilter, IconClass, IconClose, IconDollar, IconFinance, IconHome, IconLeave, IconProducts, IconStudents, IconWorkers } from "../icons"
 import LogoShort from '../../../public/images/logo_sudio_short.png'
 
 import MenuItem from './MenuItem';
@@ -50,7 +50,7 @@ export default function MenuSideBar(props: MenuSideBarProps) {
                                 <MenuItem url="/produtos" text="Produtos" icon={IconProducts} className={pathname === "/produtos" ? "active" : ""} />
                                 <MenuItem url="/creditos" text="Créditos" icon={IconDollar} className={pathname === "/creditos" ? "active" : ""} />
                                 <MenuItem url="/administrativo" text="Administrativo" icon={IconAdmin} className={pathname === "/administrativo" ? "active" : ""} />
-                                <MenuItem url="/configuracoes" text="Configuracoes" icon={IconAdmin} className={pathname === "/configuracoes" ? "active" : ""} />
+                                <MenuItem url="/configuracoes" text="Configurações" icon={IconAdminFilter} className={pathname === "/configuracoes" ? "active" : ""} />
                             </ul>
                             }
                             

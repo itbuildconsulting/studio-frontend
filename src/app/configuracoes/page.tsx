@@ -12,11 +12,18 @@ import styles from '../../styles/products.module.css';
 import AuthSelect from "@/components/auth/AuthSelect";
 import Modal from "@/components/Modal/Modal";
 import Loading from "@/components/loading/Loading";
+import AccordionCard from "@/components/Card/AccordionCard";
+import configRepository from "../../../core/Config";
+import DropDownsCollection from "../../../core/DropDowns";
+import AuthSelectMulti from "@/components/auth/AuthSelectMulti";
+import { convertArray } from "@/utils/convertArray";
 
 export default function Configuracao() {
 
   // Repositório de Níveis
   const repo = useMemo(() => new LevelRepository(), []);
+  const repoConfig = useMemo(() => new configRepository(), []);
+  const repoDrop = useMemo(() => new DropDownsCollection(), []);
 
   const [name, setName] = useState("");
   const [numberOfClasses, setNumberOfClasses] = useState(50);
@@ -33,6 +40,18 @@ export default function Configuracao() {
   const [listLevels, setListLevels] = useState<string[]>([]);
   const [page, setPage] = useState<number>(1);
   const [infoPage, setInfoPage] = useState<PaginationModel>(pageDefault);
+
+  const [listLevelsConfig, setListLevelsConfig] = useState<string[]>([]);
+  const [pageConfig, setPageConfig] = useState<number>(1);
+  const [infoPageConfig, setInfoPageConfig] = useState<PaginationModel>(pageDefault);
+
+  const [description, setDescription] = useState("");
+  const [configKey, setConfigKey] = useState("");
+  const [configValue, setConfigValue] = useState("");
+
+  const [multiSelectValues, setMultiSelectValues] = useState<string[]>([]);
+
+  const [productTypes, setProductTypes] = useState<{ label: string, value: string }[]>([]);
 
   const handleSubmit = async () => {
     setLoading(true);
@@ -88,6 +107,47 @@ export default function Configuracao() {
     });
   };
 
+  const handleSubmitConfig = async () => {
+    setLoading(true);
+    setErrorMessage(null);
+  
+    // Validação dos campos obrigatórios
+    if (!configKey || !configValue || !description) {
+      setErrorMessage("Todos os campos são obrigatórios!");
+      setLoading(false);
+      return;
+    }
+  
+    // Criar a configuração
+    repoConfig?.create(configKey, configValue, description).then((result: any) => {
+      if (result instanceof Error) {
+        const message: any = JSON.parse(result.message);
+        setErrorMessage(message.message);
+        setLoading(false);
+        setModalSuccess(true);
+        setLog(1);
+        setTimeout(() => {
+          setErrorMessage(null);
+        }, 2500);
+      } else {
+        setModalSuccess(true);
+        setLoading(false);
+        setSuccessMessage("Configuração criada com sucesso!");
+        handleListLevel(page); // ou outra função para listar configs
+        setLog(0);
+      }
+    }).catch((error) => {
+      setErrorMessage(error.message);
+      setModalSuccess(true);
+      setLoading(false);
+      setTimeout(() => {
+        setErrorMessage(null);
+      }, 2500);
+      setLog(1);
+      setLoading(false);
+    });
+  };
+
   const eventButton = [
     {
       name: "Cancelar",
@@ -97,6 +157,19 @@ export default function Configuracao() {
     {
       name: "Finalizar",
       function: handleSubmit,
+      class: "btn-primary",
+    },
+  ];
+
+  const eventHandle = [
+    {
+      name: "Cancelar",
+      function: () => { },
+      class: "btn-outline-primary",
+    },
+    {
+      name: "Cadastrar",
+      function: handleSubmitConfig,
       class: "btn-primary",
     },
   ];
@@ -115,12 +188,34 @@ export default function Configuracao() {
     }).catch(() => {
       setListLevels([]);
     });
+
+    repoConfig.list().then((result: any) => {
+      setLoading(false);
+
+      if (result instanceof Error) {
+        setListLevelsConfig([]);
+      } else {
+        setListLevelsConfig(result?.data);
+      }
+    }).catch(() => {
+      setListLevelsConfig([]);
+    });
+
+
   }
 
   useEffect(() => {
     handleListLevel(page);
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [page]);
+
+  useEffect(() => {
+    if (configKey === 'app_product') {
+      repoDrop.dropdown('productTypes/dropdown').then((result) => {
+        setProductTypes(result);
+      });
+    }
+  }, [configKey]);
 
   const columns = [
     {
@@ -144,6 +239,25 @@ export default function Configuracao() {
       text: `Antecedência de Aulas`,
     },
 
+  ];
+
+  const columnsConfig = [
+    {
+      dataField: 'id',
+      text: `ID`,
+    },
+    {
+      dataField: 'configKey',
+      text: `Chaves de Configuração`,
+    },
+    {
+      dataField: 'configValue',
+      text: `Valor`,
+    },
+    {
+      dataField: 'description',
+      text: `Descrição`,
+    }
   ];
 
   const handleClosed = () => {
@@ -186,6 +300,74 @@ export default function Configuracao() {
 
   return (
     <PageDefault title={"Configurações"}>
+
+      <div className="grid grid-cols-12 mt-8 mb-8">
+        <div className="col-span-12">
+          <AccordionCard title="Configurações do Sistema" hasFooter={true} eventsButton={eventHandle}>
+            <div className="grid grid-cols-12 gap-x-8">              
+              <div className="col-span-12 sm:col-span-6 xl:col-span-4">
+                <AuthSelect
+                  label="Chaves de Configurações"
+                  options={[
+                    { value: 'app_product', label: "Produtos do App Sping'Go" },
+                    { value: 'cancel_class', label: "Cancelamento de Aula" },
+                    { value: 'pusrchase_class', label: "Cancelamento de Compra" },
+                  ]}
+                  value={configKey}
+                  changeValue={setConfigKey}
+                  required
+                />
+              </div>
+              <div className="col-span-12 sm:col-span-6 xl:col-span-4">
+                <AuthInput
+                  label="Descrição"
+                  value={description}
+                  type="text"
+                  changeValue={setDescription}
+                  required
+                />
+              </div>
+              <div className="col-span-12 sm:col-span-6 xl:col-span-4">
+                {configKey === 'app_product' ? (
+                  <AuthSelectMulti
+                    label="Produtos Permitidos"
+                    value={multiSelectValues}
+                    options={convertArray(productTypes)}
+                    changeValue={(vals: string[]) => {
+                      setMultiSelectValues(vals);
+                      setConfigValue(vals.join(','));
+                    }}
+                  />
+                ) : (
+                  <AuthInput
+                    label="Valor"
+                    value={configValue}
+                    type="text"
+                    changeValue={setConfigValue}
+                    required
+                  />
+                )}
+              </div>
+              
+            </div>
+
+            <div className="col-span-12"> 
+              <div className="col-span-12 sm:col-span-6 xl:col-span-4"> 
+                <Table
+                  data={listLevelsConfig}
+                  columns={columnsConfig}
+                  class={styles.table_locale_adm}
+                  loading={loading}
+                  setPage={setPage}
+                  infoPage={infoPage}
+                />
+              </div>
+            </div>            
+          </AccordionCard>
+        </div>
+      </div>
+
+
       <div className="grid grid-cols-12">
         <div className="col-span-12">
           <Card title="Cadastrar Nível" hasFooter={true} eventsButton={eventButton} loading={loading}>
@@ -277,6 +459,8 @@ export default function Configuracao() {
           </Card>
         </div>
       </div>
+
+      
 
       <Modal
           btnClose={false}
