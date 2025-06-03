@@ -21,6 +21,14 @@ jobs:
           chmod 600 ~/.ssh/id_rsa
           ssh-keyscan -H 212.85.2.8 >> ~/.ssh/known_hosts
 
+      - name: Criar .env.local remoto
+        run: |
+          ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no root@212.85.2.8 "cat <<EOF > /var/www/studio/studio-frontend/.env.local
+            PORT=${{ vars.PORT }}
+            NEXT_PUBLIC_SERVER_URL_API=${{ vars.NEXT_PUBLIC_SERVER_URL_API }}
+            NEXT_PUBLIC_JWT_SECRET_KEY=${{ vars.NEXT_PUBLIC_JWT_SECRET_KEY }}
+          EOF"
+
       - name: Deploy to VPS
         run: |
           ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no root@212.85.2.8 << 'EOF'
