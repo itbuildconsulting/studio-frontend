@@ -19,15 +19,13 @@ jobs:
           mkdir -p ~/.ssh
           echo "${{ secrets.DEPLOY_KEY }}" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
-          ls -l ~/.ssh
-          file ~/.ssh/id_rsa
           ssh-keyscan -H 212.85.2.8 >> ~/.ssh/known_hosts
 
       - name: Deploy to VPS
         run: |
-          ssh -i ~/.ssh/id_rsa root@212.85.2.8 << 'EOF'
+          ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no root@212.85.2.8 << 'EOF'
             cd /var/www/studio/studio-frontend
-            GIT_SSH_COMMAND='ssh -i ~/.ssh/studio-frontend-deploy' git pull origin main
+            GIT_SSH_COMMAND='ssh -i ~/.ssh/id_rsa' git pull origin main
             npm install
             npm run build
             pm2 restart studio-frontend || pm2 start npm --name studio-frontend -- start
