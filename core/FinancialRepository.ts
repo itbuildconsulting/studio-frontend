@@ -1,5 +1,5 @@
 import Financial from "./Financial";
 
 export default interface FinancialRepository {
-    getLatestTransactions(): Promise<Financial[]>;
+    getLatestTransactions(studentId: string, createdAt: string, transactionId: string, page: number): Promise<Financial[]>;
 }

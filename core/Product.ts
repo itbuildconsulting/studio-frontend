@@ -101,6 +101,6 @@ export default class ProductRepository implements ProductRepository {
     }
 
     async delete(id: number): Promise<[]> {
-        return conectAPI(null, `/products/${id}`, "DELETE");
+        return conectAPI(null, `/products/remove/${id}`, "POST");
     }
 }

@@ -12,6 +12,9 @@ import PersonsCollecion from "../../../core/Persons";
 import AuthSelect from "@/components/auth/AuthSelect";
 import { convertArray, convertArrayType } from "@/utils/convertArray";
 import { IconMinus, IconPlus } from "@/components/icons";
+import Modal from "@/components/Modal/Modal";
+import { useRouter } from "next/navigation";
+import Loading from "@/components/loading/Loading";
 
 type Person = {
     label: string;
@@ -44,6 +47,7 @@ export default function Checkout() {
 
     const repo = useMemo(() => new CheckoutCollecion(), []);
     const repoPerson = useMemo(() => new PersonsCollecion(), []);
+    const router = useRouter();
 
     const [student, setStudent] = useState<string>("");
     const [discount, setDiscount] = useState<string>("0");
@@ -71,7 +75,7 @@ export default function Checkout() {
     };
 
     const onSubmit = () => {
-
+        
         const cash = {   // Informações do pagamento em dinheiro
             "description": "Pagamento em dinheiro",
             "confirm": true,   // Se confirmado ou não
@@ -83,23 +87,20 @@ export default function Checkout() {
         repo?.checkout(student, productTemp, cash, 1, Number(discount)).then((result: any) => {
             if (result instanceof Error) {
                 const message: any = JSON.parse(result.message);
+                console.log(message)
                 setErrorMessage(message.error);
                 setLoading(false);
                 setLog(1);
-                setTimeout(() => {
-                    setErrorMessage(null);
-                }, 2500);
-            } else {
                 setModalSuccess(true);
+            } else {
                 setLoading(false);
                 setSuccessMessage("Cadastro realizado com sucesso!");
                 setLog(0);
+                setModalSuccess(true);
             }
         }).catch((error) => {
+            console.log(error.message)
             setErrorMessage(error.message);
-            setTimeout(() => {
-                setErrorMessage(null);
-            }, 2500);
             setLog(1);
             setLoading(false);
         });
@@ -109,7 +110,7 @@ export default function Checkout() {
     const eventButton = [
         {
             name: "Cancelar",
-            function: () => { },
+            function: () => { router.push("/creditos");},
             class: "btn-outline-primary"
         },
         {
@@ -134,6 +135,44 @@ export default function Checkout() {
         const resultado = numero - desconto;
 
         return resultado;
+    }
+
+    const LoadingStatus = () => {
+        return (
+            <div className="flex flex-col items-center gap-4">
+                <Loading />
+                <h5>Carregando...</h5>
+                <div style={{ height: "56px" }}></div>
+            </div>
+        )
+    }
+
+    const SuccessStatus = () => {
+        return (
+            <div className="flex flex-col items-center gap-4">
+
+                {log === 0 ?
+                    <svg className="mt-4 pb-2" width="135" height="135" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1} stroke={"var(--primary)"}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    :
+                    <svg className="mt-4 pb-2" width="135" height="135" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1} stroke={"var(--primary)"}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                    </svg>
+                }
+
+                <h5 className="text-gray-700">{log === 0 ? successMessage : errorMessage}</h5>
+
+                <button className="btn-outline-primary px-5 mt-5" onClick={() => handleClosed()}>
+                    Fechar
+                </button>
+
+            </div>
+        )
+    };
+
+    const handleClosed = () => {        
+        setModalSuccess(false);        
     }
 
     return (
@@ -241,6 +280,25 @@ export default function Checkout() {
                     </Card>
                 </div>
             </div>
+            <Modal
+                btnClose={false}
+                showModal={modalSuccess}
+                setShowModal={setModalSuccess}
+                hrefClose={'/alunos'}
+                isModalStatus={true}
+            >
+                <div
+                    className={`rounded-lg bg-white w-full py-10 px-10 flex flex-col m-auto`}
+                >
+
+                    {loading ? <LoadingStatus /> : <SuccessStatus />}
+
+                    <div className="">
+
+                    </div>
+                </div>
+
+            </Modal>
         </PageDefault >
     )
 }

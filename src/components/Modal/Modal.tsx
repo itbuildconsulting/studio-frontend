@@ -48,6 +48,14 @@ export default function Modal({
                             {
                                 hasFooter &&
                                 <div className={`${styles.footer_modal}`}>
+                                     {setShowModal && (
+                                        <button
+                                            className='btn-outline-primary'
+                                            onClick={() => setShowModal(false)}
+                                        >
+                                            Cancelar
+                                        </button>
+                                    )}
                                     {
                                         loading
                                             ?
@@ -62,14 +70,7 @@ export default function Modal({
                                                 {edit ? "Atualizar" : "Cadastrar"}
                                             </button>
                                     }
-                                    {setShowModal && (
-                                        <button
-                                            className='btn-outline-primary'
-                                            onClick={() => setShowModal(false)}
-                                        >
-                                            Cancelar
-                                        </button>
-                                    )}
+                                   
                                 </div>
                             }
                         </div>

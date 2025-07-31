@@ -71,49 +71,82 @@ export function AuthProvider({ children }: AuthProviderProps) {
     }
 
     async function login(email: string, password: string) {
-        setLoad(true);
+    setLoad(true);
 
-        const req = {
-            "email": email,
-            "password": password
-        }
+    const req = {
+        email,
+        password
+    };
 
-        try {
-            const resp = await fetch(
-                `${process.env.NEXT_PUBLIC_SERVER_URL_API}/login`,
-                {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(req),
-                }
-            );
-            if (resp.status === 200) {
-                const authResp = await resp.json();
-                if(authResp.level == "2"){
-                    router.push("/aulas");
-                }else{
-                    router.push("/dashboard");
-                }
-                console.log(authResp)
-                await sessionConfig(authResp);
-                setLoad(false);
-            } else if (resp.status === 500) {
-                setLoad(false);
-                showErro('Erro desconhecido - Entre em contato com o Suporte');
+    try {
+        const resp = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL_API}/login`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(req),
+        });
+
+        if (resp.status === 200) {
+            const authResp = await resp.json();
+
+            await sessionConfig(authResp);
+
+            if (authResp.level == "2") {
+                router.push("/aulas");
             } else {
-                setLoad(false);
-                const authResp = await resp.json();
-                showErro(authResp.error);
+                router.push("/dashboard");
             }
-        } catch {
-            setLoad(false);
-            showErro('Erro desconhecido - Entre em contato com o Suporte');
-        } finally {
-            setLoad(false);
-            return true;
+
+        } else {
+            const errorResp = await resp.json();
+            showErro(errorResp?.error || 'Erro desconhecido');
+
+            await sendMonitoringLog({
+                email,
+                message: `Erro na autenticação: ${errorResp?.error}`,
+            });
         }
+    } catch (error) {
+        showErro('Erro desconhecido - Entre em contato com o Suporte');
+
+        await sendMonitoringLog({
+            email,
+            message: `Falha no fetch de login: ${error}`,
+        });
+    } finally {
+        setLoad(false);
+        return true;
+    }
+}
+
+    async function sendMonitoringLog(params: any) {
+        try {
+            await fetch('http://localhost:3014/log/monitoring', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    status: 500,
+                    level: "Auth",
+                    sublevel: "Login",
+                    message: "Erro no login",
+                    bookingLoc: "",
+                    uniqueId: generateUID(), // você pode gerar algo como uuid
+                    applicationId: "Admin",
+                    apiEndpoint: "api/login",
+                    boxId: "MU000901",
+                    paternId: "Studio",
+                    bodyInfo: JSON.stringify(params),
+                    timestamp: Date.now()
+                }),
+            });
+        } catch (e) {
+            console.warn("Falha ao enviar log de monitoramento:", e);
+        }
+    }
+
+    function generateUID() {
+        return Math.random().toString(36).substring(2, 18);
     }
 
     async function recoverPassword(email: string) {

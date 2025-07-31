@@ -7,28 +7,38 @@ interface MultiProps {
   value: any;
   changeValue: (e: any) => void;
 }
+interface Option {
+  label: string;
+  value: string;
+}
 
-const AuthSelectMulti = ({ label, options, value, changeValue }: MultiProps) => {
+interface AuthSelectMultiProps {
+  options: Option[];
+  value: string[]; // valores selecionados
+  changeValue: (values: string[]) => void;
+  label?: string;
+}
 
-  const handleChange = (selectedOptions: MultiValue<SelectType>) => {
-    let aux: string[] = [];
-    selectedOptions.forEach((elem: any) => aux.push(String(elem.value))); // Usando forEach ao invés de map para modificar aux diretamente
-    changeValue(aux);
-  };
+const AuthSelectMulti = ({ options, value, changeValue, label }: AuthSelectMultiProps) => {
+  const selectedOptions = options.filter(option => value.includes(option.value));
 
   return (
-    <>
-      <label className="">{label}</label>
+    <div>
+      {label && <label className="mb-2 block">{label}</label>}
       <Select
-        options={options}
-        placeholder={"Selecione"}
-        onChange={handleChange}
-        classNamePrefix={"select-multi"}
         isMulti
-        value={options.filter(option => value?.includes(option.value))}
+        classNamePrefix="select-multi"
+        options={options}
+        value={selectedOptions}
+        onChange={(selected) => {
+          const selectedArray = Array.isArray(selected)
+            ? selected.map(option => option.value)
+            : [];
+          changeValue(selectedArray);
+        }}
       />
-    </>
+    </div>
   );
-}
+};
 
 export default AuthSelectMulti;

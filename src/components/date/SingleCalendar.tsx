@@ -16,7 +16,8 @@ const CustomMultipleInput = ({ openCalendar, value, date, setValue, errors, star
             {label && <label>{label}</label>}
             <input
                 className="w-full px-4 py-2 rounded-md mt-1 border border-slate-400 bg-white focus:outline-none"
-                value={date}  // Exibe o valor atual da data
+                //value={date} 
+                value={date ?? ''} // Exibe o valor atual da data
                 id={'singleCalendarId'}
                 placeholder="dd/mm/aaaa"
                 autoComplete="off"

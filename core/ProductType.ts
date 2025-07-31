@@ -81,6 +81,6 @@ export default class ProductTypeRepository implements ProductTypeRepository {
     }
 
     async delete(id: number): Promise<[]> {
-        return conectAPI(null, `/productTypes/${id}`, "DELETE");
+        return conectAPI(null, `/productTypes/delete/${id}`, "POST");
     }
 }

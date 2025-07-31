@@ -151,7 +151,9 @@ export default function Configuracao() {
   const eventButton = [
     {
       name: "Cancelar",
-      function: () => { },
+      function: () => { 
+        
+      },
       class: "btn-outline-primary",
     },
     {
@@ -164,7 +166,11 @@ export default function Configuracao() {
   const eventHandle = [
     {
       name: "Cancelar",
-      function: () => { },
+      function: () => { 
+        setConfigKey("")
+        setConfigValue("")
+        setDescription("")
+       },
       class: "btn-outline-primary",
     },
     {
@@ -216,6 +222,17 @@ export default function Configuracao() {
       });
     }
   }, [configKey]);
+
+  const changeValueSelect = (configKey: string): void => {
+    console.log(configKey)
+    setConfigKey(configKey);
+
+    if (configKey === 'app_product') {
+      repoDrop.dropdown('productTypes/dropdown').then((result) => {
+        setProductTypes(result);
+      });
+    }
+  };
 
   const columns = [
     {
@@ -284,7 +301,7 @@ export default function Configuracao() {
                 </svg>
                 :
                 <svg className="mt-4 pb-2" width="135" height="135" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1} stroke={"var(--primary)"}>
-                    <path stroke-linecap="round" stroke-linejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
                 </svg>
             }
 
@@ -296,7 +313,7 @@ export default function Configuracao() {
 
         </div>
     )
-};
+  };
 
   return (
     <PageDefault title={"Configurações"}>
@@ -314,7 +331,7 @@ export default function Configuracao() {
                     { value: 'pusrchase_class', label: "Cancelamento de Compra" },
                   ]}
                   value={configKey}
-                  changeValue={setConfigKey}
+                  changeValue={(e) => changeValueSelect(e)}
                   required
                 />
               </div>
@@ -328,7 +345,7 @@ export default function Configuracao() {
                 />
               </div>
               <div className="col-span-12 sm:col-span-6 xl:col-span-4">
-                {configKey === 'app_product' ? (
+                {configKey === 'app_product' && productTypes.length > 0 ? (
                   <AuthSelectMulti
                     label="Produtos Permitidos"
                     value={multiSelectValues}

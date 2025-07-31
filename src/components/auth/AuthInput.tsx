@@ -10,9 +10,9 @@ interface AuthInputProps {
     required?: boolean,
     noRender?: boolean,
     maxLength?: number,
-    type?: 'text' | 'email' | 'password' | 'date' | 'number',
+    type?: 'text' | 'email' | 'password' | 'date' | 'number' ,
     disabled?: boolean,
-    maskType?: 'cnpj' | 'cpf' | 'telefone' | 'metros' | 'hora' | 'percent' | 'none',
+    maskType?: 'cnpj' | 'cpf' | 'telefone' | 'metros' | 'hora' | 'percent' | 'none' | 'positivo',
     changeValue: (novoValor: any) => void,
     tooltipMessage?: string,
     edit?: boolean
@@ -77,9 +77,16 @@ const AuthInput = (props: AuthInputProps) => {
                 numericValue = Math.min(Math.max(numericValue, 0), 100); // Limita entre 0 e 100
                 return `${numericValue}`;
     
+            case 'positivo': // Máscara de porcentagem
+                if (Number(value) <= 0) {
+                    return 0;
+                }else{
+                    return value;
+                }
+                
 
             default:
-                return value;
+                return Number(value) <= 0 ? 0 : value;
         }
     };
 
@@ -129,7 +136,7 @@ const AuthInput = (props: AuthInputProps) => {
                     <div style={{ position: 'relative' }}>
                         <input
                             type={props.type && isVisible ? 'text' : props.type}
-                            value={props.value}
+                            value={props.value ?? ''}
                             maxLength={props.maxLength !== undefined ? props.maxLength : 50}
                             onChange={e => props.changeValue?.(applyMask(e.target.value, props.maskType))}
                             required={props.required}

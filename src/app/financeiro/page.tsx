@@ -9,16 +9,26 @@ import { useEffect, useMemo, useState } from "react";
 import styles from '../../styles/financial.module.css';
 
 import FinancialCollecion from "../../../core/Financial";
+import SingleCalendar from "@/components/date/SingleCalendar";
+import DropdownType from "../../model/Dropdown";
+import DropDownsCollection from "../../../core/DropDowns";
+import AuthSelect from "@/components/auth/AuthSelect";
+import { convertArray } from "@/utils/convertArray";
 
 export default function Financial() {
-    
+    const edit: boolean = false;
     const repo = useMemo(() => new FinancialCollecion(), []);
+    const repoDrop = useMemo(() => new DropDownsCollection(), []);
+    
+    const [page, setPage] = useState<number>(1);
 
-    const [product, setProduct] = useState<string>("");
+    const [transaction, setTransaction] = useState<string>("");
     const [date, setDate] = useState<string>("");
-    const [student, setStudent] = useState<string>("");
+    const [students, setStudents] = useState<string| null>(null);
     const [loading, setLoading] = useState<boolean>(false);
     const [financialList, setFinancialList] = useState<string[]>([]);
+
+    const [dropdownStudent, setDropdownStudent] = useState<DropdownType[]>([]);
 
     const statusColors: any = {
         processing: '#FFA500', // Laranja
@@ -43,6 +53,23 @@ export default function Financial() {
         return cell.split("-").reverse().join("/");
     }
 
+    const convertData = (cell: string) => {
+        console.log('[data]', cell)
+        formatDateToBrazilIntl(cell)
+    }
+
+    const formatDateToBrazilIntl = (utcDateString: string) => {
+        const date = new Date(utcDateString);
+        return new Intl.DateTimeFormat('pt-BR', {
+            timeZone: 'America/Sao_Paulo',
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit',
+        }).format(date);
+        };
+
     const convertStatus = (cell: number) => {        
         return (
             <div
@@ -65,7 +92,7 @@ export default function Financial() {
 
     const listFinancial = () => {
         setLoading(true);
-        repo.getLatestTransactions().then((result: any) => {
+        repo.getLatestTransactions(students, date, transaction, page).then((result: any) => {
             if (result instanceof Error) {
                 setLoading(false);
             } else {
@@ -79,6 +106,7 @@ export default function Financial() {
 
     useEffect(() => {
         listFinancial();
+        repoDrop.dropdown('persons/student/dropdown').then(setDropdownStudent);
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
@@ -94,6 +122,7 @@ export default function Financial() {
         {
             dataField: 'createdAt',
             text: `Data`,
+            formatter: convertData
         },
         {
             dataField: 'amount',
@@ -140,28 +169,27 @@ export default function Financial() {
                         <div className="grid grid-cols-12 gap-x-8">
                             <div className="col-span-12 md:col-span-3">
                                 <AuthInput
-                                    label="Produto"
-                                    value={product}
+                                    label="ID da Transação"
+                                    value={transaction}
                                     type='text'
-                                    changeValue={setProduct}
+                                    changeValue={setTransaction}
                                     required
                                 />
                             </div>
                             <div className="col-span-12 md:col-span-3">
-                                <AuthInput
+                                <SingleCalendar
                                     label="Data"
-                                    value={date}
-                                    type='text'
-                                    changeValue={setDate}
-                                    required
+                                    date={date}
+                                    setValue={setDate}
                                 />
                             </div>
                             <div className="col-span-12 md:col-span-3">
-                                <AuthInput
-                                    label="Aluno"
-                                    value={student}
-                                    type='text'
-                                    changeValue={setStudent}
+                                <AuthSelect
+                                    label='Alunos'
+                                    value={students}
+                                    options={convertArray(dropdownStudent)}
+                                    changeValue={setStudents}
+                                    edit={edit}
                                     required
                                 />
                             </div>

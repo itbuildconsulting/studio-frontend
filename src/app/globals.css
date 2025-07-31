@@ -85,7 +85,7 @@ select,
   color: var(--primary);
   font-size: 1rem;
   font-weight: 500;
-  margin-bottom: 2rem;
+  margin-bottom: 2rem !important;
   background-color: var(--backgroundColor);
 }
 

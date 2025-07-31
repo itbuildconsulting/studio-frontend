@@ -15,7 +15,13 @@ import { EventBtn } from "@/types/btn";
 import { ValidationForm } from "@/components/formValidation/validation";
 import ValidationFields from "@/validators/fields";
 
+import listStates from '../../../../json/states.json';
+import listCountry from '../../../../json/country.json';
+
 export default function EditStudents() {
+    const dropdownStates = listStates?.estados;
+    const dropdownCountry = listCountry?.pais;
+    
     const edit: boolean = true;
     const repo = useMemo(() => new PersonsCollecion(), []);
 
@@ -247,7 +253,7 @@ export default function EditStudents() {
                     </svg>
                     :
                     <svg className="mt-4 pb-2" width="135" height="135" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1} stroke={"var(--primary)"}>
-                        <path stroke-linecap="round" stroke-linejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                        <path strokeLinecap="round" strokeLinejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
                     </svg>
                 }
 
@@ -383,7 +389,7 @@ export default function EditStudents() {
     ];
 
     return (
-        <PageDefault title={"Cadastrar Professores"}>
+        <PageDefault title={"Editar Aluno"}>
             <div className="grid grid-cols-12">
                 <div className="col-span-12">
                     <Card
@@ -447,11 +453,11 @@ export default function EditStudents() {
                                     label="Status"
                                     options={[
                                         {
-                                            value: true,
+                                            value: 1,
                                             label: "Ativo"
                                         },
                                         {
-                                            value: false,
+                                            value: 0,
                                             label: "Inativo"
                                         }
                                     ]}
@@ -537,12 +543,11 @@ export default function EditStudents() {
                                 />
                             </div>
                             <div className="col-span-12 sm:col-span-6 xl:col-span-4">
-                                <AuthInput
+                                <AuthSelect
                                     label="Estado"
+                                    options={dropdownStates}
                                     value={state}
-                                    type='text'
                                     changeValue={setState}
-                                    edit={edit}
                                     required
                                 />
                             </div>

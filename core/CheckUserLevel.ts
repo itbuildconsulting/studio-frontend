@@ -1,3 +1,4 @@
+"use client";
 import { jwtDecode } from "jwt-decode";
 import Cookies from 'js-cookie';
 import { CookiesAuth } from '@/shared/enum';

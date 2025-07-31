@@ -44,11 +44,11 @@ const AuthSelect = ({
                     <div className="relative">
                         <div
                             onClick={() => setIsOpen(!isOpen)}
-                            className={`border px-4 py-2 mb-0 cursor-pointer loading-input outline-none flex items-center  ${disabled ? "bg-gray-200" : "bg-white"}`}
+                            className={`border px-4 py-2 mb-0 cursor-pointer loading-input select outline-none flex items-center  ${disabled ? "bg-gray-200" : "bg-white"}`}
                             style={{ margin: '0' }}
                         >
                             {showColorIcon &&
-                                options.find((option: any) => option.value === value).colors.split(' ').map((elem: string, key: Key) => {
+                                options?.find((option: any) => option.value === value).colors.split(' ').map((elem: string, key: Key) => {
                                     return (
                                         <div
                                             key={key}
@@ -65,9 +65,9 @@ const AuthSelect = ({
                                     )
                                 })
                             }
-                            {value ? options.find((option: any) => option.value === value)?.label : "Selecione"}
+                            {options ? options?.find((option: any) => option.value === value)?.label : "Selecione"}
                         </div>
-                        <div className="absolute right-4" style={{ top: '35%' }}>
+                        <div className="absolute right-4" style={{ top: '25%' }}>
                             <svg
                                 xmlns="http://www.w3.org/2000/svg"
                                 width="16"
@@ -81,7 +81,7 @@ const AuthSelect = ({
                             </svg>
                         </div>
                         {isOpen && (
-                            <div className="absolute bg-white border w-full mt-1 z-10 ">
+                            <div className="absolute bg-white border w-full z-10 " style={{marginTop: '-30px', maxHeight: '250px', overflow: 'auto'}}>
                                 <ul>
                                     {options.map((option: any) => (
                                         <li

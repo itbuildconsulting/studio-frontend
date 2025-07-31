@@ -37,12 +37,12 @@ export default function AddTeachers() {
     const [shoes, setShoes] = useState<string | null>(null);
     const [password, setPassword] = useState<any>(null);
     const [confirmPass, setConfirmPass] = useState<string | null>(null);
-    const [level, setLevel] = useState<string | null>('1');
+    const [level, setLevel] = useState<string | null>('2');
     const [zipCode, setZipCode] = useState<string | null>(null);
-    const [state, setState] = useState<string | null>(null);
+    const [state, setState] = useState<string | null>('RJ');
     const [city, setCity] = useState<string | null>(null);
     const [address, setAddress] = useState<string | null>(null);
-    const [country, setCountry] = useState<string | null>(null);
+    const [country, setCountry] = useState<string | null>('BR');
     const [status, setStatus] = useState<boolean>(true);
 
     const [modalSuccess, setModalSuccess] = useState<any>(false);
@@ -54,13 +54,14 @@ export default function AddTeachers() {
     const [dropdownLevel] = useState<any>(
         [
             {
-                label: 'Administrador',
-                value: '1'
-            },
-            {
                 label: 'Professor',
                 value: '2'
+            },
+            {
+                label: 'Administrador',
+                value: '1'
             }
+            
         ]
     );
 
@@ -251,7 +252,7 @@ export default function AddTeachers() {
                     </svg>
                     :
                     <svg className="mt-4 pb-2" width="135" height="135" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1} stroke={"var(--primary)"}>
-                        <path stroke-linecap="round" stroke-linejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                        <path strokeLinecap="round" strokeLinejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
                     </svg>
                 }
 
@@ -417,11 +418,11 @@ export default function AddTeachers() {
                                     label="Status"
                                     options={[
                                         {
-                                            value: true,
+                                            value: 1,
                                             label: "Ativo"
                                         },
                                         {
-                                            value: false,
+                                            value: 0,
                                             label: "Inativo"
                                         }
                                     ]}
@@ -469,14 +470,24 @@ export default function AddTeachers() {
                                     tooltipMessage={"Use oito ou mais caracteres com uma combinação de letras, números e símbolos"}
                                     required
                                 />
-                                {passwordStrength()}
+                                {
+                                    password !== null ?
+                                    <>
+                                        {passwordStrength()}
+                                        <div
+                                            className="flex justify-center"
+                                            style={{ color: `${passwordStrColor}` }}
+                                        >
+                                            {passwordStrText}
+                                        </div>
+                                    </>
+                                    : 
+                                    <>
+                                    </>
+                                }
+                                
 
-                                <div
-                                    className="flex justify-center"
-                                    style={{ color: `${passwordStrColor}` }}
-                                >
-                                    {passwordStrText}
-                                </div>
+                               
                             </div>
                             <div className="col-span-12 sm:col-span-6 xl:col-span-4">
                                 <AuthInput

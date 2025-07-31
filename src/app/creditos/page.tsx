@@ -83,6 +83,13 @@ export default function Credit() {
         listProducts();
     }, []);
 
+    useEffect(() => {
+        console.log('ATUALIZANDO')
+        if(typeProduct === null){
+            listProducts();
+        }        
+    }, [typeProduct]);
+
     const columns = [
         {
             dataField: 'customerName',
@@ -109,7 +116,7 @@ export default function Credit() {
     ];
 
     const clear = () => {
-        console.log("Limpei")
+        setTypeProduct(null)
     }
 
     const onSubmit = () => {

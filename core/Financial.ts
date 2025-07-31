@@ -43,7 +43,18 @@ async function conectAPI(req: object | null, url: string, method: string) {
 }
 
 export default class FinancialRepository implements FinancialRepository {
-    async getLatestTransactions(): Promise<[]> {
-        return conectAPI(null, "/financial/lastTransactions", "POST");
+    async getLatestTransactions(
+        studentId: string | null, 
+        createdAt: string | null, 
+        transactionId: string | null, 
+        page: number
+    ): Promise<[]> {
+        const req = {
+            studentId, 
+            createdAt, 
+            transactionId, 
+            page
+        };
+        return conectAPI(req, "/financial/lastTransactions", "POST");
     }
 }
