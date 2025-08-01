@@ -17,6 +17,8 @@ import configRepository from "../../../core/Config";
 import DropDownsCollection from "../../../core/DropDowns";
 import AuthSelectMulti from "@/components/auth/AuthSelectMulti";
 import { convertArray } from "@/utils/convertArray";
+import ValidationFields from "@/validators/fields";
+import { ValidationForm } from "@/components/formValidation/validation";
 
 export default function Configuracao() {
 
@@ -33,6 +35,7 @@ export default function Configuracao() {
   const [antecedence, setAntecedence] = useState(0); // Novo estado para antecedência
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [errorMessageConfig, setErrorMessageConfig] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [modalSuccess, setModalSuccess] = useState(false);
   const [log, setLog] = useState(0);
@@ -57,11 +60,19 @@ export default function Configuracao() {
     setLoading(true);
     setErrorMessage(null);
 
-    // Validar se todos os campos obrigatórios estão preenchidos
-    if (!name || !numberOfClasses || !title || !benefit || !color || !antecedence) {
-      setErrorMessage("Todos os campos são obrigatórios!");
+    const validationError = ValidationFields({
+      "Nome do Nível": name,
+      "Número de Aulas": `${numberOfClasses}`,
+      "Título": title,
+      "Benefício": benefit,
+      "Status": color,
+      "Antecedência": `${antecedence}`,
+    });
+
+    if (validationError) {
+      setErrorMessage(validationError);
       setLoading(false);
-      return; // Impede o envio caso algum campo esteja vazio
+      return;
     }
 
     // Dados a serem enviados para o backend
@@ -80,13 +91,13 @@ export default function Configuracao() {
         // Se ocorrer um erro
         const message: any = JSON.parse(result.message);
         setErrorMessage(message.message);
-        setLoading(false);        
+        setLoading(false);
         setModalSuccess(true);
         setLog(1);
         setTimeout(() => {
           setErrorMessage(null);
         }, 2500);
-      } else {
+      } else {  
         // Se o nível foi criado com sucesso
         setModalSuccess(true);
         setLoading(false);
@@ -109,25 +120,31 @@ export default function Configuracao() {
 
   const handleSubmitConfig = async () => {
     setLoading(true);
-    setErrorMessage(null);
-  
-    // Validação dos campos obrigatórios
-    if (!configKey || !configValue || !description) {
-      setErrorMessage("Todos os campos são obrigatórios!");
+    setErrorMessageConfig(null);
+
+    const validationError = ValidationFields({
+      "Chaves de Configurações": configKey,
+      "Descrição": description,
+      "Produtos Permitidos": configKey !== 'app_product' || multiSelectValues.length > 0 ? 'passou' : '',
+      "Valor": configKey === 'app_product' ? 'passou' : configValue
+    });
+
+    if (validationError) {
+      setErrorMessageConfig(validationError);
       setLoading(false);
       return;
     }
-  
+
     // Criar a configuração
     repoConfig?.create(configKey, configValue, description).then((result: any) => {
       if (result instanceof Error) {
         const message: any = JSON.parse(result.message);
-        setErrorMessage(message.message);
+        setErrorMessageConfig(message.message);
         setLoading(false);
         setModalSuccess(true);
         setLog(1);
         setTimeout(() => {
-          setErrorMessage(null);
+          setErrorMessageConfig(null);
         }, 2500);
       } else {
         setModalSuccess(true);
@@ -137,11 +154,11 @@ export default function Configuracao() {
         setLog(0);
       }
     }).catch((error) => {
-      setErrorMessage(error.message);
+      setErrorMessageConfig(error.message);
       setModalSuccess(true);
       setLoading(false);
       setTimeout(() => {
-        setErrorMessage(null);
+        setErrorMessageConfig(null);
       }, 2500);
       setLog(1);
       setLoading(false);
@@ -151,8 +168,8 @@ export default function Configuracao() {
   const eventButton = [
     {
       name: "Cancelar",
-      function: () => { 
-        
+      function: () => {
+
       },
       class: "btn-outline-primary",
     },
@@ -166,11 +183,11 @@ export default function Configuracao() {
   const eventHandle = [
     {
       name: "Cancelar",
-      function: () => { 
+      function: () => {
         setConfigKey("")
         setConfigValue("")
         setDescription("")
-       },
+      },
       class: "btn-outline-primary",
     },
     {
@@ -212,7 +229,7 @@ export default function Configuracao() {
 
   useEffect(() => {
     handleListLevel(page);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [page]);
 
   useEffect(() => {
@@ -224,7 +241,6 @@ export default function Configuracao() {
   }, [configKey]);
 
   const changeValueSelect = (configKey: string): void => {
-    console.log(configKey)
     setConfigKey(configKey);
 
     if (configKey === 'app_product') {
@@ -283,35 +299,35 @@ export default function Configuracao() {
 
   const LoadingStatus = () => {
     return (
-        <div className="flex flex-col items-center gap-4">
-            <Loading />
-            <h5>Carregando...</h5>
-            <div style={{ height: "56px" }}></div>
-        </div>
+      <div className="flex flex-col items-center gap-4">
+        <Loading />
+        <h5>Carregando...</h5>
+        <div style={{ height: "56px" }}></div>
+      </div>
     )
   }
 
   const SuccessStatus = () => {
     return (
-        <div className="flex flex-col items-center gap-4">
+      <div className="flex flex-col items-center gap-4">
 
-            {log === 0 ?
-                <svg className="mt-4 pb-2" width="135" height="135" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1} stroke={"var(--primary)"}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-                :
-                <svg className="mt-4 pb-2" width="135" height="135" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1} stroke={"var(--primary)"}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
-                </svg>
-            }
+        {log === 0 ?
+          <svg className="mt-4 pb-2" width="135" height="135" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1} stroke={"var(--primary)"}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          :
+          <svg className="mt-4 pb-2" width="135" height="135" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1} stroke={"var(--primary)"}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+          </svg>
+        }
 
-            <h5 className="text-gray-700">{log === 0 ? successMessage : errorMessage}</h5>
+        <h5 className="text-gray-700">{log === 0 ? successMessage : errorMessage}</h5>
 
-            <button className="btn-outline-primary px-5 mt-5" onClick={() => handleClosed()}>
-                Fechar
-            </button>
+        <button className="btn-outline-primary px-5 mt-5" onClick={() => handleClosed()}>
+          Fechar
+        </button>
 
-        </div>
+      </div>
     )
   };
 
@@ -321,10 +337,10 @@ export default function Configuracao() {
       <div className="grid grid-cols-12 mt-8 mb-8">
         <div className="col-span-12">
           <AccordionCard title="Configurações do Sistema" hasFooter={true} eventsButton={eventHandle}>
-            <div className="grid grid-cols-12 gap-x-8">              
+            <div className="grid grid-cols-12 gap-x-8">
               <div className="col-span-12 sm:col-span-6 xl:col-span-4">
                 <AuthSelect
-                  label="Chaves de Configurações"
+                  label="Chaves de Configurações*"
                   options={[
                     { value: 'app_product', label: "Produtos do App Sping'Go" },
                     { value: 'cancel_class', label: "Cancelamento de Aula" },
@@ -337,7 +353,7 @@ export default function Configuracao() {
               </div>
               <div className="col-span-12 sm:col-span-6 xl:col-span-4">
                 <AuthInput
-                  label="Descrição"
+                  label="Descrição*"
                   value={description}
                   type="text"
                   changeValue={setDescription}
@@ -347,7 +363,7 @@ export default function Configuracao() {
               <div className="col-span-12 sm:col-span-6 xl:col-span-4">
                 {configKey === 'app_product' && productTypes.length > 0 ? (
                   <AuthSelectMulti
-                    label="Produtos Permitidos"
+                    label="Produtos Permitidos*"
                     value={multiSelectValues}
                     options={convertArray(productTypes)}
                     changeValue={(vals: string[]) => {
@@ -357,7 +373,7 @@ export default function Configuracao() {
                   />
                 ) : (
                   <AuthInput
-                    label="Valor"
+                    label="Valor*"
                     value={configValue}
                     type="text"
                     changeValue={setConfigValue}
@@ -365,11 +381,11 @@ export default function Configuracao() {
                   />
                 )}
               </div>
-              
+              <ValidationForm errorMessage={errorMessageConfig} />
             </div>
 
-            <div className="col-span-12"> 
-              <div className="col-span-12 sm:col-span-6 xl:col-span-4"> 
+            <div className="col-span-12">
+              <div className="col-span-12 sm:col-span-6 xl:col-span-4">
                 <Table
                   data={listLevelsConfig}
                   columns={columnsConfig}
@@ -379,7 +395,7 @@ export default function Configuracao() {
                   infoPage={infoPage}
                 />
               </div>
-            </div>            
+            </div>
           </AccordionCard>
         </div>
       </div>
@@ -391,7 +407,7 @@ export default function Configuracao() {
             <div className="grid grid-cols-12 gap-x-8">
               <div className="col-span-12 sm:col-span-6 xl:col-span-4">
                 <AuthInput
-                  label="Nome do Nível"
+                  label="Nome do Nível*"
                   value={name}
                   type="text"
                   changeValue={setName}
@@ -400,17 +416,18 @@ export default function Configuracao() {
               </div>
               <div className="col-span-12 sm:col-span-6 xl:col-span-4">
                 <AuthInput
-                  label="Número de Aulas"
+                  label="Número de Aulas*"
                   value={numberOfClasses}
                   type="number"
                   maxLength={14}
                   changeValue={setNumberOfClasses}
+                  maskType="positivo"
                   required
                 />
               </div>
               <div className="col-span-12 sm:col-span-6 xl:col-span-4">
                 <AuthInput
-                  label="Título"
+                  label="Título*"
                   value={title}
                   type="text"
                   maxLength={14}
@@ -420,7 +437,7 @@ export default function Configuracao() {
               </div>
               <div className="col-span-12 sm:col-span-6 xl:col-span-4">
                 <AuthInput
-                  label="Benefício"
+                  label="Benefício*"
                   value={benefit}
                   type="text"
                   maxLength={14}
@@ -430,7 +447,7 @@ export default function Configuracao() {
               </div>
               <div className="col-span-12 sm:col-span-6 xl:col-span-4">
                 <AuthSelect
-                  label="Status"
+                  label="Status*"
                   options={[
                     { value: '1', colors: "#00FF00", label: "Verde" },
                     { value: '2', colors: "#FFFF00", label: "Amarelo" },
@@ -451,17 +468,19 @@ export default function Configuracao() {
               </div>
               <div className="col-span-12 sm:col-span-6 xl:col-span-4">
                 <AuthInput
-                  label="Antecedência"
+                  label="Antecedência*"
                   value={antecedence}
                   type="number"
                   changeValue={setAntecedence}
                   required
+                  maskType="positivo"
                 />
               </div>
+              <ValidationForm errorMessage={errorMessage} />
             </div>
 
 
-            
+
           </Card>
 
           <Card>
@@ -477,25 +496,25 @@ export default function Configuracao() {
         </div>
       </div>
 
-      
+
 
       <Modal
-          btnClose={false}
-          showModal={modalSuccess}
-          setShowModal={setModalSuccess}
-          hrefClose={'/proprietarios'}
-          isModalStatus={true}
+        btnClose={false}
+        showModal={modalSuccess}
+        setShowModal={setModalSuccess}
+        hrefClose={'/proprietarios'}
+        isModalStatus={true}
       >
-          <div
-              className={`rounded-lg bg-white w-full py-10 px-10 flex flex-col m-auto`}
-          >
+        <div
+          className={`rounded-lg bg-white w-full py-10 px-10 flex flex-col m-auto`}
+        >
 
-              {loading ? <LoadingStatus /> : <SuccessStatus />}
+          {loading ? <LoadingStatus /> : <SuccessStatus />}
 
-              <div className="">
+          <div className="">
 
-              </div>
           </div>
+        </div>
 
       </Modal>
     </PageDefault>

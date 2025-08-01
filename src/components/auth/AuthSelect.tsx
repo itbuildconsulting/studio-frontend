@@ -31,7 +31,6 @@ const AuthSelect = ({
         setIsOpen(false);
     };
 
-    console.log(value)
     return noRender ? null : (
         <div className="flex flex-col">
             <label>{label}</label>

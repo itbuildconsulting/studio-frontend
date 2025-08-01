@@ -43,7 +43,7 @@ export default function AddTeachers() {
     const [city, setCity] = useState<string | null>(null);
     const [address, setAddress] = useState<string | null>(null);
     const [country, setCountry] = useState<string | null>('BR');
-    const [status, setStatus] = useState<boolean>(true);
+    const [status, setStatus] = useState<boolean>(false);
 
     const [modalSuccess, setModalSuccess] = useState<any>(false);
     const [log, setLog] = useState<number | null>(null);
@@ -270,12 +270,11 @@ export default function AddTeachers() {
         setLoading(true);
         setErrorMessage(null);
 
-        const validationError = ValidationFields({ "Nome": name, "Data de Nascimento": birthday, "Telefone": phone, "Cep": zipCode, "Estado": state, "Cidade": city, "Endereço": address, "Pais": country });
+        const validationError = ValidationFields({ "Nome": name, "Data de Nascimento": birthday, "Telefone": phone, "Cep": zipCode, "Estado": state, "Cidade": city, "Endereço": address, "Pais": country, "Status": `${status === true ? 'Ativo' : ''}`});
 
         if (validationError) {
             setErrorMessage(validationError);
             setLoading(false);
-            setTimeout(() => setErrorMessage(null), 2500);
             return;
         }
 
@@ -369,7 +368,7 @@ export default function AddTeachers() {
                         <div className="grid grid-cols-12 gap-x-8">
                             <div className="col-span-12 sm:col-span-6 xl:col-span-4">
                                 <AuthInput
-                                    label="Nome"
+                                    label="Nome*"
                                     value={name}
                                     type='text'
                                     changeValue={setName}
@@ -378,7 +377,7 @@ export default function AddTeachers() {
                             </div>
                             <div className="col-span-12 sm:col-span-6 xl:col-span-4">
                                 <AuthInput
-                                    label="CPF"
+                                    label="CPF*"
                                     value={document}
                                     type='text'
                                     maxLength={14}
@@ -389,7 +388,7 @@ export default function AddTeachers() {
                             </div>
                             <div className="col-span-12 sm:col-span-6 xl:col-span-4">
                                 <AuthInput
-                                    label="Email"
+                                    label="Email*"
                                     value={email}
                                     type='text'
                                     changeValue={setEmail}
@@ -398,14 +397,14 @@ export default function AddTeachers() {
                             </div>
                             <div className="col-span-12 sm:col-span-6 xl:col-span-4">
                                 <SingleCalendar
-                                    label="Data de Nascimento"
+                                    label="Data de Nascimento*"
                                     date={birthday}
                                     setValue={setBirthday}
                                 />
                             </div>
                             <div className="col-span-12 sm:col-span-6 xl:col-span-4">
                                 <AuthInput
-                                    label="Telefone"
+                                    label="Telefone*"
                                     value={phone}
                                     type='text'
                                     maskType={"telefone"}
@@ -415,7 +414,7 @@ export default function AddTeachers() {
                             </div>
                             <div className="col-span-12 sm:col-span-6 xl:col-span-4">
                                 <AuthSelect
-                                    label="Status"
+                                    label="Status*"
                                     options={[
                                         {
                                             value: 1,
@@ -463,7 +462,7 @@ export default function AddTeachers() {
                             </div>
                             <div className="col-span-12 sm:col-span-6 xl:col-span-4">
                                 <AuthInput
-                                    label="Senha"
+                                    label="Senha*"
                                     value={password}
                                     type='password'
                                     changeValue={setPassword}
@@ -491,7 +490,7 @@ export default function AddTeachers() {
                             </div>
                             <div className="col-span-12 sm:col-span-6 xl:col-span-4">
                                 <AuthInput
-                                    label="Confirmar Senha"
+                                    label="Confirmar Senha*"
                                     value={confirmPass}
                                     type='password'
                                     changeValue={setConfirmPass}
@@ -515,7 +514,7 @@ export default function AddTeachers() {
                         <div className="grid grid-cols-12 gap-x-8">
                             <div className="col-span-12 sm:col-span-6 xl:col-span-4">
                                 <AuthInput
-                                    label="CEP"
+                                    label="CEP*"
                                     value={zipCode}
                                     type='text'
                                     changeValue={setZipCode}

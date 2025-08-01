@@ -10,7 +10,7 @@ interface AuthInputProps {
     required?: boolean,
     noRender?: boolean,
     maxLength?: number,
-    type?: 'text' | 'email' | 'password' | 'date' | 'number' ,
+    type?: 'text' | 'email' | 'password' | 'date' | 'number',
     disabled?: boolean,
     maskType?: 'cnpj' | 'cpf' | 'telefone' | 'metros' | 'hora' | 'percent' | 'none' | 'positivo',
     changeValue: (novoValor: any) => void,
@@ -76,23 +76,18 @@ const AuthInput = (props: AuthInputProps) => {
                 }
                 numericValue = Math.min(Math.max(numericValue, 0), 100); // Limita entre 0 e 100
                 return `${numericValue}`;
-    
-            case 'positivo': // Máscara de porcentagem
-                if (Number(value) <= 0) {
-                    return 0;
-                }else{
-                    return value;
-                }
-                
+
+            case 'positivo':
+                return value !== '' && Number(value) <= 0 ? 0 : value;
 
             default:
-                return Number(value) <= 0 ? 0 : value;
+                return value;
         }
     };
 
     function handleIsVisiblePassword() {
-        if(props.value) {
-            if(isVisible) {
+        if (props.value) {
+            if (isVisible) {
                 return IconHidePassword('24px', '24px', 'var(--primary)')
             } else {
                 return IconShowPassword('24px', '24px', 'var(--primary)')
@@ -103,7 +98,7 @@ const AuthInput = (props: AuthInputProps) => {
     }
 
     useEffect(() => {
-        if(!props.value) {  
+        if (!props.value) {
             setIsVisible(false);
         }
     }, [props.value])

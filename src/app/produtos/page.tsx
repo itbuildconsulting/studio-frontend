@@ -21,6 +21,7 @@ import { ValidationForm } from "@/components/formValidation/validation";
 import listValidate from '../../json/validate.json';
 import { PaginationModel } from "@/types/pagination";
 import pageDefault from "@/utils/pageDetault";
+import ValidationFields from "@/validators/fields";
 
 export default function Products() {
     const repoDrop = useMemo(() => new DropDownsCollection(), []);
@@ -28,7 +29,7 @@ export default function Products() {
 
     const [modalProductAdd, setModalProductAdd] = useState<boolean>(false);
 
-    const [id, setId] = useState<number | null>(null); 
+    const [id, setId] = useState<number | null>(null);
     const [productName, setProductName] = useState<string | null>(null);
     const [creditValue, setCreditValue] = useState<number | null>(null);
     const [validity, setValidity] = useState<number | null>(null);
@@ -52,7 +53,7 @@ export default function Products() {
     const [dropdownValidate] = useState<any>(listValidate.validate);
 
     const [page, setPage] = useState<number>(1);
-    const [infoPage, setInfoPage] = useState<PaginationModel>( pageDefault );
+    const [infoPage, setInfoPage] = useState<PaginationModel>(pageDefault);
 
     const actionLocaleName = (cell: any, row: any) => {
         return cell?.place?.name || " - ";
@@ -122,6 +123,17 @@ export default function Products() {
     ];
 
     function onSubmitProductAdd() {
+        setErrorMessage(null);
+        setLoading(true);
+
+        const validationError = ValidationFields({ "Nome do Produto": productName, "Créditos": `${creditValue}`, "Validade": `${validity}`, "Tipo de Produto": `${typeProduct}`, "Valor": `${value}` });
+
+        if (validationError) {
+            setErrorMessage(validationError);
+            setLoading(false);
+            return;
+        }
+
         setLoading(true);
         setErrorMessage(null);
 
@@ -231,7 +243,7 @@ export default function Products() {
                 setValue(result.value);
                 setStatus(result.active);
             }
-        }).catch(() => {});
+        }).catch(() => { });
     };
 
     const deleteProduct = (id: number) => {
@@ -307,7 +319,7 @@ export default function Products() {
                 <div className="grid grid-cols-12 gap-x-6">
                     <div className="col-span-6">
                         <AuthInput
-                            label="Nome do Produto"
+                            label="Nome do Produto*"
                             value={productName}
                             type='text'
                             changeValue={setProductName}
@@ -317,7 +329,7 @@ export default function Products() {
                     </div>
                     <div className="col-span-6">
                         <AuthInput
-                            label="Créditos"
+                            label="Créditos*"
                             value={creditValue}
                             type='number'
                             changeValue={setCreditValue}
@@ -328,7 +340,7 @@ export default function Products() {
                     </div>
                     <div className="col-span-6">
                         <AuthSelect
-                            label="Validade"
+                            label="Validade*"
                             options={convertArray(dropdownValidate)}
                             value={validity}
                             changeValue={setValidity}
@@ -348,17 +360,18 @@ export default function Products() {
                     </div>
                     <div className="col-span-6">
                         <AuthInput
-                            label="Valor"
+                            label="Valor*"
                             value={value}
                             type='number'
                             changeValue={setValue}
                             edit={edit}
+                            maskType="positivo"
                             required
                         />
                     </div>
                     <div className="col-span-6">
                         <AuthSelect
-                            label="Status"
+                            label="Status*"
                             options={[
                                 {
                                     value: 1,

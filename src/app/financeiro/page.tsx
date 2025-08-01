@@ -19,12 +19,12 @@ export default function Financial() {
     const edit: boolean = false;
     const repo = useMemo(() => new FinancialCollecion(), []);
     const repoDrop = useMemo(() => new DropDownsCollection(), []);
-    
+
     const [page, setPage] = useState<number>(1);
 
     const [transaction, setTransaction] = useState<string>("");
     const [date, setDate] = useState<string>("");
-    const [students, setStudents] = useState<string| null>(null);
+    const [students, setStudents] = useState<string | null>(null);
     const [loading, setLoading] = useState<boolean>(false);
     const [financialList, setFinancialList] = useState<string[]>([]);
 
@@ -41,7 +41,7 @@ export default function Financial() {
         chargeback: '#8A2BE2', // Roxo
         analyzing: '#FFD700', // Dourado
         pending_review: '#F08080', // Vermelho claro
-      };
+    };
 
     const convertValue = (cell: number) => {
         const newValue = cell / 100;
@@ -68,31 +68,38 @@ export default function Financial() {
             hour: '2-digit',
             minute: '2-digit',
         }).format(date);
-        };
+    };
 
-    const convertStatus = (cell: number) => {        
+    const convertStatus = (cell: number) => {
         return (
             <div
-              style={{
-                backgroundColor: statusColors[cell] || '#D3D3D3', // Cor padrão cinza, se o cell não for reconhecido
-                color: '#fff',
-                padding: '5px 10px',
-                borderRadius: '5px',
-                textAlign: 'center',
-                display: 'inline-block',
-                maxWidth: '150px',
-                fontSize: '14px'
-              }}
+                style={{
+                    backgroundColor: statusColors[cell] || '#D3D3D3', // Cor padrão cinza, se o cell não for reconhecido
+                    color: '#fff',
+                    padding: '5px 10px',
+                    borderRadius: '5px',
+                    textAlign: 'center',
+                    display: 'inline-block',
+                    maxWidth: '150px',
+                    fontSize: '14px'
+                }}
             >
-              {cell}
+                {cell}
             </div>
         );
     }
 
 
-    const listFinancial = () => {
+    const listFinancial = (clear: boolean = false) => {
         setLoading(true);
-        repo.getLatestTransactions(students, date, transaction, page).then((result: any) => {
+
+        let obj = {
+            students: !clear ? students : null,
+            date: !clear ? date : '',
+            transaction: !clear ? transaction : '',
+        }
+        
+        repo.getLatestTransactions(obj.students, obj.date, obj.transaction, page).then((result: any) => {
             if (result instanceof Error) {
                 setLoading(false);
             } else {
@@ -137,7 +144,11 @@ export default function Financial() {
     ];
 
     const clear = () => {
-        console.log("Limpei")
+        setTransaction(() => '');
+        setDate(() => '');
+        setStudents(() => null);
+
+        listFinancial(true);
     }
 
     const onSubmit = () => {
