@@ -29,7 +29,7 @@ export default function Auth() {
             <h2>Bem-vindo!</h2>
             <p className={`${styles.subtitle_login}`}>Entre com seus dados, para fazer login</p>
           </div>
-          <form className="mt-8" action={() => handleSubmit()}>
+          <form className="mt-8 " action={() => handleSubmit()}>
             <div>
               <AuthInput
                 label="Usuário"
