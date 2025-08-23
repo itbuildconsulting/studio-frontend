@@ -64,7 +64,7 @@ export default class PersonsRepository implements PersonsRepository {
         city: string | null,
         address: string | null,
         country: string | null,
-        active: boolean
+        active: number
     ): Promise<[]> {
         const req = {
             name,
@@ -144,7 +144,7 @@ export default class PersonsRepository implements PersonsRepository {
         city: string | null,
         address: string | null,
         country: string | null,
-        active: boolean
+        active: number
     ): Promise<[]> {
         const req = {
             id,

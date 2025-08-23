@@ -1,74 +1,83 @@
-'use client';
-import Image from 'next/image';
-import styles from '../../styles/menu.module.css';
-
-import { IconAdmin, IconAdminFilter, IconClass, IconClose, IconDollar, IconFinance, IconHome, IconLeave, IconProducts, IconStudents, IconWorkers } from "../icons"
-import LogoShort from '../../../public/images/logo_sudio_short.png'
-
-import MenuItem from './MenuItem';
-import { usePathname } from 'next/navigation';
-import useAuthData from '@/data/hooks/useAuthData';
-import { checkUserLevel } from '../../../core/CheckUserLevel';
+"use client";
+import Image from "next/image";
+import styles from "../../styles/menu.module.css";
+import {
+  IconAdmin, IconAdminFilter, IconClass, IconClose, IconDollar, IconFinance,
+  IconHome, IconLeave, IconProducts, IconStudents, IconWorkers
+} from "../icons";
+import LogoShort from "../../../public/images/logo_sudio_short.png";
+import MenuItem from "./MenuItem";
+import useAuthData from "@/data/hooks/useAuthData";
+import { checkUserLevel } from "../../../core/CheckUserLevel";
+import { useEffect, useState } from "react";
+import SkeletonMenu from "./SkeletonMenu";
 
 interface MenuSideBarProps {
-    menuMobileOpen: boolean,
-    handleMenuOpen: () => void
+  menuMobileOpen: boolean;
+  handleMenuOpen: () => void;
 }
 
-export default function MenuSideBar(props: MenuSideBarProps) {
-    const pathname = usePathname();
+export default function MenuSideBar({ menuMobileOpen, handleMenuOpen }: MenuSideBarProps) {
+  const { logout } = useAuthData();
 
-    const { logout } = useAuthData();
+  const [ready, setReady] = useState(false);
+  const [hasAccess, setHasAccess] = useState<boolean>(false);
 
-    const hasAccess = checkUserLevel('1');
+  useEffect(() => {
+    // roda só no client, pode ler cookie/localStorage aqui
+    try {
+      setHasAccess(checkUserLevel("1"));
+    } finally {
+      setReady(true);
+    }
+  }, []);
 
-    
+  return (
+    <>
+      <div className={`${styles.bg_menu} ${menuMobileOpen ? styles.bg_menu_mobile_open : ""}`}>
+        <div>
+          <div className="flex justify-between items-center">
+            <Image src={LogoShort} alt="Logo Studio Raphael Oliveira" />
+            <button className={styles.close_menu} onClick={handleMenuOpen} aria-label="Fechar menu">
+              {IconClose("16", "16", "#003D58")}
+            </button>
+          </div>
 
-    return (
-        <>
-            <div className={`${styles.bg_menu} ${props.menuMobileOpen ? styles.bg_menu_mobile_open : ""}`}>
-                <div>
-                    <div className='flex justify-between'>
-                        <Image src={LogoShort} alt='Logo Studio Raphael Oliveira' />
+          <div aria-busy={!ready}>
+            {!ready ? (
+              <SkeletonMenu />
+            ) : !hasAccess ? (
+              <ul>
+                <MenuItem url="/aulas" text="Aulas" icon={IconClass} />
+              </ul>
+            ) : (
+              <ul>
+                <MenuItem url="/dashboard" text="Home" icon={IconHome} />
+                <MenuItem url="/aulas" text="Aulas" icon={IconClass} />
+                <MenuItem url="/alunos" text="Alunos" icon={IconStudents} />
+                <MenuItem url="/financeiro" text="Financeiro" icon={IconFinance} />
+                <MenuItem url="/funcionarios" text="Funcionários" icon={IconWorkers} />
+                <MenuItem url="/produtos" text="Produtos" icon={IconProducts} />
+                <MenuItem url="/creditos" text="Créditos" icon={IconDollar} />
+                <MenuItem url="/administrativo" text="Administrativo" icon={IconAdmin} />
+                <MenuItem url="/configuracoes" text="Configurações" icon={IconAdminFilter} />
+              </ul>
+            )}
+          </div>
+        </div>
 
-                        <div className={`${styles.close_menu}`} onClick={props.handleMenuOpen}>
-                            {IconClose('16', '16', '#003D58')}
-                        </div>
-                    </div>
-                    <div>
-                        {!hasAccess ? 
-                            <ul>                           
-                                <MenuItem url="/aulas" text="Aulas" icon={IconClass} className={pathname === "/aulas" ? "active" : ""} />
-                            </ul>
+        <div>
+          <ul className="mb-4 pt-3" style={{ border: "1px solid #EFF4F6 " }}>
+            {!ready ? (
+              <li className="h-9 my-2 rounded-md bg-slate-200 animate-pulse" />
+            ) : (
+              <MenuItem text="Sair" icon={IconLeave} onClick={logout} />
+            )}
+          </ul>
+        </div>
+      </div>
 
-                            :
-                            <ul>  
-                                <MenuItem url="/dashboard" text="Home" icon={IconHome} className={pathname === "/dashboard" ? "active" : ""} />
-                                <MenuItem url="/aulas" text="Aulas" icon={IconClass} className={pathname === "/aulas" ? "active" : ""} />
-                                <MenuItem url="/alunos" text="Alunos" icon={IconStudents} className={pathname === "/alunos" ? "active" : ""} />
-                                <MenuItem url="/financeiro" text="Financeiro" icon={IconFinance} className={pathname === "/financeiro" ? "active" : ""} />
-                                <MenuItem url="/funcionarios" text="Funcionários" icon={IconWorkers} className={pathname === "/funcionarios" ? "active" : ""} />
-                                <MenuItem url="/produtos" text="Produtos" icon={IconProducts} className={pathname === "/produtos" ? "active" : ""} />
-                                <MenuItem url="/creditos" text="Créditos" icon={IconDollar} className={pathname === "/creditos" ? "active" : ""} />
-                                <MenuItem url="/administrativo" text="Administrativo" icon={IconAdmin} className={pathname === "/administrativo" ? "active" : ""} />
-                                <MenuItem url="/configuracoes" text="Configurações" icon={IconAdminFilter} className={pathname === "/configuracoes" ? "active" : ""} />
-                            </ul>
-                            }
-                            
-                    </div>
-                </div>
-                <div>
-                    <ul className='mb-4 pt-3' style={{ border: "1px solid #EFF4F6 " }}>
-                        <MenuItem
-                            text="Sair"
-                            icon={IconLeave}
-                            onClick={logout} 
-                        />
-                    </ul>
-                </div>
-            </div>
-            {props.menuMobileOpen && <div className={`${styles.shadow_menu}`}></div>}
-            
-        </>
-    )
+      {menuMobileOpen && <div className={styles.shadow_menu} />}
+    </>
+  );
 }

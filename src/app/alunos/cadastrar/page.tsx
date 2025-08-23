@@ -43,7 +43,7 @@ export default function Students() {
     const [city, setCity] = useState<string | null>(null);
     const [address, setAddress] = useState<string | null>(null);
     const [country, setCountry] = useState<string | null>(null);
-    const [status, setStatus] = useState<boolean>(true);
+    const [status, setStatus] = useState<number>(0);
 
     const [modalSuccess, setModalSuccess] = useState<any>(false);
     const [log, setLog] = useState<number | null>(null);
@@ -386,11 +386,11 @@ export default function Students() {
                                     label="Status"
                                     options={[
                                         {
-                                            value: true,
+                                            value: 0,
                                             label: "Ativo"
                                         },
                                         {
-                                            value: false,
+                                            value: 1,
                                             label: "Inativo"
                                         }
                                     ]}

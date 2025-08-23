@@ -448,6 +448,7 @@ export default function Administrative() {
                         changeValue={setAdressName}
                         edit={edit}
                         required
+                        maxLength={150}
                     />
                     <ValidationForm errorMessage={errorMessage} />
                 </div>

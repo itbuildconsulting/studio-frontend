@@ -20,7 +20,7 @@ export default interface PersonsRepository {
         city: string | null,
         address: string | null,
         country: string | null,
-        active: boolean
+        active: number
     ): Promise<Persons[]>;
     listEmployee(
         name: string | null,
@@ -55,7 +55,7 @@ export default interface PersonsRepository {
         city: string | null,
         address: string | null,
         country: string | null,
-        active: boolean
+        active: number
     ): Promise<Persons[]>;
     delete(id: number): Promise<Persons[]>
 }

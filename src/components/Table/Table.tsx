@@ -20,42 +20,49 @@ export default function Table(props: TableProps) {
             <>
                 <table className={`${styles.bg_table} ${props.class || ""} w-full`}>
                     <tbody>
-                        {
-                            props?.data?.length > 0 && props.loading === false ? props.data.map((item: any, index: any) => {
-                                return (
-                                    <tr key={index} className={`${props?.rowClasses && props?.rowClasses(item)}`}>
-                                        {
-                                            props.columns.map((col: any, indexHeader: number) => {
-                                                return (
-                                                    <td key={indexHeader}>
-                                                        <div className='flex flex-col justify-center'>
-                                                            {col.text && <small>{col.text}</small>}
-                                                            {!col.formatter ? <p>{item[col.dataField]}</p> : col.formatter(item[col.dataField], item)}
-                                                        </div>
-                                                    </td>
-                                                )
-                                            })
-                                        }
-                                    </tr>
-                                )
-                            })
-                                :
-                                props.loading === true
-                                    ?
-                                    <div className='flex flex-col gap-4'>
-                                        <div className='animated-background' style={{ height: "73px", borderRadius: "16px" }}></div>
-                                        <div className='animated-background' style={{ height: "73px", borderRadius: "16px" }}></div>
-                                        <div className='animated-background' style={{ height: "73px", borderRadius: "16px" }}></div>
-                                        <div className='animated-background' style={{ height: "73px", borderRadius: "16px" }}></div>
-                                        <div className='animated-background' style={{ height: "73px", borderRadius: "16px" }}></div>
-                                    </div>
-                                    :
-                                    <div className="flex justify-center items-center" style={{ height: "73px" }}>
-                                        Não foram encontrados items há serem listados
-                                    </div>
-                        }
+                        {props?.data?.length > 0 && props.loading === false ? (
+                        props.data.map((item: any, index: number) => (
+                            <tr key={index} className={`${props?.rowClasses?.(item) || ""}`}>
+                            {props.columns.map((col: any, i: number) => (
+                                <td key={i}>
+                                <div className="flex flex-col justify-center">
+                                    {col.text && <small>{col.text}</small>}
+                                    {!col.formatter ? (
+                                    <p>{item[col.dataField]}</p>
+                                    ) : (
+                                    col.formatter(item[col.dataField], item)
+                                    )}
+                                </div>
+                                </td>
+                            ))}
+                            </tr>
+                        ))
+                        ) : props.loading ? (
+                        <tr>
+                            <td colSpan={Math.max(1, props.columns?.length || 1)}>
+                            <div className="flex flex-col gap-4">
+                                {[...Array(5)].map((_, i) => (
+                                <div
+                                    key={i}
+                                    className="animated-background"
+                                    style={{ height: "73px", borderRadius: "16px" }}
+                                />
+                                ))}
+                            </div>
+                            </td>
+                        </tr>
+                        ) : (
+                        <tr>
+                            <td colSpan={Math.max(1, props.columns?.length || 1)}>
+                            <div className="flex justify-center items-center" style={{ height: "73px" }}>
+                                Não foram encontrados itens a serem listados
+                            </div>
+                            </td>
+                        </tr>
+                        )}
                     </tbody>
-                </table>
+                    </table>
+
                 {props?.infoPage && <Pagination infoPage={props?.infoPage} setPage={props.setPage} />}
             </>
         )

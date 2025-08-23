@@ -79,20 +79,13 @@ export const Pagination = ({ infoPage, setPage }: PaginationProps) => {
                     </>
                 }
                 {/* {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => ( */}
-                {getVisiblePages(totalPages, currentPage).map((page: number) => {
-                    return (
-                        <>
-                            <button
-                                key={page}
-                                onClick={() => handlePageClick(page)}
-                                className={`${styles.pageButton} ${page === currentPage ? styles.active : ''
-                                    }`}
-                            >
-                                {page}
-                            </button>
-                        </>
-                    )
-                })}
+                {getVisiblePages(totalPages, currentPage).map((page: number) => (
+                    <React.Fragment key={page}>
+                        <button onClick={() => handlePageClick(page)}>
+                        {page}
+                        </button>
+                    </React.Fragment>
+                ))}
                 {currentPage < (totalPages - 2) &&
                     <>
                         <span>...</span>

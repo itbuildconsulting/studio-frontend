@@ -43,7 +43,7 @@ export default function AddTeachers() {
     const [city, setCity] = useState<string | null>(null);
     const [address, setAddress] = useState<string | null>(null);
     const [country, setCountry] = useState<string | null>('BR');
-    const [status, setStatus] = useState<boolean>(false);
+    const [status, setStatus] = useState<number>(0);
 
     const [modalSuccess, setModalSuccess] = useState<any>(false);
     const [log, setLog] = useState<number | null>(null);
@@ -270,7 +270,7 @@ export default function AddTeachers() {
         setLoading(true);
         setErrorMessage(null);
 
-        const validationError = ValidationFields({ "Nome": name, "Data de Nascimento": birthday, "Telefone": phone, "Cep": zipCode, "Estado": state, "Cidade": city, "Endereço": address, "Pais": country, "Status": `${status === true ? 'Ativo' : ''}`});
+        const validationError = ValidationFields({ "Nome": name, "Data de Nascimento": birthday, "Telefone": phone, "Status": String(status), "Cep": zipCode, "Estado": state, "Cidade": city, "Endereço": address, "Pais": country });
 
         if (validationError) {
             setErrorMessage(validationError);

@@ -25,6 +25,7 @@ const AuthSelect = ({
 }: AuthSelectProps) => {
     const [isFirstSelection, setIsFirstSelection] = useState<boolean>(true);
     const [isOpen, setIsOpen] = useState<boolean>(false);
+    const safeOptions = Array.isArray(options) ? options : [];
 
     const handleChange = (newValue: string) => {
         changeValue?.(newValue);
@@ -47,7 +48,7 @@ const AuthSelect = ({
                             style={{ margin: '0' }}
                         >
                             {showColorIcon &&
-                                options?.find((option: any) => option.value === value).colors.split(' ').map((elem: string, key: Key) => {
+                                safeOptions?.find((option: any) => option.value === value).colors.split(' ').map((elem: string, key: Key) => {
                                     return (
                                         <div
                                             key={key}
@@ -64,7 +65,7 @@ const AuthSelect = ({
                                     )
                                 })
                             }
-                            {options ? options?.find((option: any) => option.value === value)?.label : "Selecione"}
+                            {safeOptions ? safeOptions?.find((option: any) => option.value === value)?.label : "Selecione"}
                         </div>
                         <div className="absolute right-4" style={{ top: '25%' }}>
                             <svg
@@ -82,7 +83,7 @@ const AuthSelect = ({
                         {isOpen && (
                             <div className="absolute bg-white border w-full z-10 " style={{marginTop: '-30px', maxHeight: '250px', overflow: 'auto'}}>
                                 <ul>
-                                    {options.map((option: any) => (
+                                    {safeOptions.map((option: any) => (
                                         <li
                                             key={option.value}
                                             onClick={() => handleChange(option.value)}
