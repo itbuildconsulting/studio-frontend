@@ -48,7 +48,7 @@ export default function Students() {
     }
 
     const convertStatus = (cell: any, row: any) => {
-        return cell ? "Ativo" : "Inativo";
+        return cell === 1 ? "Ativo" : "Inativo";
     }
 
     const actionButtonProduct = (cell: any, row: any) => {
