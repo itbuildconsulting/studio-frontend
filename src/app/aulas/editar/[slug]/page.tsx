@@ -247,7 +247,7 @@ export default function AddClass() {
     }
 
     const handleCheckin = (classId: number, studentId: number) => {
-        repo?.checkin(studentId, classId).then((result: any) => {
+        repo?.checkin(classId, studentId).then((result: any) => {
             if (result) {
                 const message: any = JSON.parse(result.message);
                 setModalSuccess(true)
