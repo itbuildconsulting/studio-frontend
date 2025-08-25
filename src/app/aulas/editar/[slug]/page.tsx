@@ -248,21 +248,21 @@ export default function AddClass() {
 
     const handleCheckin = (classId: number, studentId: number) => {
         repo?.checkin(classId, studentId).then((result: any) => {
-            if (result) {
+            if (result instanceof Error) {
                 const message: any = JSON.parse(result.message);
                 setModalSuccess(true)
-                setModalMessage(message.message);
-                setErrorMessage(message.message);
+                setModalMessage(message?.message);
+                setErrorMessage(message?.message);
                 setLoading(false);
                 setLog(1);
                 setTimeout(() => {
                     setErrorMessage(null);
                 }, 2500);
             } else {
-                setModalSuccess(true);
                 setLoading(false);
                 setModalMessage("Check-in efetuado com sucesso!");
                 setLog(0);
+                setModalSuccess(true);
             }
         }).catch((error) => {
             setModalSuccess(true)
