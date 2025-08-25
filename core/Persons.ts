@@ -66,6 +66,7 @@ export default class PersonsRepository implements PersonsRepository {
         country: string | null,
         active: number
     ): Promise<[]> {
+        console.log('AQUIII FDP', active)
         const req = {
             name,
             identity,

@@ -39,11 +39,11 @@ export default function Students() {
     const [frequency, setFrequency] = useState<string | null>(null);
     const [classValue, setClassValue] = useState<string | null>(null);
     const [zipCode, setZipCode] = useState<string | null>(null);
-    const [state, setState] = useState<string | null>(null);
+    const [state, setState] = useState<string | null>('RJ');
     const [city, setCity] = useState<string | null>(null);
     const [address, setAddress] = useState<string | null>(null);
-    const [country, setCountry] = useState<string | null>(null);
-    const [status, setStatus] = useState<number>(0);
+    const [country, setCountry] = useState<string | null>('BR');
+    const [status, setStatus] = useState<number>(1);
 
     const [modalSuccess, setModalSuccess] = useState<any>(false);
     const [log, setLog] = useState<number | null>(null);
@@ -386,11 +386,11 @@ export default function Students() {
                                     label="Status"
                                     options={[
                                         {
-                                            value: 0,
+                                            value: 1,
                                             label: "Ativo"
                                         },
                                         {
-                                            value: 1,
+                                            value: 0,
                                             label: "Inativo"
                                         }
                                     ]}

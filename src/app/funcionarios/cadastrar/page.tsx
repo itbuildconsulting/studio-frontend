@@ -43,7 +43,7 @@ export default function AddTeachers() {
     const [city, setCity] = useState<string | null>(null);
     const [address, setAddress] = useState<string | null>(null);
     const [country, setCountry] = useState<string | null>('BR');
-    const [status, setStatus] = useState<number>(0);
+    const [status, setStatus] = useState<number>(1);
 
     const [modalSuccess, setModalSuccess] = useState<any>(false);
     const [log, setLog] = useState<number | null>(null);

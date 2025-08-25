@@ -79,7 +79,7 @@ export default function EditStudents() {
     const [passwordStrText, setPasswordStrText] = useState<any>('');
 
     const clear = () => {
-        router.push("/funcionarios");
+        router.push("/alunos");
     }
 
     function Validation() {
@@ -227,7 +227,7 @@ export default function EditStudents() {
 
     const handleClosed = () => {
         if (log === 0) {
-            router.push("/funcionarios");
+            router.push("/alunos");
         } else {
             setModalSuccess(false);
         }
@@ -334,7 +334,7 @@ export default function EditStudents() {
             setTimeout(() => {
                 setErrorMessage(null);
             }, 2500);
-        } else if (!passwordValidation) {
+        }/* else if (!passwordValidation) {
             setErrorMessage("Senha muito fraca!");
             setLoading(false);
             setLog(1);
@@ -347,8 +347,8 @@ export default function EditStudents() {
             setLog(1);
             setTimeout(() => {
                 setErrorMessage(null);
-            }, 2500);
-        } else {
+            }, 2500); }*/
+        else {
             repo?.edit(id, name, removerCaracteresEspeciais(document), email, removerCaracteresEspeciais(phone), converterDate(birthday), height, weight, shoes, password, '', '', true, "0", zipCode, state, city, address, country, status).then((result: any) => {
                 if (result instanceof Error) {
                     const message: any = JSON.parse(result.message);
@@ -500,7 +500,7 @@ export default function EditStudents() {
                                     required
                                 />
                             </div>
-                            <div className="col-span-12 sm:col-span-6 xl:col-span-4">
+                            {/*<div className="col-span-12 sm:col-span-6 xl:col-span-4">
                                 <AuthInput
                                     label="Senha"
                                     value={password}
@@ -529,6 +529,7 @@ export default function EditStudents() {
                                     required
                                 />
                             </div>
+                            */}
                         </div>
                         <hr className="mt-3 mb-5 pb-3" style={{ borderColor: "#F4F5F6" }} />
                         <div className="grid grid-cols-12 gap-x-8">
