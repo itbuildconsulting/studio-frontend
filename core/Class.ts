@@ -45,7 +45,7 @@ async function conectAPI(req: object | null, url: string, method: string) {
 }
 
 export default class ClassRepository implements ClassRepository {
-    async create (
+    async create(
         date: string | null,
         time: string | null,
         teacherId: string | null,
@@ -72,7 +72,7 @@ export default class ClassRepository implements ClassRepository {
         return conectAPI(req, "/class", "POST");
     }
 
-    async createM (
+    async createM(
         date: [],
         time: string[],
         teacherId: string | null,
@@ -99,7 +99,7 @@ export default class ClassRepository implements ClassRepository {
         return conectAPI(req, "/class/multiple/", "POST");
     }
 
-    async listClass (
+    async listClass(
         date: string | null,
         time: string | null,
         teacherId: string | null,
@@ -109,19 +109,35 @@ export default class ClassRepository implements ClassRepository {
         const req = {
             date,
             time,
-            teacherId,           
+            teacherId,
             productTypeId,
             page
         };
         return conectAPI(req, "/class/filter", "POST");
     }
 
-    async details (id: number): Promise<[]> {
+    async details(id: number): Promise<[]> {
         return conectAPI(null, `/class/${id}`, "GET");
     }
+    async remove(classId: number, studentId: number): Promise<[]> {
+        const req = {
+            classId,
+            studentId,
+        };
 
+        return conectAPI(req, `/app/v2/classes/cancelPresenceInClass`, "POST");
+    }
 
-    async edit (
+    async checkin(classId: number, studentId: number): Promise<[]> {
+        const req = {
+            classId,
+            studentId,
+        };
+
+        return conectAPI(req, `/class/class-students/checkin`, "POST");
+    }
+
+    async edit(
         id: number | null,
         date: string | null,
         time: string | null,
@@ -150,7 +166,7 @@ export default class ClassRepository implements ClassRepository {
         return conectAPI(req, `/class/${id}`, "PUT");
     }
 
-    async cancel (id: number): Promise<[]> {
+    async cancel(id: number): Promise<[]> {
         return conectAPI(null, `/class/cancelClass/${id}`, "GET");
     }
 
