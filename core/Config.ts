@@ -77,7 +77,9 @@ export default class configRepository implements configRepository {
         return conectAPI(req, `/config/update/`, "POST");
     }
 
-    async delete(): Promise<[]> {
-        return conectAPI(null, `/config/remove/`, "GET");
+    async delete(
+        configKey: string
+    ): Promise<[]> {
+        return conectAPI(null, `/config/delete/${configKey}`, "GET");
     }
 }
