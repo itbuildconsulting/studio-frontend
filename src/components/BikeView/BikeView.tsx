@@ -8,6 +8,7 @@ import DropdownType from "@/model/Dropdown";
 import AuthInput from '../auth/AuthInput';
 import AuthSelect from '../auth/AuthSelect';
 import { convertArray } from '@/utils/convertArray';
+import { useParams } from 'next/navigation';
 
 type Bike = {
     bikeNumber: number;
@@ -19,13 +20,17 @@ type BikeStatusProps = {
     bikes: any;
     totalBikes: number; // Número total de bikes (por exemplo, 12)
     onUpdateBikes: (updatedBikes: any[]) => void; // Callback para atualizar bikes
+    handleRemoveStudent: (classId: number, studentId: number) => void;
+    handleCheckin: (classId: number, studentId: number) => void;
 };
 
-const BikeView: React.FC<BikeStatusProps> = ({ bikes, totalBikes, onUpdateBikes }) => {
+const BikeView: React.FC<BikeStatusProps> = ({ bikes, totalBikes, onUpdateBikes, handleRemoveStudent, handleCheckin }) => {
     const edit: boolean = false;
-    const repoDrop = useMemo(() => new DropDownsCollection(), []);
 
-    const [modalType, setModalType] = useState<'addStudent' | 'changeStatus' | null>(null);
+    const repoDrop = useMemo(() => new DropDownsCollection(), []);
+    const searchParams = useParams()
+
+    const [modalType, setModalType] = useState<'addStudent' | 'changeStatus' | 'removeStudent' | 'checkin' | null>(null);
     const [selectedBike, setSelectedBike] = useState<number | null>(null);
     const [studentName, setStudentName] = useState('');
     const [bikeStatus, setBikeStatus] = useState('');
@@ -35,7 +40,7 @@ const BikeView: React.FC<BikeStatusProps> = ({ bikes, totalBikes, onUpdateBikes 
 
     useEffect(() => {
         repoDrop.dropdown('persons/student/dropdown').then(setDropdownStudent);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [modalType]);
 
     const closeModal = () => {
@@ -77,21 +82,7 @@ const BikeView: React.FC<BikeStatusProps> = ({ bikes, totalBikes, onUpdateBikes 
                             {BikeAvalible()}
                         </div>
                     }
-
-                    {bike?.status === 'in_use' &&
-                        <div className="flex flex-col items-center text-red-500">
-                            {BikeBusy()}
-                            <span className='text-xs'>{bike?.studentName}</span>
-                        </div>
-                    }
-
-                    {bike?.status === 'maintenance' &&
-                        <div className="flex flex-col items-center text-gray-500">
-                            {BikeDisable()}
-                        </div>
-                    }
-
-                    {bike?.status !== 'maintenance' &&
+                    {(bike === undefined || bike?.status === 'available') &&
                         < Link href={"#"}
                             onClick={() => {
                                 setSelectedBike(bikeNumber);
@@ -102,35 +93,42 @@ const BikeView: React.FC<BikeStatusProps> = ({ bikes, totalBikes, onUpdateBikes 
                         </Link>
                     }
 
-                    <Link href={"#"}
-                        onClick={() => {
-                            setSelectedBike(bikeNumber);
-                            setModalType('changeStatus');
-                        }}
-                    >
-                        Mudar Status
-                    </Link>
-
-                </DropDown >
-            </>
-        )
-        if (bike) {
-            if (bike.status === 'in_use') {
-                return (
-                    <DropDown className="flex flex-col items-center" style={'bg-white'}>
+                    {bike?.status === 'in_use' &&
                         <div className="flex flex-col items-center text-red-500">
                             {BikeBusy()}
                             <span className='text-xs'>{bike?.studentName}</span>
                         </div>
-
+                    }
+                    {bike?.status === 'in_use' &&
                         <Link href={"#"}
                             onClick={() => {
                                 setSelectedBike(bikeNumber);
-                                setModalType('addStudent');
+                                setModalType('checkin');
                             }}
                         >
-                            Adicionar Aluno
+                            Check-in
                         </Link>
+                    }
+
+                    {bike?.status === 'in_use' &&
+                        <Link href={"#"}
+                            onClick={() => {
+                                setSelectedBike(bikeNumber);
+                                setModalType('removeStudent');
+                            }}
+                        >
+                            Remover aluno
+                        </Link>
+                    }
+
+
+                    {bike?.status === 'maintenance' &&
+                        <div className="flex flex-col items-center text-gray-500">
+                            {BikeDisable()}
+                        </div>
+                    }
+
+                    {bike?.status !== 'in_use' &&
                         <Link href={"#"}
                             onClick={() => {
                                 setSelectedBike(bikeNumber);
@@ -139,66 +137,11 @@ const BikeView: React.FC<BikeStatusProps> = ({ bikes, totalBikes, onUpdateBikes 
                         >
                             Mudar Status
                         </Link>
+                    }
 
-                    </DropDown>
-                );
-            } else if (bike.status === 'maintenance') {
-                return (
-                    <>
-                        <DropDown className="flex flex-col items-center" style={'bg-white'}>
-                            <div className="flex flex-col items-center text-gray-500">
-                                {BikeDisable()}
-                            </div>
-
-                            <Link href={"#"}
-                                onClick={() => {
-                                    setSelectedBike(bikeNumber);
-                                    setModalType('addStudent');
-                                }}
-                            >
-                                Adicionar Aluno
-                            </Link>
-                            <Link href={"#"}
-                                onClick={() => {
-                                    setSelectedBike(bikeNumber);
-                                    setModalType('changeStatus');
-                                }}
-                            >
-                                Mudar Status
-                            </Link>
-
-                        </DropDown>
-                    </>
-                );
-            }
-        }
-
-        // Se não está no array, está disponível
-        return (
-            <DropDown className="flex flex-col items-center" style={'bg-white'}>
-                <div >
-                    {BikeAvalible()}
-                </div>
-
-                <Link href={"#"}
-                    onClick={() => {
-                        setSelectedBike(bikeNumber);
-                        setModalType('addStudent');
-                    }}
-                >
-                    Adicionar Aluno
-                </Link>
-                <Link href={"#"}
-                    onClick={() => {
-                        setSelectedBike(bikeNumber);
-                        setModalType('changeStatus');
-                    }}
-                >
-                    Mudar Status
-                </Link>
-
-            </DropDown>
-        );
+                </DropDown >
+            </>
+        )
     };
 
     return (
@@ -280,6 +223,71 @@ const BikeView: React.FC<BikeStatusProps> = ({ bikes, totalBikes, onUpdateBikes 
                         edit={edit}
                         required
                     />
+                </Modal>
+            )}
+
+            {modalType === 'removeStudent' && (
+                <Modal
+                    title={`Remover o aluno - Bike ${selectedBike}`}
+                    btnClose={true}
+                    setShowModal={closeModal}
+                    showModal={!!modalType}
+                    hasFooter={true}
+                    edit={true}
+                    customButtonText={["Cancelar", "Confirmar"]}
+                    onSubmit={() => {
+                        const currentBike = bikes.find((b: any) => b.bikeNumber === selectedBike);
+                        if (currentBike) {
+                            handleRemoveStudent(+searchParams?.slug, currentBike.studentId);
+                            setBikeStatus('');
+                            closeModal();
+                        }
+
+                    }}
+                    loading={false}
+                    customStyle={{ height: 'auto' }}
+                >
+                    <div className="text-center p-4">
+                        <p className="text-gray-700 mb-4">
+                            Tem certeza que deseja remover o aluno <strong>{bikes.find((b: any) => b.bikeNumber === selectedBike)?.studentName}</strong> da bike {selectedBike}?
+                        </p>
+                        <p className="text-sm text-gray-500">
+                            Esta ação irá liberar a bike para uso de outros alunos.
+                        </p>
+                    </div>
+                </Modal>
+            )}
+
+            {modalType === 'checkin' && (
+                <Modal
+                    title={`Confirmar o Check-in - Bike ${selectedBike}`}
+                    btnClose={true}
+                    setShowModal={closeModal}
+                    showModal={!!modalType}
+                    hasFooter={true}
+                    edit={true}
+                    customButtonText={["Cancelar", "Confirmar"]}
+                    onSubmit={() => {
+                        if (selectedBike) {
+                            const currentBike = bikes.find((b: any) => b.bikeNumber === selectedBike);
+                            if (currentBike) {
+                                handleCheckin(+searchParams?.slug, currentBike.studentId);
+                                setBikeStatus('');
+                                closeModal();
+                            }
+                        }
+                    }}
+                    loading={false}
+                    customStyle={{ height: 'auto' }}
+                >
+                    <div className="text-center p-4">
+                        <p className="text-gray-700 mb-4">
+                            Confirmar o check-in do aluno <strong>{bikes.find((b: any) => b.bikeNumber === selectedBike)?.studentName}</strong> na bike {selectedBike}?
+                        </p>
+                        <p className="text-sm text-gray-500">
+                            Esta ação confirma a presença do aluno na aula de hoje.
+                        </p>
+                    </div>
                 </Modal>
             )}
 

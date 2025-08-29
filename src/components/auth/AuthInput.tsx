@@ -17,6 +17,7 @@ interface AuthInputProps {
     tooltipMessage?: string,
     edit?: boolean
     blurValue?: (novoValor: any) => void,
+    placeholder?: string
 }
 
 const AuthInput = (props: AuthInputProps) => {
@@ -78,7 +79,7 @@ const AuthInput = (props: AuthInputProps) => {
                 return `${numericValue}`;
 
             case 'positivo':
-                return value !== '' && Number(value) <= 0 ? 0 : value;
+                return onlyDigits !== '' && Number(onlyDigits) <= 0 ? 0 : onlyDigits;
 
             default:
                 return value;
@@ -138,6 +139,7 @@ const AuthInput = (props: AuthInputProps) => {
                             className={`focus: outline-none w-full`}
                             disabled={props.disabled}
                             onBlur={e => props.blurValue?.(applyMask(e.target.value, props.maskType))}
+                            placeholder={props.placeholder}
                         />
                         {
                             props.type === "password"

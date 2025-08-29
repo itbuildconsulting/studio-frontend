@@ -12,12 +12,14 @@ interface ModalProps {
     loading?: boolean,
     onSubmit?: () => void,
     edit?: boolean,
+    customButtonText?: string[] | null;
     btnClose?: boolean,
-    hrefClose?: string
+    hrefClose?: string,
+    customStyle?: object,
 }
 
 export default function Modal({
-    title, children, setShowModal, showModal, modalPosition, isModalStatus, hasFooter, loading, onSubmit, edit, btnClose, hrefClose
+    title, children, setShowModal, showModal, modalPosition, isModalStatus, hasFooter, loading, onSubmit, edit, btnClose, hrefClose, customButtonText = null, customStyle = {}
 }: ModalProps) {
     return (
         <>
@@ -26,7 +28,7 @@ export default function Modal({
                     <div
                         className={`${styles.modal_fade} ${modalPosition === "top" ? "justify-start pt-24" : "justify-center"} items-center flex flex-col overflow-x-hidden overflow-y-hidden fixed inset-0 z-50 outline-none focus:outline-none`}
                     >
-                        <div className={!isModalStatus ? `${styles.modal}` : `${styles.modalStatus}`} >
+                        <div className={`${!isModalStatus ? `${styles.modal}` : `${styles.modalStatus}`}`} style={customStyle}>
                             <div>
                                 {
                                     !isModalStatus
@@ -48,12 +50,12 @@ export default function Modal({
                             {
                                 hasFooter &&
                                 <div className={`${styles.footer_modal}`}>
-                                     {setShowModal && (
+                                    {setShowModal && (
                                         <button
                                             className='btn-outline-primary'
                                             onClick={() => setShowModal(false)}
                                         >
-                                            Cancelar
+                                            {customButtonText ? customButtonText[0] : "Cancelar"}
                                         </button>
                                     )}
                                     {
@@ -67,10 +69,10 @@ export default function Modal({
                                                 className='btn-primary'
                                                 onClick={() => onSubmit?.()}
                                             >
-                                                {edit ? "Atualizar" : "Cadastrar"}
+                                                {customButtonText ? customButtonText[1] : edit ? "Atualizar" : "Cadastrar" }
                                             </button>
                                     }
-                                   
+
                                 </div>
                             }
                         </div>

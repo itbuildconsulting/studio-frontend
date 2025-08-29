@@ -44,7 +44,7 @@ const AuthSelect = ({
                     <div className="relative">
                         <div
                             onClick={() => setIsOpen(!isOpen)}
-                            className={`border px-4 py-2 mb-0 cursor-pointer loading-input select outline-none flex items-center  ${disabled ? "bg-gray-200" : "bg-white"}`}
+                            className={`border px-4 py-2 mb-0 cursor-pointer loading-input mb-0 select outline-none flex items-center  ${disabled ? "bg-gray-200" : "bg-white"}`}
                             style={{ margin: '0' }}
                         >
                             {showColorIcon &&

@@ -3,7 +3,7 @@
 import AuthInput from "@/components/auth/AuthInput";
 import Card from "@/components/Card/Card";
 import PageDefault from "@/components/template/default";
-import { useEffect, useMemo, useState, useCallback, use } from "react";
+import { useEffect, useMemo, useState } from "react";
 import LevelRepository from "../../../core/Level";
 import Table from "@/components/Table/Table";
 import { PaginationModel } from "@/types/pagination";
@@ -19,7 +19,6 @@ import AuthSelectMulti from "@/components/auth/AuthSelectMulti";
 import { convertArray } from "@/utils/convertArray";
 import ValidationFields from "@/validators/fields";
 import { ValidationForm } from "@/components/formValidation/validation";
-import { ConfigSection } from "@/components/ConfigSection/ConfigSection";
 
 export default function Configuracao() {
 
@@ -37,7 +36,7 @@ export default function Configuracao() {
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [errorMessageConfig, setErrorMessageConfig] = useState<string | null>(null);
-  const [modalMessage, setModalMessage] = useState<string | null>(null);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [modalSuccess, setModalSuccess] = useState(false);
   const [log, setLog] = useState(0);
 
@@ -46,6 +45,8 @@ export default function Configuracao() {
   const [infoPage, setInfoPage] = useState<PaginationModel>(pageDefault);
 
   const [listLevelsConfig, setListLevelsConfig] = useState<string[]>([]);
+  const [pageConfig, setPageConfig] = useState<number>(1);
+  const [infoPageConfig, setInfoPageConfig] = useState<PaginationModel>(pageDefault);
 
   const [description, setDescription] = useState("");
   const [configKey, setConfigKey] = useState("");
@@ -54,14 +55,6 @@ export default function Configuracao() {
   const [multiSelectValues, setMultiSelectValues] = useState<string[]>([]);
 
   const [productTypes, setProductTypes] = useState<{ label: string, value: string }[]>([]);
-
-  const [appProductEnabled, setAppProductEnabled] = useState<boolean>(false);
-  const [appCheckinEnabled, setAppCheckinEnabled] = useState<boolean>(false);
-  const [appCancelClass, setAppCancelClass] = useState<boolean>(false);
-  const [appCancelPurchase, setAppCancelPurchase] = useState<boolean>(false);
-  const [appProductTypes, setAppProductTypes] = useState<number>(0);
-  const [appCancelPurchaseValue, setAppCancelPurchaseValue] = useState<string>('');
-  const [appCancelClassValue, setAppCancelClassValue] = useState<string>('');
 
   const handleSubmit = async () => {
     setLoading(true);
@@ -104,12 +97,12 @@ export default function Configuracao() {
         setTimeout(() => {
           setErrorMessage(null);
         }, 2500);
-      } else {
+      } else {  
         // Se o nível foi criado com sucesso
         setModalSuccess(true);
         setLoading(false);
-        setModalMessage("Nível criado com sucesso!");
-        // handleListLevel(page);
+        setSuccessMessage("Nível criado com sucesso!");
+        handleListLevel(page);
         setLog(0);
       }
     }).catch((error) => {
@@ -127,80 +120,49 @@ export default function Configuracao() {
 
   const handleSubmitConfig = async () => {
     setLoading(true);
-    setModalMessage(null);
+    setErrorMessageConfig(null);
 
-    if(appCancelClass && !appCancelClassValue){
-      setModalMessage("Favor preencher o Valor do campo 'Gerenciar Cancelamento de aula'!");
-      setModalSuccess(true);
+    const validationError = ValidationFields({
+      "Chaves de Configurações": configKey,
+      "Descrição": description,
+      "Produtos Permitidos": configKey !== 'app_product' || multiSelectValues.length > 0 ? 'passou' : '',
+      "Valor": configKey === 'app_product' ? 'passou' : configValue
+    });
+
+    if (validationError) {
+      setErrorMessageConfig(validationError);
       setLoading(false);
-      setLog(1);
-
-      return;
-    }
-    
-    if(appCancelPurchase && !appCancelPurchaseValue){
-      setModalMessage("Favor preencher o Valor do campo 'Gerenciar Cancelamento de Compra'!");
-      setModalSuccess(true);
-      setLoading(false);
-      setLog(1);
-
       return;
     }
 
-    const upsertConfig = async (key: string, value: string) => {
-      const existing: any = listLevelsConfig.find((elem: any) => elem.configKey === key);
-      const promise = existing
-        ? repoConfig?.edit(key, value, '', existing.id)
-        : repoConfig?.create(key, value, '');
-
-      const result: any = await promise;
+    // Criar a configuração
+    repoConfig?.create(configKey, configValue, description).then((result: any) => {
       if (result instanceof Error) {
         const message: any = JSON.parse(result.message);
-        throw new Error(message.message || 'Erro ao salvar configuração');
-      }
-    };
-
-
-    try {
-      if (appProductEnabled) {
-        await upsertConfig('app_product', `${appProductTypes}`);
+        setErrorMessageConfig(message.message);
+        setLoading(false);
+        setModalSuccess(true);
+        setLog(1);
+        setTimeout(() => {
+          setErrorMessageConfig(null);
+        }, 2500);
       } else {
-        repoConfig?.delete('app_product');
+        setModalSuccess(true);
+        setLoading(false);
+        setSuccessMessage("Configuração criada com sucesso!");
+        handleListLevel(page); // ou outra função para listar configs
+        setLog(0);
       }
-
-      if (appCheckinEnabled) {
-        await upsertConfig('checkin_class', '');
-      } else {
-        repoConfig?.delete('checkin_class');
-      }
-
-      if (appCancelClass) {
-        await upsertConfig('cancel_class', appCancelClassValue);
-      } else {
-        repoConfig?.delete('cancel_class');
-      }
-
-      if (appCancelPurchase) {
-        await upsertConfig('pusrchase_class', appCancelPurchaseValue);
-      } else {
-        repoConfig?.delete('pusrchase_class');
-      }
-
+    }).catch((error) => {
+      setErrorMessageConfig(error.message);
       setModalSuccess(true);
       setLoading(false);
-      setModalMessage("Configurações salvas com sucesso!");
-      setLog(0);
-
-    } catch (error: any) {
-      setModalMessage(error.message);
-      setModalSuccess(true);
-      setLoading(false);
-      setLog(1);
       setTimeout(() => {
-        setModalMessage(null);
+        setErrorMessageConfig(null);
       }, 2500);
-      return;
-    }
+      setLog(1);
+      setLoading(false);
+    });
   };
 
   const eventButton = [
@@ -214,6 +176,23 @@ export default function Configuracao() {
     {
       name: "Finalizar",
       function: handleSubmit,
+      class: "btn-primary",
+    },
+  ];
+
+  const eventHandle = [
+    {
+      name: "Cancelar",
+      function: () => {
+        setConfigKey("")
+        setConfigValue("")
+        setDescription("")
+      },
+      class: "btn-outline-primary",
+    },
+    {
+      name: "Cadastrar",
+      function: handleSubmitConfig,
       class: "btn-primary",
     },
   ];
@@ -232,6 +211,7 @@ export default function Configuracao() {
     }).catch(() => {
       setListLevels([]);
     });
+
     repoConfig.list().then((result: any) => {
       setLoading(false);
 
@@ -243,49 +223,32 @@ export default function Configuracao() {
     }).catch(() => {
       setListLevelsConfig([]);
     });
+
+
   }
 
   useEffect(() => {
     handleListLevel(page);
-  }, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [page]);
 
   useEffect(() => {
-    if (listLevelsConfig?.length > 0) {
-      let app_product: any = listLevelsConfig.find((elem: any) => { return (elem.configKey === "app_product") });
-      
-      if (app_product) {
-        setAppProductEnabled(true);
-        setAppProductTypes(Number(app_product.configValue))
-      }
-
-      let checkin_class: any = listLevelsConfig.find((elem: any) => { return (elem.configKey === "checkin_class") });
-
-      if (checkin_class) {
-        setAppCheckinEnabled(true);
-      }
-
-      let cancel_class: any = listLevelsConfig.find((elem: any) => { return (elem.configKey === "cancel_class") });
-
-      if (cancel_class) {
-        setAppCancelClass(true);
-        setAppCancelClassValue(cancel_class.configValue);
-      }
-
-      let pusrchase_class: any = listLevelsConfig.find((elem: any) => { return (elem.configKey === "pusrchase_class") });
-
-      if (cancel_class) {
-        setAppCancelPurchase(true);
-        setAppCancelPurchaseValue(pusrchase_class.configValue);
-      }
-
+    if (configKey === 'app_product') {
+      repoDrop.dropdown('productTypes/dropdown').then((result) => {
+        setProductTypes(result);
+      });
     }
-  }, [listLevelsConfig]);
+  }, [configKey]);
 
-  useEffect(() => {
-    repoDrop.dropdown('productTypes/dropdown').then((result) => {
-      setProductTypes(result);
-    });
-  }, []);
+  const changeValueSelect = (configKey: string): void => {
+    setConfigKey(configKey);
+
+    if (configKey === 'app_product') {
+      repoDrop.dropdown('productTypes/dropdown').then((result) => {
+        setProductTypes(result);
+      });
+    }
+  };
 
   const columns = [
     {
@@ -309,6 +272,25 @@ export default function Configuracao() {
       text: `Antecedência de Aulas`,
     },
 
+  ];
+
+  const columnsConfig = [
+    {
+      dataField: 'id',
+      text: `ID`,
+    },
+    {
+      dataField: 'configKey',
+      text: `Chaves de Configuração`,
+    },
+    {
+      dataField: 'configValue',
+      text: `Valor`,
+    },
+    {
+      dataField: 'description',
+      text: `Descrição`,
+    }
   ];
 
   const handleClosed = () => {
@@ -339,7 +321,7 @@ export default function Configuracao() {
           </svg>
         }
 
-        <h5 className="text-gray-700">{modalMessage}</h5>
+        <h5 className="text-gray-700">{log === 0 ? successMessage : errorMessage}</h5>
 
         <button className="btn-outline-primary px-5 mt-5" onClick={() => handleClosed()}>
           Fechar
@@ -349,63 +331,77 @@ export default function Configuracao() {
     )
   };
 
-  useEffect(()=>{
-    console.log(appProductTypes)
-  },[appProductTypes])
-
   return (
     <PageDefault title={"Configurações"}>
 
       <div className="grid grid-cols-12 mt-8 mb-8">
         <div className="col-span-12">
-          <AccordionCard title="Configurações do Sistema">
-            <ConfigSection
-              label="Gerenciar Produtos do App Sping'Go"
-              isEnabled={appProductEnabled}
-              onToggleChange={setAppProductEnabled}
-              inputType="select"
-              selectOptions={convertArray(productTypes)}
-              selectValue={appProductTypes}
-              onSelectChange={(vals: number) => {
-                setAppProductTypes(vals);
-              }}
-            />
+          <AccordionCard title="Configurações do Sistema" hasFooter={true} eventsButton={eventHandle}>
+            <div className="grid grid-cols-12 gap-x-8">
+              <div className="col-span-12 sm:col-span-6 xl:col-span-4">
+                <AuthSelect
+                  label="Chaves de Configurações*"
+                  options={[
+                    { value: 'app_product', label: "Produtos do App Sping'Go" },
+                    { value: 'cancel_class', label: "Cancelamento de Aula" },
+                    { value: 'pusrchase_class', label: "Cancelamento de Compra" },
+                  ]}
+                  value={configKey}
+                  changeValue={(e) => changeValueSelect(e)}
+                  required
+                />
+              </div>
+              <div className="col-span-12 sm:col-span-6 xl:col-span-4">
+                <AuthInput
+                  label="Descrição*"
+                  value={description}
+                  type="text"
+                  changeValue={setDescription}
+                  required
+                />
+              </div>
+              <div className="col-span-12 sm:col-span-6 xl:col-span-4">
+                {configKey === 'app_product' && productTypes.length > 0 ? (
+                  <AuthSelectMulti
+                    label="Produtos Permitidos*"
+                    value={multiSelectValues}
+                    options={convertArray(productTypes)}
+                    changeValue={(vals: string[]) => {
+                      setMultiSelectValues(vals);
+                      setConfigValue(vals.join(','));
+                    }}
+                  />
+                ) : (
+                  <AuthInput
+                    label="Valor*"
+                    value={configValue}
+                    type="text"
+                    changeValue={setConfigValue}
+                    required
+                  />
+                )}
+              </div>
+              <ValidationForm errorMessage={errorMessageConfig} />
+            </div>
 
-            <ConfigSection
-              label="Habilitar Checkin do App Sping'Go"
-              isEnabled={appCheckinEnabled}
-              onToggleChange={setAppCheckinEnabled}
-            />
-
-            <ConfigSection
-              label="Gerenciar Cancelamento de aula"
-              isEnabled={appCancelClass}
-              onToggleChange={setAppCancelClass}
-              inputType="input"
-              inputValue={appCancelClassValue}
-              onInputChange={setAppCancelClassValue}
-              placeholder={"Valor"}
-            />
-
-            <ConfigSection
-              label="Gerenciar Cancelamento de Compra"
-              isEnabled={appCancelPurchase}
-              onToggleChange={setAppCancelPurchase}
-              inputType="input"
-              inputValue={appCancelPurchaseValue}
-              onInputChange={setAppCancelPurchaseValue}
-              placeholder={"Valor"}
-            />
-
-            <div className="flex justify-end mt-6">
-              <button className="btn-primary" onClick={() => { handleSubmitConfig() }}>Salvar</button>
+            <div className="col-span-12">
+              <div className="col-span-12 sm:col-span-6 xl:col-span-4">
+                <Table
+                  data={listLevelsConfig}
+                  columns={columnsConfig}
+                  class={styles.table_locale_adm}
+                  loading={loading}
+                  setPage={setPage}
+                  infoPage={infoPage}
+                />
+              </div>
             </div>
           </AccordionCard>
         </div>
       </div>
 
 
-      {/* <div className="grid grid-cols-12">
+      <div className="grid grid-cols-12">
         <div className="col-span-12">
           <Card title="Cadastrar Nível" hasFooter={true} eventsButton={eventButton} loading={loading}>
             <div className="grid grid-cols-12 gap-x-8">
@@ -498,7 +494,9 @@ export default function Configuracao() {
             />
           </Card>
         </div>
-      </div> */}
+      </div>
+
+
 
       <Modal
         btnClose={false}

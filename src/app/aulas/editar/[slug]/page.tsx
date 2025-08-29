@@ -55,8 +55,6 @@ export default function AddClass() {
     const [dropdownStudent, setDropdownStudent] = useState<DropdownType[]>([]);
     const [dropdownProduct, setDropdownProduct] = useState<DropdownType[]>([]);
 
-    
-
     const [dropdownCommission] = useState<any>(
         [
             {
@@ -72,7 +70,7 @@ export default function AddClass() {
 
     const [modalSuccess, setModalSuccess] = useState<any>(false);
     const [log, setLog] = useState<number | null>(null);
-    const [successMessage, setSuccessMessage] = useState<any>(null);
+    const [modalMessage, setModalMessage] = useState<any>(null);
     const [loading, setLoading] = useState<any>(false);
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
@@ -160,7 +158,7 @@ export default function AddClass() {
             } else {
                 setModalSuccess(true);
                 setLoading(false);
-                setSuccessMessage("Edição realizada com sucesso!");
+                setModalMessage("Edição realizada com sucesso!");
                 setLog(0);
             }
         }).catch((error) => {
@@ -210,7 +208,7 @@ export default function AddClass() {
                     </svg>
                 }
 
-                <h5 className="text-gray-700">{log === 0 ? successMessage : errorMessage}</h5>
+                <h5 className="text-gray-700">{modalMessage}</h5>
 
                 <button className="btn-outline-primary px-5 mt-5" onClick={() => handleClosed()}>
                     Fechar
@@ -219,6 +217,60 @@ export default function AddClass() {
             </div>
         )
     };
+
+    const handleRemoveStudent = (classId: number, studentId: number) => {
+        repo?.remove(classId, studentId).then((result: any) => {
+            if (result instanceof Error) {
+                const message: any = JSON.parse(result.message);
+                setModalSuccess(true)
+                setModalMessage(message.message);
+                setErrorMessage(message.message);
+                setLoading(false);
+                setLog(1);
+                setTimeout(() => {
+                    setErrorMessage(null);
+                }, 2500);
+            } else {
+                setModalSuccess(true);
+                setLoading(false);
+                setModalMessage("Aluno removido com sucesso!");
+                setLog(0);
+            }
+        }).catch((error) => {
+            setErrorMessage(error.message);
+            setTimeout(() => {
+                setErrorMessage(null);
+            }, 2500);
+            setLog(1);
+            setLoading(false);
+        });
+    }
+
+    const handleCheckin = (classId: number, studentId: number) => {
+        repo?.checkin(classId, studentId).then((result: any) => {
+            if (result instanceof Error) {
+                const message: any = JSON.parse(result.message);
+                setModalSuccess(true)
+                setModalMessage(message?.message);
+                setErrorMessage(message?.message);
+                setLoading(false);
+                setLog(1);
+                setTimeout(() => {
+                    setErrorMessage(null);
+                }, 2500);
+            } else {
+                setLoading(false);
+                setModalMessage("Check-in efetuado com sucesso!");
+                setLog(0);
+                setModalSuccess(true);
+            }
+        }).catch((error) => {
+            setModalSuccess(true)
+            setErrorMessage(error.message);
+            setLog(1);
+            setLoading(false);
+        });
+    }
 
     return (
         <PageDefault title={"Editar Aula"}>
@@ -428,7 +480,7 @@ export default function AddClass() {
                                     </div>
 
                                 </div>*/}
-                                <BikeView bikes={bikes} totalBikes={12} onUpdateBikes={onUpdateBikes}/>
+                                <BikeView bikes={bikes} totalBikes={12} onUpdateBikes={onUpdateBikes} handleRemoveStudent={handleRemoveStudent} handleCheckin={handleCheckin} />
                             </div>
                         </div>
                     </Card>
