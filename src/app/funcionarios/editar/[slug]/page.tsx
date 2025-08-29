@@ -33,7 +33,7 @@ export default function EditTeachers() {
     const [birthday, setBirthday] = useState<string | null>(null);
     const [height, setHeight] = useState<number | null>(null);
     const [weight, setWeight] = useState<number | null>(null);
-    const [shoes, setShoes] = useState<string | null>(null);
+    const [shoes, setShoes] = useState<number | null>(null);
     const [password, setPassword] = useState<any>(null);
     const [confirmPass, setConfirmPass] = useState<string | null>(null);
     const [level, setLevel] = useState<string | null>('1');
@@ -266,6 +266,7 @@ export default function EditTeachers() {
 
     useEffect(() => {
         repo?.details(+searchParams?.slug).then((result: any) => {
+            console.log(result)
             if (result instanceof Error) {
                 const message: any = JSON.parse(result.message);
                 setErrorMessage(message.error);
@@ -275,15 +276,16 @@ export default function EditTeachers() {
                     setErrorMessage(null);
                 }, 2500);
             } else {
+                console.log(result)
                 setId(result.id);
                 setName(result.name);
                 setDocument(result.identity);
                 setEmail(result.email);
                 setPhone(result.phone);;
-                setBirthday(result.birthday)
+                setBirthday(result.birthday.split('-').reverse().join('/'))
                 setHeight(result.height);
                 setWeight(result.weight);
-                setShoes(result.other);
+                setShoes(Number(result.other));
                 setPassword(result.password);
                 setConfirmPass('');
                 setZipCode(result.zipCode);
@@ -331,7 +333,7 @@ export default function EditTeachers() {
                 setErrorMessage(null);
             }, 2500);
         } else {
-            repo?.edit(id, name, removerCaracteresEspeciais(document), email, removerCaracteresEspeciais(phone), converterDate(birthday), height, weight, shoes, password, '', '', true, level, zipCode, state, city, address, country, status).then((result: any) => {
+            repo?.edit(id, name, removerCaracteresEspeciais(document), email, removerCaracteresEspeciais(phone), converterDate(birthday), height, weight, String(shoes), password, '', '', true, level, zipCode, state, city, address, country, status).then((result: any) => {
                 if (result instanceof Error) {
                     const message: any = JSON.parse(result.message);
                     setErrorMessage(message.error);

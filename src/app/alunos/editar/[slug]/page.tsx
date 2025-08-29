@@ -36,7 +36,7 @@ export default function EditStudents() {
     const [birthday, setBirthday] = useState<string | null>(null);
     const [height, setHeight] = useState<number | null>(null);
     const [weight, setWeight] = useState<number | null>(null);
-    const [shoes, setShoes] = useState<string | null>(null);
+    const [shoes, setShoes] = useState<number | null>(null);
     const [password, setPassword] = useState<any>(null);
     const [confirmPass, setConfirmPass] = useState<string | null>(null);
     const [level, setLevel] = useState<string | null>('1');
@@ -269,6 +269,7 @@ export default function EditStudents() {
 
     useEffect(() => {
         repo?.details(+searchParams?.slug).then((result: any) => {
+            console.log()
             if (result instanceof Error) {
                 const message: any = JSON.parse(result.message);
                 setErrorMessage(message.error);
@@ -283,10 +284,10 @@ export default function EditStudents() {
                 setDocument(result.identity)
                 setEmail(result.email)
                 setPhone(result.phone)
-                setBirthday(result.birthday)
+                setBirthday(result.birthday.split('-').reverse().join('/'))
                 setHeight(result.height)
                 setWeight(result.weight)
-                setShoes(result.shoes)
+                setShoes(Number(result.other))
                 setPassword('')
                 setConfirmPass('')
                 setLevel(result.level)
@@ -349,7 +350,7 @@ export default function EditStudents() {
                 setErrorMessage(null);
             }, 2500); }*/
         else {
-            repo?.edit(id, name, removerCaracteresEspeciais(document), email, removerCaracteresEspeciais(phone), converterDate(birthday), height, weight, shoes, password, '', '', true, "0", zipCode, state, city, address, country, status).then((result: any) => {
+            repo?.edit(id, name, removerCaracteresEspeciais(document), email, removerCaracteresEspeciais(phone), converterDate(birthday), height, weight, String(shoes), password, '', '', true, "0", zipCode, state, city, address, country, status).then((result: any) => {
                 if (result instanceof Error) {
                     const message: any = JSON.parse(result.message);
                     setErrorMessage(message.error);
