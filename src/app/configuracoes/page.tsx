@@ -3,7 +3,7 @@
 import AuthInput from "@/components/auth/AuthInput";
 import Card from "@/components/Card/Card";
 import PageDefault from "@/components/template/default";
-import { useEffect, useMemo, useState, useCallback, use } from "react";
+import { useEffect, useMemo, useState, useCallback } from "react";
 import LevelRepository from "../../../core/Level";
 import Table from "@/components/Table/Table";
 import { PaginationModel } from "@/types/pagination";
@@ -21,504 +21,337 @@ import ValidationFields from "@/validators/fields";
 import { ValidationForm } from "@/components/formValidation/validation";
 import { ConfigSection } from "@/components/ConfigSection/ConfigSection";
 
-export default function Configuracao() {
+type LocalConfig = {
+  configKey: string;
+  configValue?: any;
+  description?: string;
+  active: 0 | 1; // 0/1 como no backend
+};
 
-  // Repositório de Níveis
-  const repo = useMemo(() => new LevelRepository(), []);
+const parseActive = (item: any) => Number(item?.active ?? item?.enabled ?? 0) === 1;
+const parseValueArray = (val: any): number[] => {
+  if (Array.isArray(val)) return val.map(Number).filter(Number.isFinite);
+  if (typeof val === "string") {
+    try {
+      const arr = JSON.parse(val);
+      return Array.isArray(arr) ? arr.map(Number).filter(Number.isFinite) : [];
+    } catch {
+      return [];
+    }
+  }
+  return [];
+};
+
+// converte o que vier da API para número de horas (aceita "2h", "120", 24, etc.)
+const parseHours = (val: any): number => {
+  if (typeof val === 'number' && Number.isFinite(val)) return val;
+  if (typeof val === 'string') {
+    const m = val.match(/\d+/);
+    if (m) return Number(m[0]);
+  }
+  return 0; // default quando vazio/inesperado
+};
+
+// chaves das configs
+const KEY_CHECKIN = "checkinSpinGo";
+const KEY_APP_PRODUCTS = "appProductsSpinGo";
+const KEY_CANCEL_CLASS = 'cancelClassSpinGo';
+const KEY_CANCEL_PURCHASE = 'cancelPurchaseSpinGo';
+
+// opções fixas em horas
+const HOURS = [1, 2, 4, 8, 12, 24, 48, 72, 96, 120];
+const HOURS_OPTIONS = HOURS.map((h) => ({ value: h, label: `${h}h` }));
+
+export default function Configuracao() {
   const repoConfig = useMemo(() => new configRepository(), []);
   const repoDrop = useMemo(() => new DropDownsCollection(), []);
-
-  const [name, setName] = useState("");
-  const [numberOfClasses, setNumberOfClasses] = useState(50);
-  const [title, setTitle] = useState("");
-  const [benefit, setBenefit] = useState("");
-  const [color, setColor] = useState('1'); // Padrão verde
-  const [antecedence, setAntecedence] = useState(0); // Novo estado para antecedência
   const [loading, setLoading] = useState(false);
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const [errorMessageConfig, setErrorMessageConfig] = useState<string | null>(null);
-  const [modalMessage, setModalMessage] = useState<string | null>(null);
-  const [modalSuccess, setModalSuccess] = useState(false);
-  const [log, setLog] = useState(0);
 
-  const [listLevels, setListLevels] = useState<string[]>([]);
-  const [page, setPage] = useState<number>(1);
-  const [infoPage, setInfoPage] = useState<PaginationModel>(pageDefault);
+  // dicionário de configs por key
+  const [configs, setConfigs] = useState<Record<string, LocalConfig>>({});
+  // chaves alteradas (a salvar)
+  const [dirtyKeys, setDirtyKeys] = useState<Set<string>>(new Set());
+  // opções do select (tipos de produto)
+  const [productTypes, setProductTypes] = useState<any[]>([]);
 
-  const [listLevelsConfig, setListLevelsConfig] = useState<string[]>([]);
-
-  const [description, setDescription] = useState("");
-  const [configKey, setConfigKey] = useState("");
-  const [configValue, setConfigValue] = useState("");
-
-  const [multiSelectValues, setMultiSelectValues] = useState<string[]>([]);
-
-  const [productTypes, setProductTypes] = useState<{ label: string, value: string }[]>([]);
-
-  const [appProductEnabled, setAppProductEnabled] = useState<boolean>(false);
-  const [appCheckinEnabled, setAppCheckinEnabled] = useState<boolean>(false);
-  const [appCancelClass, setAppCancelClass] = useState<boolean>(false);
-  const [appCancelPurchase, setAppCancelPurchase] = useState<boolean>(false);
-  const [appProductTypes, setAppProductTypes] = useState<number>(0);
-  const [appCancelPurchaseValue, setAppCancelPurchaseValue] = useState<string>('');
-  const [appCancelClassValue, setAppCancelClassValue] = useState<string>('');
-
-  const handleSubmit = async () => {
-    setLoading(true);
-    setErrorMessage(null);
-
-    const validationError = ValidationFields({
-      "Nome do Nível": name,
-      "Número de Aulas": `${numberOfClasses}`,
-      "Título": title,
-      "Benefício": benefit,
-      "Status": color,
-      "Antecedência": `${antecedence}`,
-    });
-
-    if (validationError) {
-      setErrorMessage(validationError);
-      setLoading(false);
-      return;
-    }
-
-    // Dados a serem enviados para o backend
-    const data = {
-      name,
-      numberOfClasses,
-      title,
-      benefit,
-      color,
-      antecedence,
+  const toOptions = (src: any): Array<{ value: number; label: string }> => {
+  const arr = Array.isArray(src) ? src : (Array.isArray(src?.data) ? src.data : []);
+  return arr
+    .map((p: any) => ({
+      value: Number(p.id ?? p.value ?? p.key),
+      label: String(p.name ?? p.label ?? p.description ?? p.title ?? p.id),
+    }))
+    .filter((o: any) => Number.isFinite(o.value) && o.label);
     };
 
-    // Usando o repositório para criar o nível
-    repo?.create(name, numberOfClasses, title, benefit, color, antecedence).then((result: any) => {
-      if (result instanceof Error) {
-        // Se ocorrer um erro
-        const message: any = JSON.parse(result.message);
-        setErrorMessage(message.message);
-        setLoading(false);
-        setModalSuccess(true);
-        setLog(1);
-        setTimeout(() => {
-          setErrorMessage(null);
-        }, 2500);
-      } else {
-        // Se o nível foi criado com sucesso
-        setModalSuccess(true);
-        setLoading(false);
-        setModalMessage("Nível criado com sucesso!");
-        // handleListLevel(page);
-        setLog(0);
-      }
-    }).catch((error) => {
-      // Se houver erro na requisição
-      setErrorMessage(error.message);
-      setModalSuccess(true);
-      setLoading(false);
-      setTimeout(() => {
-        setErrorMessage(null);
-      }, 2500);
-      setLog(1);
-      setLoading(false);
-    });
-  };
+    const productOptions = useMemo(() => toOptions(productTypes), [productTypes]);
 
-  const handleSubmitConfig = async () => {
-    setLoading(true);
-    setModalMessage(null);
-
-    if(appCancelClass && !appCancelClassValue){
-      setModalMessage("Favor preencher o Valor do campo 'Gerenciar Cancelamento de aula'!");
-      setModalSuccess(true);
-      setLoading(false);
-      setLog(1);
-
-      return;
-    }
-    
-    if(appCancelPurchase && !appCancelPurchaseValue){
-      setModalMessage("Favor preencher o Valor do campo 'Gerenciar Cancelamento de Compra'!");
-      setModalSuccess(true);
-      setLoading(false);
-      setLog(1);
-
-      return;
-    }
-
-    const upsertConfig = async (key: string, value: string) => {
-      const existing: any = listLevelsConfig.find((elem: any) => elem.configKey === key);
-      const promise = existing
-        ? repoConfig?.edit(key, value, '', existing.id)
-        : repoConfig?.create(key, value, '');
-
-      const result: any = await promise;
-      if (result instanceof Error) {
-        const message: any = JSON.parse(result.message);
-        throw new Error(message.message || 'Erro ao salvar configuração');
-      }
-    };
-
-
-    try {
-      if (appProductEnabled) {
-        await upsertConfig('app_product', `${appProductTypes}`);
-      } else {
-        repoConfig?.delete('app_product');
-      }
-
-      if (appCheckinEnabled) {
-        await upsertConfig('checkin_class', '');
-      } else {
-        repoConfig?.delete('checkin_class');
-      }
-
-      if (appCancelClass) {
-        await upsertConfig('cancel_class', appCancelClassValue);
-      } else {
-        repoConfig?.delete('cancel_class');
-      }
-
-      if (appCancelPurchase) {
-        await upsertConfig('pusrchase_class', appCancelPurchaseValue);
-      } else {
-        repoConfig?.delete('pusrchase_class');
-      }
-
-      setModalSuccess(true);
-      setLoading(false);
-      setModalMessage("Configurações salvas com sucesso!");
-      setLog(0);
-
-    } catch (error: any) {
-      setModalMessage(error.message);
-      setModalSuccess(true);
-      setLoading(false);
-      setLog(1);
-      setTimeout(() => {
-        setModalMessage(null);
-      }, 2500);
-      return;
-    }
-  };
-
-  const eventButton = [
-    {
-      name: "Cancelar",
-      function: () => {
-
-      },
-      class: "btn-outline-primary",
-    },
-    {
-      name: "Finalizar",
-      function: handleSubmit,
-      class: "btn-primary",
-    },
-  ];
-
-  const handleListLevel = (page: number) => {
-    setLoading(true);
-
-    repo.list(page).then((result: any) => {
-      setLoading(false);
-
-      if (result instanceof Error) {
-        setListLevels([]);
-      } else {
-        setListLevels(result?.data);
-      }
-    }).catch(() => {
-      setListLevels([]);
-    });
-    repoConfig.list().then((result: any) => {
-      setLoading(false);
-
-      if (result instanceof Error) {
-        setListLevelsConfig([]);
-      } else {
-        setListLevelsConfig(result?.data);
-      }
-    }).catch(() => {
-      setListLevelsConfig([]);
-    });
-  }
-
+  // carregar configs da API e normalizar
   useEffect(() => {
-    handleListLevel(page);
-  }, []);
+    (async () => {
+      setLoading(true);
+      try {
+        const result: any = await repoConfig.list();
+        // suporta { data: [...] } ou [...] direto
+        const data: any[] = Array.isArray(result?.data)
+          ? result.data
+          : Array.isArray(result)
+          ? result
+          : [];
 
-  useEffect(() => {
-    if (listLevelsConfig?.length > 0) {
-      let app_product: any = listLevelsConfig.find((elem: any) => { return (elem.configKey === "app_product") });
-      
-      if (app_product) {
-        setAppProductEnabled(true);
-        setAppProductTypes(Number(app_product.configValue))
-      }
+        const next: Record<string, LocalConfig> = {};
 
-      let checkin_class: any = listLevelsConfig.find((elem: any) => { return (elem.configKey === "checkin_class") });
+        for (const item of data) {
+          const key = String(item?.configKey ?? "").trim();
+          if (!key) continue;
 
-      if (checkin_class) {
-        setAppCheckinEnabled(true);
-      }
+          // para a chave de produtos, tentamos parsear array
+          const value =
+            key === KEY_APP_PRODUCTS
+              ? parseValueArray(item?.configValue)
+              : item?.configValue ?? "";
 
-      let cancel_class: any = listLevelsConfig.find((elem: any) => { return (elem.configKey === "cancel_class") });
-
-      if (cancel_class) {
-        setAppCancelClass(true);
-        setAppCancelClassValue(cancel_class.configValue);
-      }
-
-      let pusrchase_class: any = listLevelsConfig.find((elem: any) => { return (elem.configKey === "pusrchase_class") });
-
-      if (cancel_class) {
-        setAppCancelPurchase(true);
-        setAppCancelPurchaseValue(pusrchase_class.configValue);
-      }
-
-    }
-  }, [listLevelsConfig]);
-
-  useEffect(() => {
-    repoDrop.dropdown('productTypes/dropdown').then((result) => {
-      setProductTypes(result);
-    });
-  }, []);
-
-  const columns = [
-    {
-      dataField: 'name',
-      text: `Nome`,
-    },
-    {
-      dataField: 'numberOfClasses',
-      text: `Número de Aulas`,
-    },
-    {
-      dataField: 'title',
-      text: `Título`,
-    },
-    {
-      dataField: 'benefit',
-      text: `Benefício`,
-    },
-    {
-      dataField: 'antecedence',
-      text: `Antecedência de Aulas`,
-    },
-
-  ];
-
-  const handleClosed = () => {
-    setModalSuccess(false);
-  }
-
-  const LoadingStatus = () => {
-    return (
-      <div className="flex flex-col items-center gap-4">
-        <Loading />
-        <h5>Carregando...</h5>
-        <div style={{ height: "56px" }}></div>
-      </div>
-    )
-  }
-
-  const SuccessStatus = () => {
-    return (
-      <div className="flex flex-col items-center gap-4">
-
-        {log === 0 ?
-          <svg className="mt-4 pb-2" width="135" height="135" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1} stroke={"var(--primary)"}>
-            <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-          </svg>
-          :
-          <svg className="mt-4 pb-2" width="135" height="135" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1} stroke={"var(--primary)"}>
-            <path strokeLinecap="round" strokeLinejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
-          </svg>
+          next[key] = {
+            configKey: key,
+            configValue: value,
+            description: item?.description ?? "",
+            active: parseActive(item) ? 1 : 0,
+          };
         }
 
-        <h5 className="text-gray-700">{modalMessage}</h5>
+        // garante chaves padrão mesmo se não vierem da API
+        if (!next[KEY_CHECKIN]) {
+          next[KEY_CHECKIN] = {
+            configKey: KEY_CHECKIN,
+            configValue: "",
+            description: "",
+            active: 0,
+          };
+        }
+        if (!next[KEY_APP_PRODUCTS]) {
+          next[KEY_APP_PRODUCTS] = {
+            configKey: KEY_APP_PRODUCTS,
+            configValue: [], // array de ids
+            description: "",
+            active: 0,
+          };
+        }
+        if (!next[KEY_CANCEL_PURCHASE]) {
+            next[KEY_CANCEL_PURCHASE] = {
+                configKey: KEY_CANCEL_PURCHASE,
+                configValue: '',   // string (ex.: "120" minutos, "2h", etc.)
+                description: '',
+                active: 0,
+            };
+        }
+        if (!next[KEY_CANCEL_CLASS]) {
+            next[KEY_CANCEL_CLASS] = {
+                configKey: KEY_CANCEL_CLASS,
+                configValue: '',   // string (ex.: "2h" ou "120" etc.)
+                description: '',
+                active: 0,
+            };
+        }
 
-        <button className="btn-outline-primary px-5 mt-5" onClick={() => handleClosed()}>
-          Fechar
-        </button>
+        setConfigs(next);
+        setDirtyKeys(new Set()); // nada pendente após carregar
+      } catch (e) {
+        console.error(e);
+      } finally {
+        setLoading(false);
+      }
+    })();
+  }, [repoConfig]);
 
-      </div>
-    )
-  };
+  // carregar tipos de produto (ajuste o método real do seu repoDrop)
+  useEffect(() => {
+        repoDrop.dropdown('productTypes/dropdown').then(setProductTypes);
 
-  useEffect(()=>{
-    console.log(appProductTypes)
-  },[appProductTypes])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
+
+  // helpers
+  const markDirty = useCallback((key: string) => {
+    setDirtyKeys((prev) => {
+      const copy = new Set(prev);
+      copy.add(key);
+      return copy;
+    });
+  }, []);
+
+  // toggle genérico (sem parâmetro, inverte)
+  const handleToggle = useCallback(
+    (key: string) => {
+      setConfigs((prev) => {
+        const current =
+          prev[key] ?? { configKey: key, active: 0, configValue: "", description: "" };
+        const next: LocalConfig = { ...current, active: current.active === 1 ? 0 : 1 };
+        return { ...prev, [key]: next };
+      });
+      markDirty(key);
+    },
+    [markDirty]
+  );
+
+  // toggle com valor explícito vindo do componente
+  const handleToggleExplicit = useCallback(
+    (key: string, nextEnabled: boolean) => {
+      setConfigs((prev) => {
+        const cur =
+          prev[key] ?? { configKey: key, active: 0, configValue: [], description: "" };
+        return { ...prev, [key]: { ...cur, active: nextEnabled ? 1 : 0 } };
+      });
+      markDirty(key);
+    },
+    [markDirty]
+  );
+
+  // mudança de campos de texto
+  const handleFieldChange = useCallback(
+    (key: string, field: "description" | "configValue", value: any) => {
+      setConfigs((prev) => {
+        const current =
+          prev[key] ?? { configKey: key, active: 0, configValue: "", description: "" };
+        const next: LocalConfig = { ...current, [field]: value };
+        return { ...prev, [key]: next };
+      });
+      markDirty(key);
+    },
+    [markDirty]
+  );
+
+  // select (array de ids)
+  const handleSelectChangeArray = useCallback(
+    (key: string, vals: number | number[]) => {
+      const arr = Array.isArray(vals) ? vals : [vals];
+      setConfigs((prev) => {
+        const cur =
+          prev[key] ?? { configKey: key, active: 0, configValue: [], description: "" };
+        return { ...prev, [key]: { ...cur, configValue: arr } };
+      });
+      markDirty(key);
+    },
+    [markDirty]
+  );
+
+  // salvar APENAS o que mudou (um upsert por item)
+  const handleSubmitConfig = useCallback(async () => {
+    if (dirtyKeys.size === 0) return;
+
+    setLoading(true);
+    const keys = Array.from(dirtyKeys);
+
+    try {
+      await Promise.all(
+        keys.map((key) => {
+          const cfg = configs[key];
+          if (!cfg) return Promise.resolve();
+
+          // se o backend precisar de string no configValue, faça JSON.stringify(cfg.configValue)
+          return repoConfig.upsertConfig(
+            cfg.configKey,
+            cfg.configValue ?? "",
+            cfg.description ?? "",
+            cfg.active // 0/1
+          );
+        })
+      );
+
+      setDirtyKeys(new Set());
+    } catch (err) {
+      console.error("Erro ao salvar configs:", err);
+    } finally {
+      setLoading(false);
+    }
+  }, [configs, dirtyKeys, repoConfig]);
+
+  // derived para UI
+  const isCheckinEnabled = configs[KEY_CHECKIN]?.active === 1;
+  const isAppProductsEnabled = configs[KEY_APP_PRODUCTS]?.active === 1;
+  const appProductsValues: number[] = configs[KEY_APP_PRODUCTS]?.configValue ?? [];
 
   return (
     <PageDefault title={"Configurações"}>
-
       <div className="grid grid-cols-12 mt-8 mb-8">
         <div className="col-span-12">
           <AccordionCard title="Configurações do Sistema">
-            <ConfigSection
-              label="Gerenciar Produtos do App Sping'Go"
-              isEnabled={appProductEnabled}
-              onToggleChange={setAppProductEnabled}
-              inputType="select"
-              selectOptions={convertArray(productTypes)}
-              selectValue={appProductTypes}
-              onSelectChange={(vals: number) => {
-                setAppProductTypes(vals);
-              }}
-            />
-
+            {/* Toggle: checkin do app */}
             <ConfigSection
               label="Habilitar Checkin do App Sping'Go"
-              isEnabled={appCheckinEnabled}
-              onToggleChange={setAppCheckinEnabled}
+              isEnabled={isCheckinEnabled}
+              onToggleChange={(_: boolean) => handleToggle(KEY_CHECKIN)}
+            />
+
+            {/* Toggle + Select: produtos habilitados no app */}
+            <ConfigSection
+                label="Gerenciar Produtos do App Sping'Go"
+                isEnabled={configs[KEY_APP_PRODUCTS]?.active === 1}
+                onToggleChange={(next) => {
+                    // toggle explícito (marca dirty)
+                    setConfigs((prev) => {
+                    const cur = prev[KEY_APP_PRODUCTS] ?? { configKey: KEY_APP_PRODUCTS, active: 0, configValue: [], description: "" };
+                    return { ...prev, [KEY_APP_PRODUCTS]: { ...cur, active: next ? 1 : 0 } };
+                    });
+                    setDirtyKeys((prev) => new Set(prev).add(KEY_APP_PRODUCTS));
+                }}
+                inputType="select-multi"
+                selectOptions={productOptions}
+                selectValue={(configs[KEY_APP_PRODUCTS]?.configValue as number[]) ?? []}
+                onSelectChange={(vals) => {
+                    const arr = Array.isArray(vals) ? vals : [vals];
+                    setConfigs((prev) => {
+                    const cur = prev[KEY_APP_PRODUCTS] ?? { configKey: KEY_APP_PRODUCTS, active: 0, configValue: [], description: "" };
+                    return { ...prev, [KEY_APP_PRODUCTS]: { ...cur, configValue: arr } };
+                    });
+                    setDirtyKeys((prev) => new Set(prev).add(KEY_APP_PRODUCTS));
+                }}
             />
 
             <ConfigSection
-              label="Gerenciar Cancelamento de aula"
-              isEnabled={appCancelClass}
-              onToggleChange={setAppCancelClass}
-              inputType="input"
-              inputValue={appCancelClassValue}
-              onInputChange={setAppCancelClassValue}
-              placeholder={"Valor"}
+                label="Gerenciar Cancelamento de aula"
+                isEnabled={configs[KEY_CANCEL_CLASS]?.active === 1}
+                onToggleChange={(next) => handleToggleExplicit(KEY_CANCEL_CLASS, next)}
+                inputType="select"
+                selectOptions={HOURS_OPTIONS}
+                selectValue={
+                    Number(configs[KEY_CANCEL_CLASS]?.configValue ?? 0) || undefined
+                } // number
+                onSelectChange={(val) =>
+                    handleFieldChange(KEY_CANCEL_CLASS, 'configValue', val as number)
+                }
+                placeholder="Valor"
             />
 
+            {/* Cancelamento de compra: toggle + select (single) */}
             <ConfigSection
-              label="Gerenciar Cancelamento de Compra"
-              isEnabled={appCancelPurchase}
-              onToggleChange={setAppCancelPurchase}
-              inputType="input"
-              inputValue={appCancelPurchaseValue}
-              onInputChange={setAppCancelPurchaseValue}
-              placeholder={"Valor"}
+                label="Gerenciar Cancelamento de Compra"
+                isEnabled={configs[KEY_CANCEL_PURCHASE]?.active === 1}
+                onToggleChange={(next) => handleToggleExplicit(KEY_CANCEL_PURCHASE, next)}
+                inputType="select"
+                selectOptions={HOURS_OPTIONS}
+                selectValue={
+                    Number(configs[KEY_CANCEL_PURCHASE]?.configValue ?? 0) || undefined
+                } // number
+                onSelectChange={(val) =>
+                    handleFieldChange(KEY_CANCEL_PURCHASE, 'configValue', val as number)
+                }
+                placeholder="Valor"
             />
 
-            <div className="flex justify-end mt-6">
-              <button className="btn-primary" onClick={() => { handleSubmitConfig() }}>Salvar</button>
-            </div>
+            
           </AccordionCard>
         </div>
+
+        <div className="flex justify-end mt-6 gap-2">
+          <button
+            className="btn-primary disabled:opacity-50"
+            disabled={loading || dirtyKeys.size === 0}
+            onClick={handleSubmitConfig}
+          >
+            {loading ? "Salvando..." : `Salvar${dirtyKeys.size ? ` (${dirtyKeys.size})` : ""}`}
+          </button>
+        </div>
       </div>
-
-
-      {/* <div className="grid grid-cols-12">
-        <div className="col-span-12">
-          <Card title="Cadastrar Nível" hasFooter={true} eventsButton={eventButton} loading={loading}>
-            <div className="grid grid-cols-12 gap-x-8">
-              <div className="col-span-12 sm:col-span-6 xl:col-span-4">
-                <AuthInput
-                  label="Nome do Nível*"
-                  value={name}
-                  type="text"
-                  changeValue={setName}
-                  required
-                />
-              </div>
-              <div className="col-span-12 sm:col-span-6 xl:col-span-4">
-                <AuthInput
-                  label="Número de Aulas*"
-                  value={numberOfClasses}
-                  type="number"
-                  maxLength={14}
-                  changeValue={setNumberOfClasses}
-                  maskType="positivo"
-                  required
-                />
-              </div>
-              <div className="col-span-12 sm:col-span-6 xl:col-span-4">
-                <AuthInput
-                  label="Título*"
-                  value={title}
-                  type="text"
-                  maxLength={14}
-                  changeValue={setTitle}
-                  required
-                />
-              </div>
-              <div className="col-span-12 sm:col-span-6 xl:col-span-4">
-                <AuthInput
-                  label="Benefício*"
-                  value={benefit}
-                  type="text"
-                  maxLength={14}
-                  changeValue={setBenefit}
-                  required
-                />
-              </div>
-              <div className="col-span-12 sm:col-span-6 xl:col-span-4">
-                <AuthSelect
-                  label="Status*"
-                  options={[
-                    { value: '1', colors: "#00FF00", label: "Verde" },
-                    { value: '2', colors: "#FFFF00", label: "Amarelo" },
-                    { value: '3', colors: "#FFA500", label: "Laranja" },
-                    { value: '4', colors: "#0000FF", label: "Azul" },
-                    { value: '5', colors: "#A020F0", label: "Roxo" },
-                    { value: '6', colors: "#FF0000", label: "Vermelho" },
-                    { value: '7', colors: "#000000", label: "Preto" },
-                    { value: '8', colors: "#FFFFFF #FF0000", label: "Branco e Vermelho" },
-                    { value: '9', colors: "#000000 #FFFFFF", label: "Preto e Branco" },
-                    { value: '10', colors: "#000000 #FF0000 #FFFFFF", label: "Preto / Vermelho / Branco" },
-                  ]}
-                  value={color}
-                  changeValue={setColor}
-                  required
-                  showColorIcon={true}
-                />
-              </div>
-              <div className="col-span-12 sm:col-span-6 xl:col-span-4">
-                <AuthInput
-                  label="Antecedência*"
-                  value={antecedence}
-                  type="number"
-                  changeValue={setAntecedence}
-                  required
-                  maskType="positivo"
-                />
-              </div>
-              <ValidationForm errorMessage={errorMessage} />
-            </div>
-
-
-
-          </Card>
-
-          <Card>
-            <Table
-              data={listLevels}
-              columns={columns}
-              class={styles.table_locale_adm}
-              loading={loading}
-              setPage={setPage}
-              infoPage={infoPage}
-            />
-          </Card>
-        </div>
-      </div> */}
-
-      <Modal
-        btnClose={false}
-        showModal={modalSuccess}
-        setShowModal={setModalSuccess}
-        hrefClose={'/proprietarios'}
-        isModalStatus={true}
-      >
-        <div
-          className={`rounded-lg bg-white w-full py-10 px-10 flex flex-col m-auto`}
-        >
-
-          {loading ? <LoadingStatus /> : <SuccessStatus />}
-
-          <div className="">
-
-          </div>
-        </div>
-
-      </Modal>
     </PageDefault>
   );
 }

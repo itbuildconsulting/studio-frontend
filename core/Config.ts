@@ -77,6 +77,21 @@ export default class configRepository implements configRepository {
         return conectAPI(req, `/config/update/`, "POST");
     }
 
+    async upsertConfig(
+        configKey: string | null,
+        configValue: string | null,
+        description: string | null,
+        active: number
+    ): Promise<[]> {
+        const req = {
+            configKey,
+            configValue,
+            description,
+            active
+        };
+        return conectAPI(req, `/config/upsertConfig/`, "POST");
+    }
+
     async delete(
         configKey: string
     ): Promise<[]> {
