@@ -14,6 +14,8 @@ import DropdownType from "../../model/Dropdown";
 import DropDownsCollection from "../../../core/DropDowns";
 import AuthSelect from "@/components/auth/AuthSelect";
 import { convertArray } from "@/utils/convertArray";
+import DropDown from "@/components/dropdown/DropDown";
+import Link from "next/link";
 
 export default function Financial() {
     const edit: boolean = false;
@@ -54,7 +56,6 @@ export default function Financial() {
     }
 
     const convertData = (cell: string) => {
-        console.log('[data]', cell)
         formatDateToBrazilIntl(cell)
     }
 
@@ -89,6 +90,16 @@ export default function Financial() {
         );
     }
 
+    const actionButtonFinancial = (cell: any, row: any) => {
+        return (
+            <DropDown style={'bg-white'}>
+                <>...</>
+                <Link href={`/financeiro/${cell}`}>
+                    Ver
+                </Link>
+            </DropDown>
+        )
+    }
 
     const listFinancial = (clear: boolean = false) => {
         setLoading(true);
@@ -140,6 +151,10 @@ export default function Financial() {
             dataField: 'status',
             text: `Status`,
             formatter: convertStatus
+        },
+        {
+            dataField: 'transactionId',
+            formatter: actionButtonFinancial
         }
     ];
 

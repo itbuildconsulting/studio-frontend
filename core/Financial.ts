@@ -57,4 +57,10 @@ export default class FinancialRepository implements FinancialRepository {
         };
         return conectAPI(req, "/financial/lastTransactions", "POST");
     }
+
+    async getSingleTransactions(
+        transactionId: string | null, 
+    ): Promise<[]> {
+        return conectAPI(null, `/financial/transaction/${transactionId}`, "GET");
+    }
 }
