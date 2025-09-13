@@ -3,11 +3,11 @@
 @tailwind utilities;
 
 :root {
-  --primary: #003d58;
-  --secondary: #70e000;
+  --primary: #2f2f2f;
+  --secondary: #F23238;
   --shadow: #003d5880;
-  --primaryHover: #062d40;
-  --secondaryHover: #548f22;
+  --primaryHover: #2f2f2f;
+  --secondaryHover: #F23238;
   --backgroundColor: #fbfbfb;
 }
 
@@ -72,6 +72,10 @@ label {
   line-height: 150%;
   color: var(--primary);
   margin-bottom: 4px;
+}
+
+.text-primary {
+  color: var(--primary);
 }
 
 input,

@@ -54,8 +54,8 @@ export default function Home() {
                     label: "Total de Vendas",
                     data: datasets,
                     fill: true,
-                    borderColor: "#003D58",
-                    backgroundColor: 'rgba(0, 61, 88, 0.30)',
+                    borderColor: "#2f2f2f",
+                    backgroundColor: '#003d5880',
                     tension: 0.25,
                 },
             ],
@@ -101,7 +101,7 @@ export default function Home() {
         const labels = ['SEG', 'TER', 'QUA', 'QUI', 'SEX', 'SAB', 'DOM'];
 
         const backgroundColors = labels.map((day, index) => {
-            return index === today ? '#003D58' : '#F0F3F7';
+            return index === today ? '#2f2f2f' : '#003d5880';
         });
 
         const datasets = labels.map((week, index) => {

@@ -1,6 +1,6 @@
 import Image from "next/image";
 
-import LogoStudio from "../../../public/images/logo_studio.png";
+import LogoStudio from "../../../public/images/spingo.png";
 
 import styles from '../../styles/login.module.css';
 import { ReactNode } from "react";

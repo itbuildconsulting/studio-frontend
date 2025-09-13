@@ -5,7 +5,7 @@ import {
   IconAdmin, IconAdminFilter, IconClass, IconClose, IconDollar, IconFinance,
   IconHome, IconLeave, IconProducts, IconStudents, IconWorkers
 } from "../icons";
-import LogoShort from "../../../public/images/logo_sudio_short.png";
+import LogoShort from "../../../public/images/spingo.png";
 import MenuItem from "./MenuItem";
 import useAuthData from "@/data/hooks/useAuthData";
 import { checkUserLevel } from "../../../core/CheckUserLevel";
