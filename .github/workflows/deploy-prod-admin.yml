@@ -24,7 +24,7 @@ jobs:
           
       - name: Criar .env.local remoto
         run: |
-          ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no root@212.85.2.8 "cat <<EOF > /var/www/studio/studio-frontend/.env.local
+          ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no root@212.85.2.8 "cat <<EOF > /var/www/prod/spingo-admin/.env.local
             PORT=${{ secrets.PORT }}
             NEXT_PUBLIC_SERVER_URL_API=${{ secrets.NEXT_PUBLIC_SERVER_URL_API }}
             NEXT_PUBLIC_JWT_SECRET_KEY=${{ secrets.NEXT_PUBLIC_JWT_SECRET_KEY }}
@@ -33,7 +33,7 @@ jobs:
       - name: Deploy to VPS
         run: |
           ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no root@212.85.2.8 << 'EOF'
-            cd /var/www/prod/spingo-admin"
+            cd /var/www/prod/spingo-admin
             GIT_SSH_COMMAND='ssh -i ~/.ssh/id_rsa' git pull origin main
             npm install
             npm run build
