@@ -342,9 +342,10 @@ export default function Configuracao() {
           </AccordionCard>
         </div>
 
-        <div className="flex justify-end mt-6 gap-2">
+        <div className="flex col-span-12 justify-end mt-6 gap-2">
           <button
             className="btn-primary disabled:opacity-50"
+            style={{ padding: "5px 20px" }}
             disabled={loading || dirtyKeys.size === 0}
             onClick={handleSubmitConfig}
           >
