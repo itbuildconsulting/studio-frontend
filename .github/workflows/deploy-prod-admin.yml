@@ -1,14 +1,9 @@
 name: Deploy Admin (production)
 
 on:
-  workflow_dispatch: {}         # roda manualmente
   push:
-    tags:
-      - 'v*'                    # ou por tag (v1.2.3)
-
-concurrency:
-  group: deploy-admin-prod
-  cancel-in-progress: false
+    branches:
+      - main                  
 
 jobs:
   deploy:
@@ -19,36 +14,30 @@ jobs:
       - name: Checkout (opcional)
         uses: actions/checkout@v4
 
-      - name: Deploy via SSH
-        uses: appleboy/ssh-action@v1.0.3
-        with:
-          host: ${{ secrets.SSH_HOST }}
-          username: ${{ secrets.SSH_USER }}
-          key: ${{ secrets.SSH_KEY }}
-          script: |
-            set -e
+      - name: Setup SSH
+        shell: bash
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.DEPLOY_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -H 212.85.2.8 >> ~/.ssh/known_hosts
+          
+      - name: Criar .env.local remoto
+        run: |
+          ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no root@212.85.2.8 "cat <<EOF > /var/www/studio/studio-frontend/.env.local
+            PORT=${{ secrets.PORT }}
+            NEXT_PUBLIC_SERVER_URL_API=${{ secrets.NEXT_PUBLIC_SERVER_URL_API }}
+            NEXT_PUBLIC_JWT_SECRET_KEY=${{ secrets.NEXT_PUBLIC_JWT_SECRET_KEY }}
+          EOF"
 
-            APP_DIR="/var/www/prod/spingo-admin"
-            PM2_NAME="spingo-admin-prod"
-            PORT="3100"
-
-            # Código: reseta sempre para a main remota
-            cd "$APP_DIR"
-            git fetch --all
-            git reset --hard origin/main
-
-            # .env de produção (decodifica do secret base64)
-            echo "${{ secrets.ADMIN_ENV_B64 }}" | base64 -d > .env
-            chmod 600 .env
-
-            # Build e (re)start
-            npm ci
+      - name: Deploy to VPS
+        run: |
+          ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no root@212.85.2.8 << 'EOF'
+            cd /var/www/prod/spingo-admin"
+            GIT_SSH_COMMAND='ssh -i ~/.ssh/id_rsa' git pull origin main
+            npm install
             npm run build
-
-            PORT="${PORT}" NODE_ENV=production \
-            pm2 start "npm -- run start" --name "${PM2_NAME}" 2>/dev/null || true
-
-            PORT="${PORT}" NODE_ENV=production \
-            pm2 restart "${PM2_NAME}" --update-env
-
+            pm2 restart spingo-admin-prod || pm2 start npm --name spingo-admin-prod -- start
             pm2 save
+          EOF
+       
