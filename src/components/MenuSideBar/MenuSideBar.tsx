@@ -36,8 +36,8 @@ export default function MenuSideBar({ menuMobileOpen, handleMenuOpen }: MenuSide
     <>
       <div className={`${styles.bg_menu} ${menuMobileOpen ? styles.bg_menu_mobile_open : ""}`}>
         <div>
-          <div className="flex justify-between items-center">
-            <Image src={LogoShort} alt="Logo Studio Raphael Oliveira" />
+          <div className="flex justify-center items-center w-100">
+            <Image src={LogoShort} alt="Logo Studio Raphael Oliveira"  width={150}/>
             <button className={styles.close_menu} onClick={handleMenuOpen} aria-label="Fechar menu">
               {IconClose("16", "16", "#003D58")}
             </button>

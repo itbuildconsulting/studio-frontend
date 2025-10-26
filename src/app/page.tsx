@@ -1,11 +1,9 @@
 'use client'
 
 import AuthInput from "@/components/auth/AuthInput";
-
 import styles from '../styles/login.module.css';
-import { useState, Key } from "react";
+import { useState, Key, FormEvent } from "react";
 import Link from "next/link";
-
 import useAuthData from '../data/hooks/useAuthData';
 import AuthDefault from "@/components/template/auth";
 
@@ -15,9 +13,11 @@ export default function Auth() {
   const [username, setUsername] = useState<string>('');
   const [password, setPassword] = useState<string>('');
 
-  async function handleSubmit() {
+  async function handleSubmit(e: FormEvent<HTMLFormElement>) {
+    e.preventDefault(); // Previne o reload da página
+    
     if (login) {
-      login(username, password);
+      await login(username, password);
     }
   }
 
@@ -29,7 +29,9 @@ export default function Auth() {
             <h2>Bem-vindo!</h2>
             <p className={`${styles.subtitle_login}`}>Entre com seus dados, para fazer login</p>
           </div>
-          <form className="mt-8 " action={() => handleSubmit()}>
+          
+          {/* MUDANÇA AQUI: onSubmit ao invés de action */}
+          <form className="mt-8" onSubmit={handleSubmit}>
             <div>
               <AuthInput
                 label="Usuário"
@@ -50,29 +52,35 @@ export default function Auth() {
               />
             </div>
             <div>
-              {
-                load
-                  ?
-                  <button className="btn-primary">
-                    <div className="load" />
-                  </button>
-                  :
-                  <button className="btn-primary">Entrar</button>
-              }
+              {load ? (
+                <button 
+                  type="submit" 
+                  className="btn-primary btn-custom"
+                  disabled
+                >
+                  <div className="load" />
+                </button>
+              ) : (
+                <button 
+                  type="submit" 
+                  className="btn-primary btn-custom"
+                >
+                  Entrar
+                </button>
+              )}
             </div>
-            {loginError ? (
-              msgError?.map((err: string, index: Key) => (
-                <div className={`error-message`} key={index}>
-                  {/* {IconWarning} */}
-                  <span className='ml-2 text-sm'>{err}</span>
-                </div>
-              ))
-            ) :
-              false
-            }
+            
+            {loginError && msgError?.map((err: string, index: Key) => (
+              <div className={`error-message`} key={index}>
+                <span className='ml-2 text-sm'>{err}</span>
+              </div>
+            ))}
+            
             <div className="px-8">
               <hr className="my-8" />
-              <p className={`${styles.forgotPassword_login}`}>Você esqueceu sua senha? <Link href={"/recuperar-senha"}>Recuperar senha</Link></p>
+              <p className={`${styles.forgotPassword_login}`}>
+                Você esqueceu sua senha? <Link href={"/recuperar-senha"}>Recuperar senha</Link>
+              </p>
             </div>
           </form>
         </div>

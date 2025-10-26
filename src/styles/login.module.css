@@ -1,5 +1,5 @@
 .bg_login {
-    background-image: url(../../public/images/fundo-studio.jpg);
+    background-image: url(../../public/images/fundo_spingo.png);
     background-position: center center;
     background-repeat: no-repeat;
     background-size: cover;
@@ -26,7 +26,7 @@
 
 .form_login button {
     width: 100%;
-    height: 56px;
+    height: 52px;
 }
 
 .subtitle_login {

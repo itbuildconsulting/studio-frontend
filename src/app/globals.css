@@ -7,7 +7,7 @@
   --secondary: #F23238;
   --shadow: #003d5880;
   --primaryHover: #2f2f2f;
-  --secondaryHover: #F23238;
+  --secondaryHover: #9c2126;
   --backgroundColor: #fbfbfb;
 }
 
@@ -16,7 +16,7 @@ html {
 }
 
 body {
-  background-color: #f0f3f7;
+  background-color: #f7f7f7;
   color: var(--primary);
 }
 
@@ -82,8 +82,8 @@ input,
 select,
 .loading-input,
 .rmdp-container input {
-  height: 56px;
-  border-radius: 4px;
+  height: 52px;
+  border-radius: 50px;
   border: 1px solid var(--primary);
   padding: 14px 20px;
   color: var(--primary);
@@ -137,8 +137,8 @@ select,
 }
 
 button {
-  height: 56px;
-  border-radius: 4px;
+  height: 52px;
+  border-radius: 50px;
   font-size: 1rem;
   font-weight: 700;
   line-height: 150%;
@@ -153,14 +153,15 @@ hr {
 }
 
 .btn-primary {
-  background-color: var(--primary);
-  border: 1px solid var(--primary);
+  background-color: var(--secondary);
+  border: 1px solid var(--secondary);
   color: #ffffff;
+  border-radius: 50px;
 }
 
 .btn-primary:hover {
-  background-color: var(--primaryHover);
-  border: 1px solid var(--primaryHover);
+  background-color: var(--secondaryHover);
+  border: 1px solid var(--secondaryHover);
   color: #ffffff;
 }
 
@@ -190,7 +191,7 @@ hr {
 
 /* Estado de ativo do menu */
 .active {
-  background-color: #f0f3f7;
+  background-color: #f7f7f7;
 }
 
 /* END - Estado de ativo do menu */
@@ -388,14 +389,15 @@ hr {
 
 /* Select Multi */
 .select-multi__control {
-  border-radius: 4px !important;
+  border-radius: 50px !important;
   border: 1px solid var(--primary) !important;
   padding: 14px 0 14px 20px;
   color: var(--primary);
   font-size: 1rem;
   font-weight: 500;
   margin-bottom: 2rem;
-  background-color: var(--backgroundColor);
+  background-color: transparent;
+  max-height: 52px;
 }
 
 .select-multi__input-container,
@@ -446,4 +448,18 @@ input.select-multi__input {
 .recurringButton{
   width: 100% !important;
   height: 40px !important;
+}
+
+
+.css-hlgwow{
+  display: inline !important;
+}
+
+.select-multi__indicators{
+  max-height: 52px !important;
+  margin-top: -15px !important;
+}
+
+.select-multi__control{
+  background-color: transparent !important;
 }

@@ -29,7 +29,7 @@
 }
 
 .product_item {
-  background-color: #f0f3f7;
+  background-color: #efefef;
   padding: 14px;
   text-align: center;
   border-radius: 16px;
@@ -50,7 +50,7 @@
 .item_simple_text {
   font-weight: 700;
   font-size: 12px;
-  color: #1f7299;
+  color: #616161;
   opacity: calc(80%);
 }
 

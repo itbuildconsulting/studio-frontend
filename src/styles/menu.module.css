@@ -10,14 +10,14 @@
 }
 
 .bg_menu img {
-    width: 100%;
     padding: .75rem .75rem 1rem;
     border-bottom: 1px solid #EFF4F6;
-    margin-bottom: 3rem;
+    margin-bottom: 2rem;
+    margin-top: 1rem;
 }
 
 .bg_menu li {
-    height: 56px;
+    height: 52px;
 }
 
 .bg_menu a {
@@ -29,7 +29,7 @@
 }
 
 .bg_menu li:hover {
-    background-color: #F0F3F7;
+    background-color: #efefef;
     cursor: pointer;
 }
 

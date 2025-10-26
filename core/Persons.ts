@@ -88,7 +88,7 @@ export default class PersonsRepository implements PersonsRepository {
             country,
             active
         };
-        return conectAPI(req, "/persons", "POST");
+        return conectAPI(req, "/persons/internal", "POST");
     }
 
     async listEmployee(
