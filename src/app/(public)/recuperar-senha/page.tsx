@@ -1,6 +1,6 @@
 'use client'
 
-import styles from '../../styles/login.module.css';
+import styles from '../../../styles/login.module.css';
 import AuthInput from "@/components/auth/AuthInput";
 import { Key, useState } from "react";
 import Link from "next/link";

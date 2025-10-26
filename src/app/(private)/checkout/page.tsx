@@ -5,10 +5,10 @@ import AuthInput from "@/components/auth/AuthInput";
 import PageDefault from "@/components/template/default";
 import { useEffect, useMemo, useState } from "react";
 
-import styles from '../../styles/credit.module.css';
+import styles from '../../../styles/credit.module.css';
 
-import CheckoutCollecion from "../../../core/Checkout";
-import PersonsCollecion from "../../../core/Persons";
+import CheckoutCollecion from "../../../../core/Checkout";
+import PersonsCollecion from "../../../../core/Persons";
 import AuthSelect from "@/components/auth/AuthSelect";
 import { convertArray, convertArrayType } from "@/utils/convertArray";
 import { IconMinus, IconPlus } from "@/components/icons";
