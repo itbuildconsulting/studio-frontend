@@ -8,12 +8,12 @@ import PageDefault from "@/components/template/default";
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 
-import ClassCollection from "../../../../../../../core/Class";
-import DropDownsCollection from "../../../../../../../core/DropDowns";
+import ClassCollection from "../../../../../../core/Class";
+import DropDownsCollection from "../../../../../../core/DropDowns";
 import Modal from "@/components/Modal/Modal";
 import Loading from "@/components/loading/Loading";
 
-import DropdownType from "../../../../../../model/Dropdown";
+import DropdownType from "../../../../../model/Dropdown";
 import AuthSelectMulti from "@/components/auth/AuthSelectMulti";
 import useConvertDate from "@/data/hooks/useConvertDate";
 import { convertDate } from "@/utils/formatterText";
@@ -24,7 +24,7 @@ import { convertArray, convertArrayType } from "@/utils/convertArray";
 import { ValidationForm } from "@/components/formValidation/validation";
 import ValidationFields from "@/validators/fields";
 
-import listTimes from '../../../../../../json/time.json';
+import listTimes from '../../../../../json/time.json';
 
 export default function AddClass() {
     const edit: boolean = true;
