@@ -20,6 +20,7 @@ import { convertArray } from "@/utils/convertArray";
 import ValidationFields from "@/validators/fields";
 import { ValidationForm } from "@/components/formValidation/validation";
 import { ConfigSection } from "@/components/ConfigSection/ConfigSection";
+import LevelManager from "@/components/LevelManager/LevelManager";
 
 type LocalConfig = {
   configKey: string;
@@ -338,19 +339,28 @@ export default function Configuracao() {
                 placeholder="Valor"
             />
 
+             <div className="flex col-span-12 justify-end mt-6 gap-2">
+              <button
+                className="btn-primary disabled:opacity-50"
+                style={{ padding: "5px 20px" }}
+                disabled={loading || dirtyKeys.size === 0}
+                onClick={handleSubmitConfig}
+              >
+                {loading ? "Salvando..." : `Salvar`}
+              </button>
+            </div>
+
             
           </AccordionCard>
         </div>
 
-        <div className="flex col-span-12 justify-end mt-6 gap-2">
-          <button
-            className="btn-primary disabled:opacity-50"
-            style={{ padding: "5px 20px" }}
-            disabled={loading || dirtyKeys.size === 0}
-            onClick={handleSubmitConfig}
-          >
-            {loading ? "Salvando..." : `Salvar${dirtyKeys.size ? ` (${dirtyKeys.size})` : ""}`}
-          </button>
+       
+
+
+        <div className="col-span-12 mt-16">
+          <AccordionCard title="Configurações de Níveis">
+              <LevelManager />
+          </AccordionCard>
         </div>
       </div>
     </PageDefault>

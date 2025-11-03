@@ -63,9 +63,9 @@ export const ConfigSection: React.FC<ConfigSectionProps> = ({
 
   return (
     <>
-      <div className="grid grid-cols-12 gap-x-8">
-        <div className="col-span-6 flex" style={{ minHeight: "80px" }}>
-          <label className="inline-flex items-center cursor-pointer mb-[2rem]">
+      <div className="grid grid-cols-12 gap-x-8 py-4">
+        <div className="col-span-6 flex" style={{ minHeight: "120px" }}>
+          <label className="inline-flex items-center cursor-pointer">
             <input
               type="checkbox"
               className="sr-only peer"
@@ -117,7 +117,7 @@ export const ConfigSection: React.FC<ConfigSectionProps> = ({
         </div>
       </div>
 
-      <hr className="mb-[2rem]" />
+      <hr/>
     </>
   );
 };
