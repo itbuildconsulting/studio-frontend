@@ -1,5 +1,3 @@
-'use client'
-
 import { PrivateRoute } from "@/components/privateRoute/privateRoute";
 import { Metadata } from "next";
 
