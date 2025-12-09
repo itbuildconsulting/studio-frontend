@@ -45,6 +45,7 @@ async function conectAPI(req: object | null, url: string, method: string) {
 }
 
 export default class ProductRepository implements ProductRepository {
+    // 🆕 MÉTODO CREATE ATUALIZADO COM NOVOS PARÂMETROS
     async create(
         name: string | null,
         credit: number | null,
@@ -52,7 +53,10 @@ export default class ProductRepository implements ProductRepository {
         value: number | null,
         productTypeId: number | null,
         placeId: number | null,
-        active: boolean
+        active: boolean,
+        requiredLevel: number | null = null,      // 🆕 Nível mínimo
+        exclusiveLevels: string | null = null,     // 🆕 Níveis exclusivos (string separada por vírgulas)
+        purchaseLimit: number = 0                   // 🆕 Limite de compras
     ): Promise<[]> {
         const req = {
             name,
@@ -61,7 +65,10 @@ export default class ProductRepository implements ProductRepository {
             value,
             productTypeId,
             placeId,
-            active
+            active: active ? 1 : 0,
+            requiredLevel,      // 🆕
+            exclusiveLevels,    // 🆕
+            purchaseLimit       // 🆕
         };
         return conectAPI(req, "/products", "POST");
     }
@@ -74,10 +81,16 @@ export default class ProductRepository implements ProductRepository {
         return conectAPI(null, `/products/filtered?page=${page}&pageSize=10&productTypeId=${productTypeId}`, "GET");
     }
 
+    // 🆕 NOVO MÉTODO PARA FILTRAR POR NÍVEL DO ALUNO
+    async listFilteredByLevel(studentLevel: number): Promise<[]> {
+        return conectAPI(null, `/products/filtered?studentLevel=${studentLevel}`, "GET");
+    }
+
     async details(id: number): Promise<[]> {
         return conectAPI(null, `/products/${id}`, "GET");
     }
 
+    // 🆕 MÉTODO EDIT ATUALIZADO COM NOVOS PARÂMETROS
     async edit(
         id: number | null,
         name: string | null,
@@ -86,7 +99,10 @@ export default class ProductRepository implements ProductRepository {
         value: number | null,
         productTypeId: number | null,
         placeId: number | null,
-        active: boolean
+        active: boolean,
+        requiredLevel: number | null = null,      // 🆕 Nível mínimo
+        exclusiveLevels: string | null = null,     // 🆕 Níveis exclusivos
+        purchaseLimit: number = 0                   // 🆕 Limite de compras
     ): Promise<[]> {
         const req = {
             name,
@@ -95,7 +111,10 @@ export default class ProductRepository implements ProductRepository {
             value,
             productTypeId,
             placeId,
-            active
+            active: active ? 1 : 0,
+            requiredLevel,      // 🆕
+            exclusiveLevels,    // 🆕
+            purchaseLimit       // 🆕
         };
         return conectAPI(req, `/products/${id}`, "PUT");
     }

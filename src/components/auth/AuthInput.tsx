@@ -12,7 +12,7 @@ interface AuthInputProps {
     maxLength?: number,
     type?: 'text' | 'email' | 'password' | 'date' | 'number',
     disabled?: boolean,
-    maskType?: 'cnpj' | 'cpf' | 'telefone' | 'metros' | 'hora' | 'percent' | 'none' | 'positivo',
+    maskType?: 'cnpj' | 'cpf' | 'telefone' | 'metros' | 'hora' | 'percent' | 'none' | 'positivo' | 'currency',
     changeValue: (novoValor: any) => void,
     tooltipMessage?: string,
     edit?: boolean
@@ -53,9 +53,13 @@ const AuthInput = (props: AuthInputProps) => {
                         .replace(/^(\d{2})(\d)/, '($1) $2')
                         .replace(/(\d{5})(\d)/, '$1-$2');
                 }
+
             case 'metros':
-                return Intl.NumberFormat('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format((Number(onlyDigits.replace(/(\..*)\./g, '$1')) / 100));
-            //return (Number(onlyDigits.replace(/(\..*)\./g, '$1')) / 100).toFixed(2).toLocaleString();
+                return Intl.NumberFormat('pt-BR', { 
+                    minimumFractionDigits: 2, 
+                    maximumFractionDigits: 2 
+                }).format((Number(onlyDigits.replace(/(\..*)\./g, '$1')) / 100));
+
             case 'hora':
                 if (Number(onlyDigits) > 2359) {
                     return '23:59';
@@ -67,16 +71,35 @@ const AuthInput = (props: AuthInputProps) => {
                     onlyDigits = `0${onlyDigits}`
                 }
 
-                return `${onlyDigits.slice(0, 2)}:${onlyDigits.slice(2)}`
+                return `${onlyDigits.slice(0, 2)}:${onlyDigits.slice(2)}`;
 
-            case 'percent': // Máscara de porcentagem
-                // Limita a entrada para números de 0 a 100 e adiciona o '%'
+            case 'percent':
+                // Limita a entrada para números de 0 a 100
                 let numericValue = parseInt(onlyDigits);
                 if (isNaN(numericValue)) {
-                    numericValue = 0; // Se não for número, define 0
+                    numericValue = 0;
                 }
-                numericValue = Math.min(Math.max(numericValue, 0), 100); // Limita entre 0 e 100
+                numericValue = Math.min(Math.max(numericValue, 0), 100);
                 return `${numericValue}`;
+
+            // ✅ NOVO: Máscara de moeda (R$)
+            case 'currency':
+                // Remove tudo que não é dígito
+                const currencyValue = onlyDigits.replace(/\D/g, '');
+                
+                // Se vazio, retorna 0
+                if (!currencyValue || currencyValue === '0') {
+                    return '0,00';
+                }
+
+                // Converte para número e divide por 100 para considerar os centavos
+                const numberValue = Number(currencyValue) / 100;
+
+                // Formata como moeda brasileira
+                return Intl.NumberFormat('pt-BR', {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2
+                }).format(numberValue);
 
             case 'positivo':
                 return onlyDigits !== '' && Number(onlyDigits) <= 0 ? 0 : onlyDigits;

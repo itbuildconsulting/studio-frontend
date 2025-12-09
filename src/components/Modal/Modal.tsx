@@ -28,7 +28,7 @@ export default function Modal({
                     <div
                         className={`${styles.modal_fade} ${modalPosition === "top" ? "justify-start pt-24" : "justify-center"} items-center flex flex-col overflow-x-hidden overflow-y-hidden fixed inset-0 z-50 outline-none focus:outline-none`}
                     >
-                        <div className={`${!isModalStatus ? `${styles.modal}` : `${styles.modalStatus}`}`} style={customStyle}>
+                        <div className={`${!isModalStatus ? `${styles.modal}` : `${styles.modalStatus}`} overflow-auto`} style={customStyle}>
                             <div>
                                 {
                                     !isModalStatus

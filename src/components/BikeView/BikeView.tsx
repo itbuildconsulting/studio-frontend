@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { BikeAvalible, BikeBusy, BikeDisable } from '../icons';
+import { BikeAvalible, BikeBusy, BikeDisable, BirthdayIcon } from '../icons';
 import DropDown from '../dropdown/DropDown';
 import Link from 'next/link';
 import Modal from "@/components/Modal/Modal";
@@ -9,11 +9,13 @@ import AuthInput from '../auth/AuthInput';
 import AuthSelect from '../auth/AuthSelect';
 import { convertArray } from '@/utils/convertArray';
 import { useParams } from 'next/navigation';
+import { isBirthday } from '@/utils/checkBirthday';
 
 type Bike = {
     bikeNumber: number;
     status?: string; // "in_use" ou "disable". Ausente significa "available".
     studentName?: string;
+    studentBirthday?: string; // ✅ ADICIONAR
 };
 
 type BikeStatusProps = {
@@ -96,7 +98,15 @@ const BikeView: React.FC<BikeStatusProps> = ({ bikes, totalBikes, onUpdateBikes,
                     {bike?.status === 'in_use' &&
                         <div className="flex flex-col items-center text-red-500">
                             {BikeBusy()}
-                            <span className='text-xs'>{bike?.studentName}</span>
+                             
+                            <span className='absolute text-xs -bottom-4 z-10'>
+                                {bike?.studentName}
+                            </span>
+                            {isBirthday(bike?.studentBirthday) && (
+                                <span className='text-xs text-yellow-500 font-bold absolute text-xs -bottom-8 z-10'>
+                                    🎂 Aniversário!
+                                </span>
+                            )}
                         </div>
                     }
                     {bike?.status === 'in_use' &&

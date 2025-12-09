@@ -21,9 +21,13 @@ import { PaginationModel } from "@/types/pagination";
 import pageDefault from "@/utils/pageDetault";
 import { ActionButtonDinamic } from "@/utils/actionTableDinamic";
 
+import { useRouter } from "next/navigation";
+
 
 
 export default function Class() {
+    const router = useRouter();
+
     const repo = useMemo(() => new ClassCollecion(), []);
     const repoDrop = useMemo(() => new DropDownsCollection(), []);
 
@@ -60,6 +64,11 @@ export default function Class() {
 
         });
     }
+
+    const handleRowClick = (row: any) => {
+        // Redireciona para a página de visualizar aula
+        router.push(`/aulas/listar/${row.id}`);
+    };
 
     /*const handleActionButton = (cell: number, row: any) => {
         console.log(cell)
@@ -228,6 +237,7 @@ export default function Class() {
                             loading={loading}
                             setPage={setPage}
                             infoPage={infoPage}
+                            onRowClick={handleRowClick} 
                         />
                     </Card>
                 </div>

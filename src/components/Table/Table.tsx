@@ -10,7 +10,8 @@ interface TableProps {
     rowClasses?: any,
     loading?: boolean,
     setPage?: (page: number) => void,
-    infoPage?: PaginationModel
+    infoPage?: PaginationModel,
+    onRowClick?: (row: any) => void; // ✅ NOVA PROP
 }
 
 export default function Table(props: TableProps) {
@@ -22,7 +23,12 @@ export default function Table(props: TableProps) {
                     <tbody>
                         {props?.data?.length > 0 && props.loading === false ? (
                         props.data.map((item: any, index: number) => (
-                            <tr key={index} className={`${props?.rowClasses?.(item) || ""}`}>
+                            <tr 
+                                key={index} 
+                                className={`${props?.rowClasses?.(item) || ""} ${props.onRowClick ? 'cursor-pointer hover:bg-gray-50' : ''}`}
+                                onClick={() => props.onRowClick?.(item)}
+                                style={props.onRowClick ? { cursor: 'pointer' } : undefined}
+                            >
                             {props.columns.map((col: any, i: number) => (
                                 <td key={i}>
                                 <div className="flex flex-col justify-center">
@@ -74,7 +80,12 @@ export default function Table(props: TableProps) {
                         {
                             props?.data?.length > 0 ? props?.data?.map((item: any, index: number) => {
                                 return (
-                                    <div key={index} className={`${styles.bg_table_card} grid grid-cols-12 gap-8`}>
+                                    <div 
+                                        key={index} 
+                                        className={`${styles.bg_table_card} grid grid-cols-12 gap-8 ${props.onRowClick ? 'cursor-pointer hover:bg-gray-50' : ''}`}
+                                        onClick={() => props.onRowClick?.(item)}
+                                        style={props.onRowClick ? { cursor: 'pointer' } : undefined}
+                                    >
                                         {
                                             props.columns.map((col: any, indexHeader: number) => {
                                                 return (

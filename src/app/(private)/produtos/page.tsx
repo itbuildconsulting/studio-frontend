@@ -38,8 +38,15 @@ export default function Products() {
     const [value, setValue] = useState<number | null>(null);
     const [status, setStatus] = useState<boolean>(true);
 
+    // 🆕 NOVOS ESTADOS PARA RESTRIÇÕES
+    const [restrictionType, setRestrictionType] = useState<'none' | 'minimum' | 'exclusive'>('none');
+    const [requiredLevel, setRequiredLevel] = useState<number | null>(null);
+    const [exclusiveLevels, setExclusiveLevels] = useState<number[]>([]);
+    const [purchaseLimit, setPurchaseLimit] = useState<number>(0);
+
     const [dropdownPlace, setDropdownPlace] = useState<string[]>([]);
     const [dropdownType, setDropdownType] = useState<string[]>([]);
+    const [dropdownLevels, setDropdownLevels] = useState<any[]>([]);
 
     const [modalSuccess, setModalSuccess] = useState<any>(false);
     const [log, setLog] = useState<number | null>(null);
@@ -54,6 +61,14 @@ export default function Products() {
 
     const [page, setPage] = useState<number>(1);
     const [infoPage, setInfoPage] = useState<PaginationModel>(pageDefault);
+
+    const handleExclusiveLevelToggle = (levelId: number) => {
+        setExclusiveLevels(prev =>
+            prev.includes(levelId)
+                ? prev.filter(id => id !== levelId)
+                : [...prev, levelId]
+        );
+    };
 
     const actionLocaleName = (cell: any, row: any) => {
         return cell?.place?.name || " - ";
@@ -75,14 +90,12 @@ export default function Products() {
         return (
             <DropDown style={'bg-white'}>
                 <>...</>
-
                 <Link href={"#"} onClick={() => detailsProduct(cell)}>
                     Editar
                 </Link>
                 <Link href={'#'} onClick={() => deleteProduct(cell)}>
                     Excluir
                 </Link>
-
             </DropDown>
         )
     }
@@ -126,7 +139,13 @@ export default function Products() {
         setErrorMessage(null);
         setLoading(true);
 
-        const validationError = ValidationFields({ "Nome do Produto": productName, "Créditos": `${creditValue}`, "Validade": `${validity}`, "Tipo de Produto": `${typeProduct}`, "Valor": `${value}` });
+        const validationError = ValidationFields({ 
+            "Nome do Produto": productName, 
+            "Créditos": `${creditValue}`, 
+            "Validade": `${validity}`, 
+            "Tipo de Produto": `${typeProduct}`, 
+            "Valor": `${value}` 
+        });
 
         if (validationError) {
             setErrorMessage(validationError);
@@ -134,10 +153,45 @@ export default function Products() {
             return;
         }
 
+        let finalRequiredLevel = null;
+        let finalExclusiveLevels = null;
+
+        if (restrictionType === 'minimum' && requiredLevel) {
+            finalRequiredLevel = requiredLevel;
+        } else if (restrictionType === 'exclusive' && exclusiveLevels.length > 0) {
+            finalExclusiveLevels = exclusiveLevels.join(',');
+        }
+
         setLoading(true);
         setErrorMessage(null);
 
-        (edit ? repo?.edit(id, productName, Number(creditValue), Number(validity), Number(value), typeProduct, localeName, status) : repo?.create(productName, Number(creditValue), Number(validity), Number(value), typeProduct, localeName, status)).then((result: any) => {
+        (edit 
+            ? repo?.edit(
+                id, 
+                productName, 
+                Number(creditValue), 
+                Number(validity), 
+                Number(value), 
+                typeProduct, 
+                localeName, 
+                status,
+                finalRequiredLevel,
+                finalExclusiveLevels,
+                purchaseLimit
+            ) 
+            : repo?.create(
+                productName, 
+                Number(creditValue), 
+                Number(validity), 
+                Number(value), 
+                typeProduct, 
+                localeName, 
+                status,
+                finalRequiredLevel,
+                finalExclusiveLevels,
+                purchaseLimit
+            )
+        ).then((result: any) => {
             if (result instanceof Error) {
                 const message: any = JSON.parse(result.message);
                 setErrorMessage(message.error);
@@ -196,7 +250,6 @@ export default function Products() {
                 <button className="btn-outline-primary px-5 mt-5" onClick={() => handleClosed()}>
                     Fechar
                 </button>
-
             </div>
         )
     };
@@ -242,6 +295,18 @@ export default function Products() {
                 setLocaleName(result.placeId);
                 setValue(result.value);
                 setStatus(result.active);
+                
+                setPurchaseLimit(result.purchaseLimit || 0);
+                
+                if (result.exclusiveLevels) {
+                    setRestrictionType('exclusive');
+                    setExclusiveLevels(result.exclusiveLevels.split(',').map(Number));
+                } else if (result.requiredLevel) {
+                    setRestrictionType('minimum');
+                    setRequiredLevel(result.requiredLevel);
+                } else {
+                    setRestrictionType('none');
+                }
             }
         }).catch(() => { });
     };
@@ -279,9 +344,17 @@ export default function Products() {
             setLocaleName(null);
             setValue(null);
             setStatus(true);
+            
+            setRestrictionType('none');
+            setRequiredLevel(null);
+            setExclusiveLevels([]);
+            setPurchaseLimit(0);
         } else {
             repoDrop.dropdown('places').then(setDropdownPlace);
             repoDrop.dropdown('productTypes/dropdown').then(setDropdownType);
+            repoDrop.dropdown('level/dropdown').then((levels: any) => {
+                setDropdownLevels(levels);
+            });
         }
     }, [modalProductAdd]);
 
@@ -388,6 +461,175 @@ export default function Products() {
                             required
                         />
                     </div>
+
+                    {/* 🆕 SEÇÃO DE RESTRIÇÕES - ESTILO AJUSTADO */}
+                    <div className="col-span-12 mt-6">
+                        {/* Header da Seção */}
+                        <div className="flex items-center gap-2 mb-4">
+                            <span className="text-2xl">🎯</span>
+                            <h3 className="text-lg font-semibold text-gray-800">Restrições de Acesso</h3>
+                        </div>
+
+                        {/* Pergunta */}
+                        <label className="block text-sm font-medium text-gray-700 mb-3">
+                            Quem pode ver este produto?
+                        </label>
+
+                        {/* Opções de Radio */}
+                        <div className="space-y-3">
+                            {/* Opção 1: Todos os alunos */}
+                            <label 
+                                className={`
+                                    flex items-center gap-3 p-4 border-2 rounded-xl cursor-pointer transition-all
+                                    ${restrictionType === 'none' 
+                                        ? 'border-green-500 bg-white' 
+                                        : 'border-gray-200 bg-white hover:border-gray-300'
+                                    }
+                                `}
+                            >
+                                <input
+                                    type="radio"
+                                    name="restrictionType"
+                                    value="none"
+                                    checked={restrictionType === 'none'}
+                                    onChange={() => {
+                                        setRestrictionType('none');
+                                        setRequiredLevel(null);
+                                        setExclusiveLevels([]);
+                                    }}
+                                    className="w-5 h-5 text-green-600"
+                                />
+                                <span className="text-sm">
+                                    ✨ Todos os alunos
+                                </span>
+                            </label>
+
+                            {/* Opção 2: Nível mínimo */}
+                            <div 
+                                className={`
+                                    border-2 rounded-xl transition-all
+                                    ${restrictionType === 'minimum' 
+                                        ? 'border-green-500 bg-white' 
+                                        : 'border-gray-200 bg-white'
+                                    }
+                                `}
+                            >
+                                <label className="flex items-center gap-3 p-4 cursor-pointer">
+                                    <input
+                                        type="radio"
+                                        name="restrictionType"
+                                        value="minimum"
+                                        checked={restrictionType === 'minimum'}
+                                        onChange={() => {
+                                            setRestrictionType('minimum');
+                                            setExclusiveLevels([]);
+                                        }}
+                                        className="w-5 h-5 text-green-600"
+                                    />
+                                    <span className="text-sm">
+                                        📈 Apenas alunos do nível
+                                    </span>
+                                </label>
+                                
+                                {restrictionType === 'minimum' && (
+                                    <div className="px-4 pb-4">
+                                        <select
+                                            value={requiredLevel || ''}
+                                            onChange={(e) => setRequiredLevel(Number(e.target.value))}
+                                            className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
+                                        >
+                                            <option value="">Selecione o nível...</option>
+                                            {dropdownLevels.map((level: any) => (
+                                                <option key={level.id} value={level.id}>
+                                                    {level.name} ou superior
+                                                </option>
+                                            ))}
+                                        </select>
+                                    </div>
+                                )}
+                            </div>
+
+                            {/* Opção 3: Níveis exclusivos */}
+                            <div 
+                                className={`
+                                    border-2 rounded-xl transition-all
+                                    ${restrictionType === 'exclusive' 
+                                        ? 'border-green-500 bg-white' 
+                                        : 'border-gray-200 bg-white'
+                                    }
+                                `}
+                            >
+                                <label className="flex items-center gap-3 p-4 cursor-pointer">
+                                    <input
+                                        type="radio"
+                                        name="restrictionType"
+                                        value="exclusive"
+                                        checked={restrictionType === 'exclusive'}
+                                        onChange={() => {
+                                            setRestrictionType('exclusive');
+                                            setRequiredLevel(null);
+                                        }}
+                                        className="w-5 h-5 text-green-600"
+                                    />
+                                    <span className="text-sm">
+                                        👑 Apenas níveis específicos:
+                                    </span>
+                                </label>
+
+                                {restrictionType === 'exclusive' && (
+                                    <div className="px-4 pb-4">
+                                        <div className="grid grid-cols-2 gap-3 p-3 bg-gray-50 rounded-lg">
+                                            {dropdownLevels.map((level: any) => (
+                                                <label 
+                                                    key={level.id}
+                                                    className="flex items-center gap-2 p-2 rounded-lg hover:bg-white cursor-pointer transition-all"
+                                                >
+                                                    <input
+                                                        type="checkbox"
+                                                        checked={exclusiveLevels.includes(level.id)}
+                                                        onChange={() => handleExclusiveLevelToggle(level.id)}
+                                                        className="w-4 h-4 text-green-600 rounded"
+                                                    />
+                                                    <span 
+                                                        className="text-xs font-semibold px-3 py-1 rounded-full text-black"
+                                                        style={{ backgroundColor: level.color || '#gray' }}
+                                                    >
+                                                        {level.name}
+                                                    </span>
+                                                </label>
+                                            ))}
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+
+                        {/* Limite de Compras */}
+                        <div className="mt-6">
+                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                                Limite de compras por aluno
+                            </label>
+                            <select
+                                value={purchaseLimit}
+                                onChange={(e) => setPurchaseLimit(Number(e.target.value))}
+                                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
+                            >
+                                <option value={0}>Sem limite - pode comprar infinitas vezes</option>
+                                <option value={1}>Máximo 1 compra por aluno</option>
+                                <option value={2}>Máximo 2 compras por aluno</option>
+                                <option value={3}>Máximo 3 compras por aluno</option>
+                                <option value={5}>Máximo 5 compras por aluno</option>
+                                <option value={10}>Máximo 10 compras por aluno</option>
+                            </select>
+                            <p className="text-xs text-gray-500 italic mt-1">
+                                {purchaseLimit === 0 
+                                    ? '✨ Sem limite - pode comprar infinitas vezes'
+                                    : `⚠️ Máximo ${purchaseLimit} compra(s) por aluno`
+                                }
+                            </p>
+                        </div>
+                    </div>
+
                     <ValidationForm errorMessage={errorMessage} />
                 </div>
             </Modal>
@@ -400,17 +642,9 @@ export default function Products() {
                 isModalStatus={true}
                 edit={edit}
             >
-                <div
-                    className={`rounded-lg bg-white w-full py-10 px-10 flex flex-col m-auto`}
-                >
-
+                <div className={`rounded-lg bg-white w-full py-10 px-10 flex flex-col m-auto`}>
                     {loading ? <LoadingStatus /> : <SuccessStatus />}
-
-                    <div className="">
-
-                    </div>
                 </div>
-
             </Modal>
         </PageDefault>
     )
