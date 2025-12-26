@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import AuthDefault from '@/components/template/auth';
 import styles from '@/styles/login.module.css';
@@ -12,7 +12,8 @@ interface VerificationState {
   authToken?: string;
 }
 
-export default function VerifyEmailPage() {
+// Componente separado que usa useSearchParams
+function VerifyEmailContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const token = searchParams.get('token');
@@ -190,5 +191,27 @@ export default function VerifyEmailPage() {
         </div>
       </div>
     </AuthDefault>
+  );
+}
+
+// Componente principal exportado com Suspense
+export default function VerifyEmailPage() {
+  return (
+    <Suspense fallback={
+      <AuthDefault>
+        <div className={`${styles.form_login}`}>
+          <div className="w-full text-center">
+            <div className="mb-8">
+              <div className="inline-block">
+                <div className="load"></div>
+              </div>
+            </div>
+            <h2>Carregando...</h2>
+          </div>
+        </div>
+      </AuthDefault>
+    }>
+      <VerifyEmailContent />
+    </Suspense>
   );
 }

@@ -265,6 +265,8 @@ export default function EditTeachers() {
     };
 
     useEffect(() => {
+        if (!searchParams?.slug) return;
+        
         repo?.details(+searchParams?.slug).then((result: any) => {
             console.log(result)
             if (result instanceof Error) {

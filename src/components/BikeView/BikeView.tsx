@@ -248,6 +248,8 @@ const BikeView: React.FC<BikeStatusProps> = ({ bikes, totalBikes, onUpdateBikes,
                     onSubmit={() => {
                         const currentBike = bikes.find((b: any) => b.bikeNumber === selectedBike);
                         if (currentBike) {
+                            if (!searchParams?.slug) return;
+
                             handleRemoveStudent(+searchParams?.slug, currentBike.studentId);
                             setBikeStatus('');
                             closeModal();
@@ -281,6 +283,7 @@ const BikeView: React.FC<BikeStatusProps> = ({ bikes, totalBikes, onUpdateBikes,
                         if (selectedBike) {
                             const currentBike = bikes.find((b: any) => b.bikeNumber === selectedBike);
                             if (currentBike) {
+                                if (!searchParams?.slug) return;
                                 handleCheckin(+searchParams?.slug, currentBike.studentId);
                                 setBikeStatus('');
                                 closeModal();

@@ -99,6 +99,8 @@ export default function AddClass() {
     }
 
     useEffect(() => {
+        if (!searchParams?.slug) return;
+
         repo?.details(+searchParams?.slug).then((result: any) => {
             if (result instanceof Error) {
                 const message: any = JSON.parse(result.message);
@@ -137,6 +139,8 @@ export default function AddClass() {
     };
 
     const onSubmit = () => {
+        if (!searchParams?.slug) return;
+        
         const validationError = ValidationFields({ "Data": date, "Hora": time, "Professor": String(teacher), "Tipo de Produto": String(typeProduct) });
 
         if (validationError) {

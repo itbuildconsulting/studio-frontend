@@ -67,6 +67,8 @@ export default function ListClass() {
     }
 
     useEffect(() => {
+        if (!searchParams?.slug) return;
+        
         repo?.details(+searchParams?.slug).then((result: any) => {
             if (result instanceof Error) {
                 const message: any = JSON.parse(result.message);

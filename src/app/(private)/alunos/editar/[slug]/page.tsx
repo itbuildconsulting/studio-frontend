@@ -268,6 +268,8 @@ export default function EditStudents() {
     };
 
     useEffect(() => {
+        if (!searchParams?.slug) return;
+        
         repo?.details(+searchParams?.slug).then((result: any) => {
             console.log()
             if (result instanceof Error) {
