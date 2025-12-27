@@ -34,9 +34,26 @@ jobs:
         run: |
           ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no root@212.85.2.8 << 'EOF'
             cd /var/www/prod/spingo-admin
+            
+            # Mostra status atual
+            echo "=== Git Status ==="
+            git status
+            
+            # Descarta todas as mudanças locais
+            git reset --hard
+            git clean -fd
+            
+            # Atualiza a branch
+            git fetch origin
             GIT_SSH_COMMAND='ssh -i ~/.ssh/id_rsa' git pull origin main
+            
+            # Instala dependências
             npm install
+            
+            # Build
             npm run build
+            
+            # Reinicia PM2
             pm2 restart spingo-admin-prod || pm2 start npm --name spingo-admin-prod -- start
             pm2 save
           EOF
