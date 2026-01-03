@@ -45,9 +45,9 @@ jobs:
             # Atualiza a branch
             git fetch origin
             GIT_SSH_COMMAND='ssh -i ~/.ssh/id_rsa' git pull origin main
-            
+
             npm install
             npm run build
-            pm2 restart studio-frontend || pm2 start npm --name studio-frontend -- start
+            PORT=${{ vars.PORT }} pm2 restart studio-frontend || PORT=${{ vars.PORT }} pm2 start npm --name studio-frontend -- start
             pm2 save
           EOF
