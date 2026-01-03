@@ -48,6 +48,6 @@ jobs:
 
             npm install
             npm run build
-            PORT=${{ vars.PORT }} pm2 restart studio-frontend || PORT=${{ vars.PORT }} pm2 start npm --name studio-frontend -- start
+            PORT=3030 pm2 restart studio-frontend || PORT=3030 pm2 start npm --name studio-frontend -- start
             pm2 save
           EOF
