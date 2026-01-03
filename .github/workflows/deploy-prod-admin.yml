@@ -3,7 +3,7 @@ name: Deploy Admin (production)
 on:
   push:
     branches:
-      - main                  
+      - release                  
 
 jobs:
   deploy:
@@ -45,7 +45,7 @@ jobs:
             
             # Atualiza a branch
             git fetch origin
-            GIT_SSH_COMMAND='ssh -i ~/.ssh/id_rsa' git pull origin main
+            GIT_SSH_COMMAND='ssh -i ~/.ssh/id_rsa' git pull origin release
             
             # Instala dependências
             npm install

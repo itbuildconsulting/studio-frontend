@@ -45,7 +45,6 @@ async function conectAPI(req: object | null, url: string, method: string) {
 }
 
 export default class ProductRepository implements ProductRepository {
-    // 🆕 MÉTODO CREATE ATUALIZADO COM NOVOS PARÂMETROS
     async create(
         name: string | null,
         credit: number | null,
@@ -54,9 +53,11 @@ export default class ProductRepository implements ProductRepository {
         productTypeId: number | null,
         placeId: number | null,
         active: boolean,
-        requiredLevel: number | null = null,      // 🆕 Nível mínimo
-        exclusiveLevels: string | null = null,     // 🆕 Níveis exclusivos (string separada por vírgulas)
-        purchaseLimit: number = 0                   // 🆕 Limite de compras
+        usageRestrictionType: string = 'none',           // ⭐ NOVO: Tipo de restrição de uso
+        usageRestrictionLimit: number | null = null,     // ⭐ NOVO: Limite de uso
+        requiredLevel: number | null = null,             // 📌 EXISTENTE: Nível mínimo
+        exclusiveLevels: string | null = null,           // 📌 EXISTENTE: Níveis exclusivos
+        purchaseLimit: number = 0                        // 📌 EXISTENTE: Limite de compras
     ): Promise<[]> {
         const req = {
             name,
@@ -66,31 +67,31 @@ export default class ProductRepository implements ProductRepository {
             productTypeId,
             placeId,
             active: active ? 1 : 0,
-            requiredLevel,      // 🆕
-            exclusiveLevels,    // 🆕
-            purchaseLimit       // 🆕
+            usageRestrictionType,    // ⭐ NOVO
+            usageRestrictionLimit,   // ⭐ NOVO
+            requiredLevel,           // 📌 EXISTENTE
+            exclusiveLevels,         // 📌 EXISTENTE
+            purchaseLimit            // 📌 EXISTENTE
         };
-        return conectAPI(req, "/products", "POST");
+        return conectAPI(req, "/product", "POST");
     }
 
     async list(page: number): Promise<[]> {
-        return conectAPI(null, `/products?page=${page}`, "GET");
+        return conectAPI(null, `/product?page=${page}`, "GET");
     }
 
     async listFiltered(page: number, productTypeId: string | null): Promise<[]> {
-        return conectAPI(null, `/products/filtered?page=${page}&pageSize=10&productTypeId=${productTypeId}`, "GET");
+        return conectAPI(null, `/product/filtered?page=${page}&pageSize=10&productTypeId=${productTypeId}`, "GET");
     }
 
-    // 🆕 NOVO MÉTODO PARA FILTRAR POR NÍVEL DO ALUNO
     async listFilteredByLevel(studentLevel: number): Promise<[]> {
-        return conectAPI(null, `/products/filtered?studentLevel=${studentLevel}`, "GET");
+        return conectAPI(null, `/product/filtered?studentLevel=${studentLevel}`, "GET");
     }
 
     async details(id: number): Promise<[]> {
-        return conectAPI(null, `/products/${id}`, "GET");
+        return conectAPI(null, `/product/${id}`, "GET");
     }
 
-    // 🆕 MÉTODO EDIT ATUALIZADO COM NOVOS PARÂMETROS
     async edit(
         id: number | null,
         name: string | null,
@@ -100,9 +101,11 @@ export default class ProductRepository implements ProductRepository {
         productTypeId: number | null,
         placeId: number | null,
         active: boolean,
-        requiredLevel: number | null = null,      // 🆕 Nível mínimo
-        exclusiveLevels: string | null = null,     // 🆕 Níveis exclusivos
-        purchaseLimit: number = 0                   // 🆕 Limite de compras
+        usageRestrictionType: string = 'none',           // ⭐ NOVO: Tipo de restrição de uso
+        usageRestrictionLimit: number | null = null,     // ⭐ NOVO: Limite de uso
+        requiredLevel: number | null = null,             // 📌 EXISTENTE: Nível mínimo
+        exclusiveLevels: string | null = null,           // 📌 EXISTENTE: Níveis exclusivos
+        purchaseLimit: number = 0                        // 📌 EXISTENTE: Limite de compras
     ): Promise<[]> {
         const req = {
             name,
@@ -112,14 +115,16 @@ export default class ProductRepository implements ProductRepository {
             productTypeId,
             placeId,
             active: active ? 1 : 0,
-            requiredLevel,      // 🆕
-            exclusiveLevels,    // 🆕
-            purchaseLimit       // 🆕
+            usageRestrictionType,    // ⭐ NOVO
+            usageRestrictionLimit,   // ⭐ NOVO
+            requiredLevel,           // 📌 EXISTENTE
+            exclusiveLevels,         // 📌 EXISTENTE
+            purchaseLimit            // 📌 EXISTENTE
         };
-        return conectAPI(req, `/products/${id}`, "PUT");
+        return conectAPI(req, `/product/${id}`, "PUT");
     }
 
     async delete(id: number): Promise<[]> {
-        return conectAPI(null, `/products/remove/${id}`, "POST");
+        return conectAPI(null, `/product/remove/${id}`, "POST");
     }
 }

@@ -38,11 +38,15 @@ export default function Products() {
     const [value, setValue] = useState<number | null>(null);
     const [status, setStatus] = useState<boolean>(true);
 
-    // 🆕 NOVOS ESTADOS PARA RESTRIÇÕES
+    // RESTRIÇÕES DE NÍVEL
     const [restrictionType, setRestrictionType] = useState<'none' | 'minimum' | 'exclusive'>('none');
     const [requiredLevel, setRequiredLevel] = useState<number | null>(null);
     const [exclusiveLevels, setExclusiveLevels] = useState<number[]>([]);
     const [purchaseLimit, setPurchaseLimit] = useState<number>(0);
+
+    // RESTRIÇÕES DE USO
+    const [usageRestrictionType, setUsageRestrictionType] = useState<string>('none');
+    const [usageRestrictionLimit, setUsageRestrictionLimit] = useState<number | null>(null);
 
     const [dropdownPlace, setDropdownPlace] = useState<string[]>([]);
     const [dropdownType, setDropdownType] = useState<string[]>([]);
@@ -61,6 +65,13 @@ export default function Products() {
 
     const [page, setPage] = useState<number>(1);
     const [infoPage, setInfoPage] = useState<PaginationModel>(pageDefault);
+
+    const usageRestrictionOptions = [
+        { value: 'none', label: 'Ilimitado' },
+        { value: 'weekly', label: 'Semanal' },
+        { value: 'monthly', label: 'Mensal' },
+        { value: 'lifetime', label: 'Vitalício' }
+    ];
 
     const handleExclusiveLevelToggle = (levelId: number) => {
         setExclusiveLevels(prev =>
@@ -84,6 +95,18 @@ export default function Products() {
 
     const convertStatus = (cell: any, row: any) => {
         return cell === 1 ? "Ativo" : "Inativo"
+    }
+
+    const formatUsageRestriction = (cell: any, row: any) => {
+        if (row.usageRestrictionType === 'none' || !row.usageRestrictionLimit) {
+            return 'Ilimitado';
+        }
+        const typeLabels: any = {
+            'weekly': '/sem',
+            'monthly': '/mês',
+            'lifetime': ' total'
+        };
+        return `${row.usageRestrictionLimit}x${typeLabels[row.usageRestrictionType]}`;
     }
 
     const actionButtonProduct = (cell: any, row: any) => {
@@ -125,6 +148,11 @@ export default function Products() {
             formatter: convertValue
         },
         {
+            dataField: 'usageRestrictionType',
+            text: `Uso`,
+            formatter: formatUsageRestriction
+        },
+        {
             dataField: 'active',
             text: `Status`,
             formatter: convertStatus
@@ -153,6 +181,12 @@ export default function Products() {
             return;
         }
 
+        if (usageRestrictionType !== 'none' && (!usageRestrictionLimit || usageRestrictionLimit < 1)) {
+            setErrorMessage('Quando há restrição de uso, o limite deve ser maior que zero');
+            setLoading(false);
+            return;
+        }
+
         let finalRequiredLevel = null;
         let finalExclusiveLevels = null;
 
@@ -175,6 +209,8 @@ export default function Products() {
                 typeProduct, 
                 localeName, 
                 status,
+                usageRestrictionType,
+                usageRestrictionLimit,
                 finalRequiredLevel,
                 finalExclusiveLevels,
                 purchaseLimit
@@ -187,6 +223,8 @@ export default function Products() {
                 typeProduct, 
                 localeName, 
                 status,
+                usageRestrictionType,
+                usageRestrictionLimit,
                 finalRequiredLevel,
                 finalExclusiveLevels,
                 purchaseLimit
@@ -297,6 +335,8 @@ export default function Products() {
                 setStatus(result.active);
                 
                 setPurchaseLimit(result.purchaseLimit || 0);
+                setUsageRestrictionType(result.usageRestrictionType || 'none');
+                setUsageRestrictionLimit(result.usageRestrictionLimit || null);
                 
                 if (result.exclusiveLevels) {
                     setRestrictionType('exclusive');
@@ -349,6 +389,8 @@ export default function Products() {
             setRequiredLevel(null);
             setExclusiveLevels([]);
             setPurchaseLimit(0);
+            setUsageRestrictionType('none');
+            setUsageRestrictionLimit(null);
         } else {
             repoDrop.dropdown('places').then(setDropdownPlace);
             repoDrop.dropdown('productTypes/dropdown').then(setDropdownType);
@@ -390,6 +432,13 @@ export default function Products() {
                 edit={edit}
             >
                 <div className="grid grid-cols-12 gap-x-6">
+                    {/* ========== INFORMAÇÕES BÁSICAS ========== */}
+                    <div className="col-span-12 mb-2">
+                        <h3 className="text-base font-bold text-gray-800 border-b-2 border-gray-200 pb-2">
+                            📦 Informações Básicas
+                        </h3>
+                    </div>
+
                     <div className="col-span-6">
                         <AuthInput
                             label="Nome do Produto*"
@@ -423,7 +472,7 @@ export default function Products() {
                     </div>
                     <div className="col-span-6">
                         <AuthSelect
-                            label='Tipo de Produto'
+                            label='Tipo de Produto*'
                             value={typeProduct}
                             options={convertArrayType(dropdownType)}
                             changeValue={setTypeProduct}
@@ -446,14 +495,8 @@ export default function Products() {
                         <AuthSelect
                             label="Status*"
                             options={[
-                                {
-                                    value: 1,
-                                    label: "Ativo"
-                                },
-                                {
-                                    value: 0,
-                                    label: "Inativo"
-                                }
+                                { value: 1, label: "Ativo" },
+                                { value: 0, label: "Inativo" }
                             ]}
                             value={status}
                             changeValue={setStatus}
@@ -462,171 +505,228 @@ export default function Products() {
                         />
                     </div>
 
-                    {/* 🆕 SEÇÃO DE RESTRIÇÕES - ESTILO AJUSTADO */}
-                    <div className="col-span-12 mt-6">
-                        {/* Header da Seção */}
-                        <div className="flex items-center gap-2 mb-4">
-                            <span className="text-2xl">🎯</span>
-                            <h3 className="text-lg font-semibold text-gray-800">Restrições de Acesso</h3>
+                    {/* ========== SEÇÃO 1: LIMITE DE USO ========== */}
+                    <div className="col-span-12 mt-8">
+                        <div className="bg-gradient-to-r from-blue-50 to-blue-100 p-4 rounded-xl border-l-4 border-blue-500">
+                            <div className="flex items-center gap-3 mb-3">
+                                <span className="text-3xl">⏱️</span>
+                                <div>
+                                    <h3 className="text-base font-bold text-gray-800">Limite de Uso por Período</h3>
+                                    <p className="text-xs text-gray-600">Quantas aulas o aluno pode fazer por semana/mês</p>
+                                </div>
+                            </div>
+
+                            <div className="grid grid-cols-2 gap-4 mt-4">
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                                        Tipo de Limite
+                                    </label>
+                                    <select
+                                        value={usageRestrictionType}
+                                        onChange={(e) => setUsageRestrictionType(e.target.value)}
+                                        className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+                                    >
+                                        {usageRestrictionOptions.map(opt => (
+                                            <option key={opt.value} value={opt.value}>{opt.label}</option>
+                                        ))}
+                                    </select>
+                                </div>
+
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                                        {usageRestrictionType === 'weekly' ? 'Aulas por Semana' :
+                                         usageRestrictionType === 'monthly' ? 'Aulas por Mês' :
+                                         usageRestrictionType === 'lifetime' ? 'Total de Aulas' :
+                                         'Quantidade'}
+                                    </label>
+                                    <input
+                                        type="number"
+                                        value={usageRestrictionLimit || ''}
+                                        onChange={(e) => setUsageRestrictionLimit(e.target.value ? Number(e.target.value) : null)}
+                                        disabled={usageRestrictionType === 'none'}
+                                        placeholder={usageRestrictionType === 'none' ? 'Ilimitado' : 'Ex: 2, 3, 12...'}
+                                        className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100 disabled:cursor-not-allowed"
+                                        min="1"
+                                    />
+                                </div>
+                            </div>
+
+                            <div className="mt-3 p-3 bg-white/80 rounded-lg text-xs text-gray-700 italic">
+                                {usageRestrictionType === 'none' && '✨ Sem limite - aluno pode usar quantos créditos quiser'}
+                                {usageRestrictionType === 'weekly' && '📅 Aluno só pode fazer X aulas por semana (segunda a domingo)'}
+                                {usageRestrictionType === 'monthly' && '📅 Aluno só pode fazer X aulas por mês'}
+                                {usageRestrictionType === 'lifetime' && '🎯 Limite total de aulas desde a compra do produto'}
+                            </div>
                         </div>
+                    </div>
 
-                        {/* Pergunta */}
-                        <label className="block text-sm font-medium text-gray-700 mb-3">
-                            Quem pode ver este produto?
-                        </label>
+                    {/* ========== SEÇÃO 2: QUEM PODE VER ========== */}
+                    <div className="col-span-12 mt-6">
+                        <div className="bg-gradient-to-r from-purple-50 to-purple-100 p-4 rounded-xl border-l-4 border-purple-500">
+                            <div className="flex items-center gap-3 mb-3">
+                                <span className="text-3xl">👥</span>
+                                <div>
+                                    <h3 className="text-base font-bold text-gray-800">Quem Pode Ver Este Produto?</h3>
+                                    <p className="text-xs text-gray-600">Restrinja por nível do aluno</p>
+                                </div>
+                            </div>
 
-                        {/* Opções de Radio */}
-                        <div className="space-y-3">
-                            {/* Opção 1: Todos os alunos */}
-                            <label 
-                                className={`
-                                    flex items-center gap-3 p-4 border-2 rounded-xl cursor-pointer transition-all
-                                    ${restrictionType === 'none' 
-                                        ? 'border-green-500 bg-white' 
-                                        : 'border-gray-200 bg-white hover:border-gray-300'
-                                    }
-                                `}
-                            >
-                                <input
-                                    type="radio"
-                                    name="restrictionType"
-                                    value="none"
-                                    checked={restrictionType === 'none'}
-                                    onChange={() => {
-                                        setRestrictionType('none');
-                                        setRequiredLevel(null);
-                                        setExclusiveLevels([]);
-                                    }}
-                                    className="w-5 h-5 text-green-600"
-                                />
-                                <span className="text-sm">
-                                    ✨ Todos os alunos
-                                </span>
-                            </label>
-
-                            {/* Opção 2: Nível mínimo */}
-                            <div 
-                                className={`
-                                    border-2 rounded-xl transition-all
-                                    ${restrictionType === 'minimum' 
-                                        ? 'border-green-500 bg-white' 
-                                        : 'border-gray-200 bg-white'
-                                    }
-                                `}
-                            >
-                                <label className="flex items-center gap-3 p-4 cursor-pointer">
+                            <div className="space-y-3 mt-4">
+                                {/* Opção: Todos */}
+                                <label 
+                                    className={`
+                                        flex items-center gap-3 p-3 border-2 rounded-lg cursor-pointer transition-all
+                                        ${restrictionType === 'none' 
+                                            ? 'border-purple-500 bg-white shadow-md' 
+                                            : 'border-gray-200 bg-white/50 hover:border-purple-300'
+                                        }
+                                    `}
+                                >
                                     <input
                                         type="radio"
                                         name="restrictionType"
-                                        value="minimum"
-                                        checked={restrictionType === 'minimum'}
+                                        value="none"
+                                        checked={restrictionType === 'none'}
                                         onChange={() => {
-                                            setRestrictionType('minimum');
+                                            setRestrictionType('none');
+                                            setRequiredLevel(null);
                                             setExclusiveLevels([]);
                                         }}
-                                        className="w-5 h-5 text-green-600"
+                                        className="w-4 h-4 text-purple-600"
                                     />
-                                    <span className="text-sm">
-                                        📈 Apenas alunos do nível
-                                    </span>
-                                </label>
-                                
-                                {restrictionType === 'minimum' && (
-                                    <div className="px-4 pb-4">
-                                        <select
-                                            value={requiredLevel || ''}
-                                            onChange={(e) => setRequiredLevel(Number(e.target.value))}
-                                            className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
-                                        >
-                                            <option value="">Selecione o nível...</option>
-                                            {dropdownLevels.map((level: any) => (
-                                                <option key={level.id} value={level.id}>
-                                                    {level.name} ou superior
-                                                </option>
-                                            ))}
-                                        </select>
-                                    </div>
-                                )}
-                            </div>
-
-                            {/* Opção 3: Níveis exclusivos */}
-                            <div 
-                                className={`
-                                    border-2 rounded-xl transition-all
-                                    ${restrictionType === 'exclusive' 
-                                        ? 'border-green-500 bg-white' 
-                                        : 'border-gray-200 bg-white'
-                                    }
-                                `}
-                            >
-                                <label className="flex items-center gap-3 p-4 cursor-pointer">
-                                    <input
-                                        type="radio"
-                                        name="restrictionType"
-                                        value="exclusive"
-                                        checked={restrictionType === 'exclusive'}
-                                        onChange={() => {
-                                            setRestrictionType('exclusive');
-                                            setRequiredLevel(null);
-                                        }}
-                                        className="w-5 h-5 text-green-600"
-                                    />
-                                    <span className="text-sm">
-                                        👑 Apenas níveis específicos:
-                                    </span>
+                                    <span className="text-sm font-medium">✨ Todos os alunos podem ver</span>
                                 </label>
 
-                                {restrictionType === 'exclusive' && (
-                                    <div className="px-4 pb-4">
-                                        <div className="grid grid-cols-2 gap-3 p-3 bg-gray-50 rounded-lg">
-                                            {dropdownLevels.map((level: any) => (
-                                                <label 
-                                                    key={level.id}
-                                                    className="flex items-center gap-2 p-2 rounded-lg hover:bg-white cursor-pointer transition-all"
-                                                >
-                                                    <input
-                                                        type="checkbox"
-                                                        checked={exclusiveLevels.includes(level.id)}
-                                                        onChange={() => handleExclusiveLevelToggle(level.id)}
-                                                        className="w-4 h-4 text-green-600 rounded"
-                                                    />
-                                                    <span 
-                                                        className="text-xs font-semibold px-3 py-1 rounded-full text-black"
-                                                        style={{ backgroundColor: level.color || '#gray' }}
-                                                    >
-                                                        {level.name}
-                                                    </span>
-                                                </label>
-                                            ))}
+                                {/* Opção: Nível Mínimo */}
+                                <div 
+                                    className={`
+                                        border-2 rounded-lg transition-all
+                                        ${restrictionType === 'minimum' 
+                                            ? 'border-purple-500 bg-white shadow-md' 
+                                            : 'border-gray-200 bg-white/50'
+                                        }
+                                    `}
+                                >
+                                    <label className="flex items-center gap-3 p-3 cursor-pointer">
+                                        <input
+                                            type="radio"
+                                            name="restrictionType"
+                                            value="minimum"
+                                            checked={restrictionType === 'minimum'}
+                                            onChange={() => {
+                                                setRestrictionType('minimum');
+                                                setExclusiveLevels([]);
+                                            }}
+                                            className="w-4 h-4 text-purple-600"
+                                        />
+                                        <span className="text-sm font-medium">📈 A partir de um nível mínimo</span>
+                                    </label>
+                                    
+                                    {restrictionType === 'minimum' && (
+                                        <div className="px-3 pb-3">
+                                            <select
+                                                value={requiredLevel || ''}
+                                                onChange={(e) => setRequiredLevel(Number(e.target.value))}
+                                                className="w-full px-3 py-2 border border-purple-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
+                                            >
+                                                <option value="">Selecione o nível mínimo...</option>
+                                                {dropdownLevels.map((level: any) => (
+                                                    <option key={level.id} value={level.id}>
+                                                        {level.name} ou superior
+                                                    </option>
+                                                ))}
+                                            </select>
                                         </div>
-                                    </div>
-                                )}
+                                    )}
+                                </div>
+
+                                {/* Opção: Níveis Específicos */}
+                                <div 
+                                    className={`
+                                        border-2 rounded-lg transition-all
+                                        ${restrictionType === 'exclusive' 
+                                            ? 'border-purple-500 bg-white shadow-md' 
+                                            : 'border-gray-200 bg-white/50'
+                                        }
+                                    `}
+                                >
+                                    <label className="flex items-center gap-3 p-3 cursor-pointer">
+                                        <input
+                                            type="radio"
+                                            name="restrictionType"
+                                            value="exclusive"
+                                            checked={restrictionType === 'exclusive'}
+                                            onChange={() => {
+                                                setRestrictionType('exclusive');
+                                                setRequiredLevel(null);
+                                            }}
+                                            className="w-4 h-4 text-purple-600"
+                                        />
+                                        <span className="text-sm font-medium">👑 Apenas níveis específicos</span>
+                                    </label>
+
+                                    {restrictionType === 'exclusive' && (
+                                        <div className="px-3 pb-3">
+                                            <div className="grid grid-cols-2 gap-2 p-3 bg-purple-50/50 rounded-lg">
+                                                {dropdownLevels.map((level: any) => (
+                                                    <label 
+                                                        key={level.id}
+                                                        className="flex items-center gap-2 p-2 rounded-lg hover:bg-white cursor-pointer transition-all"
+                                                    >
+                                                        <input
+                                                            type="checkbox"
+                                                            checked={exclusiveLevels.includes(level.id)}
+                                                            onChange={() => handleExclusiveLevelToggle(level.id)}
+                                                            className="w-4 h-4 text-purple-600 rounded"
+                                                        />
+                                                        <span 
+                                                            className="text-xs font-semibold px-3 py-1 rounded-full text-black"
+                                                            style={{ backgroundColor: level.color || '#d1d5db' }}
+                                                        >
+                                                            {level.name}
+                                                        </span>
+                                                    </label>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
                             </div>
                         </div>
+                    </div>
 
-                        {/* Limite de Compras */}
-                        <div className="mt-6">
-                            <label className="block text-sm font-medium text-gray-700 mb-2">
-                                Limite de compras por aluno
-                            </label>
-                            <select
-                                value={purchaseLimit}
-                                onChange={(e) => setPurchaseLimit(Number(e.target.value))}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
-                            >
-                                <option value={0}>Sem limite - pode comprar infinitas vezes</option>
-                                <option value={1}>Máximo 1 compra por aluno</option>
-                                <option value={2}>Máximo 2 compras por aluno</option>
-                                <option value={3}>Máximo 3 compras por aluno</option>
-                                <option value={5}>Máximo 5 compras por aluno</option>
-                                <option value={10}>Máximo 10 compras por aluno</option>
-                            </select>
-                            <p className="text-xs text-gray-500 italic mt-1">
-                                {purchaseLimit === 0 
-                                    ? '✨ Sem limite - pode comprar infinitas vezes'
-                                    : `⚠️ Máximo ${purchaseLimit} compra(s) por aluno`
-                                }
-                            </p>
+                    {/* ========== SEÇÃO 3: LIMITE DE COMPRAS ========== */}
+                    <div className="col-span-12 mt-6 mb-4">
+                        <div className="bg-gradient-to-r from-amber-50 to-amber-100 p-4 rounded-xl border-l-4 border-amber-500">
+                            <div className="flex items-center gap-3 mb-3">
+                                <span className="text-3xl">🛒</span>
+                                <div>
+                                    <h3 className="text-base font-bold text-gray-800">Limite de Compras</h3>
+                                    <p className="text-xs text-gray-600">Quantas vezes o aluno pode comprar este produto</p>
+                                </div>
+                            </div>
+
+                            <div className="mt-4">
+                                <select
+                                    value={purchaseLimit}
+                                    onChange={(e) => setPurchaseLimit(Number(e.target.value))}
+                                    className="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 bg-white"
+                                >
+                                    <option value={0}>♾️ Sem limite - pode comprar infinitas vezes</option>
+                                    <option value={1}>1️⃣ Máximo 1 compra (produto único)</option>
+                                    <option value={2}>2️⃣ Máximo 2 compras</option>
+                                    <option value={3}>3️⃣ Máximo 3 compras</option>
+                                    <option value={5}>5️⃣ Máximo 5 compras</option>
+                                    <option value={10}>🔟 Máximo 10 compras</option>
+                                </select>
+                                
+                                <div className="mt-3 p-3 bg-white/80 rounded-lg text-xs text-gray-700 italic">
+                                    {purchaseLimit === 0 
+                                        ? '✨ Aluno pode renovar este produto sempre que quiser'
+                                        : `⚠️ Após ${purchaseLimit} compra(s), o produto ficará bloqueado para este aluno`
+                                    }
+                                </div>
+                            </div>
                         </div>
                     </div>
 
