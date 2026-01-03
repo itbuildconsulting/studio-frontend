@@ -33,7 +33,19 @@ jobs:
         run: |
           ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no root@212.85.2.8 << 'EOF'
             cd /var/www/studio/studio-frontend
+
+            # Mostra status atual
+            echo "=== Git Status ==="
+            git status
+            
+            # Descarta todas as mudanças locais
+            git reset --hard
+            git clean -fd
+
+            # Atualiza a branch
+            git fetch origin
             GIT_SSH_COMMAND='ssh -i ~/.ssh/id_rsa' git pull origin main
+            
             npm install
             npm run build
             pm2 restart studio-frontend || pm2 start npm --name studio-frontend -- start
