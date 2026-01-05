@@ -73,23 +73,23 @@ export default class ProductRepository implements ProductRepository {
             exclusiveLevels,         // 📌 EXISTENTE
             purchaseLimit            // 📌 EXISTENTE
         };
-        return conectAPI(req, "/product", "POST");
+        return conectAPI(req, "/products", "POST");
     }
 
     async list(page: number): Promise<[]> {
-        return conectAPI(null, `/product?page=${page}`, "GET");
+        return conectAPI(null, `/products?page=${page}`, "GET");
     }
 
     async listFiltered(page: number, productTypeId: string | null): Promise<[]> {
-        return conectAPI(null, `/product/filtered?page=${page}&pageSize=10&productTypeId=${productTypeId}`, "GET");
+        return conectAPI(null, `/products/filtered?page=${page}&pageSize=10&productTypeId=${productTypeId}`, "GET");
     }
 
     async listFilteredByLevel(studentLevel: number): Promise<[]> {
-        return conectAPI(null, `/product/filtered?studentLevel=${studentLevel}`, "GET");
+        return conectAPI(null, `/products/filtered?studentLevel=${studentLevel}`, "GET");
     }
 
     async details(id: number): Promise<[]> {
-        return conectAPI(null, `/product/${id}`, "GET");
+        return conectAPI(null, `/products/${id}`, "GET");
     }
 
     async edit(
@@ -121,10 +121,10 @@ export default class ProductRepository implements ProductRepository {
             exclusiveLevels,         // 📌 EXISTENTE
             purchaseLimit            // 📌 EXISTENTE
         };
-        return conectAPI(req, `/product/${id}`, "PUT");
+        return conectAPI(req, `/products/${id}`, "PUT");
     }
 
     async delete(id: number): Promise<[]> {
-        return conectAPI(null, `/product/remove/${id}`, "POST");
+        return conectAPI(null, `/products/remove/${id}`, "POST");
     }
 }
