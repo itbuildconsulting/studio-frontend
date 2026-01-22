@@ -8,6 +8,7 @@ import { useRouter, useParams } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 
 import PersonsCollecion from "../../../../../../core/Persons";
+import DropDownsCollection from "../../../../../../core/DropDowns";
 import SingleCalendar from "@/components/date/SingleCalendar";
 import Loading from "@/components/loading/Loading";
 import Modal from "@/components/Modal/Modal";
@@ -24,6 +25,7 @@ export default function EditStudents() {
     
     const edit: boolean = true;
     const repo = useMemo(() => new PersonsCollecion(), []);
+    const repoDrop = useMemo(() => new DropDownsCollection(), []);
 
     const searchParams = useParams()
     const router = useRouter();
@@ -52,6 +54,55 @@ export default function EditStudents() {
     const [successMessage, setSuccessMessage] = useState<any>(null);
     const [loading, setLoading] = useState<any>(false);
     const [errorMessage, setErrorMessage] = useState<any>(null);
+
+    const [modalLevelShow, setModalLevelShow] = useState(false);
+    const [selectedLevel, setSelectedLevel] = useState<any>(0);
+    const [dropdownLevelStudent, setDropdownLevelStudent] = useState([]);
+    const [loadingLevel, setLoadingLevel] = useState(false);
+
+    useEffect(() => {
+        if (modalLevelShow) {
+            // Buscar níveis disponíveis
+            repoDrop.dropdown('level').then((levels: any) => {
+                const formattedLevels = levels.data.map((level: any) => ({
+                    value: level.id,
+                    label: level.name,
+                }));
+                setDropdownLevelStudent(formattedLevels);
+                
+            });
+        }
+    }, [modalLevelShow]);
+
+    const onSubmitUpdateLevel = async () => {
+        setLoadingLevel(true);
+        setErrorMessage('');
+
+        if (!selectedLevel) {
+            setErrorMessage('Selecione um nível');
+            setLoadingLevel(false);
+            return;
+        }
+
+        try {
+            const result = await repo.updateStudentLevel(
+                Number(searchParams?.slug), 
+                Number(selectedLevel)
+            );
+            
+            if (result) {
+                setSuccessMessage('Nível atualizado com sucesso!');
+                setModalLevelShow(false);
+                // Recarregar dados ou atualizar estado local
+                window.location.reload();
+            }
+        } catch (error: any) {
+            const errorData = JSON.parse(error.message);
+            setErrorMessage(errorData.error || 'Erro ao atualizar nível');
+        } finally {
+            setLoadingLevel(false);
+        }
+    };
 
     const [dropdownLevel] = useState<any>(
         [
@@ -393,6 +444,12 @@ export default function EditStudents() {
 
     return (
         <PageDefault title={"Editar Aluno"}>
+            <button 
+                className="btn-primary px-4 "
+                onClick={() => setModalLevelShow(true)}
+            >
+                Atualizar Nível
+            </button>
             <div className="grid grid-cols-12">
                 <div className="col-span-12">
                     <Card
@@ -610,6 +667,33 @@ export default function EditStudents() {
                     </div>
                 </div>
 
+            </Modal>
+
+            <Modal
+                title="Atualizar Nível do Aluno"
+                btnClose={true}
+                setShowModal={setModalLevelShow}
+                showModal={modalLevelShow}
+                hasFooter={true}
+                onSubmit={onSubmitUpdateLevel}
+                loading={loadingLevel}
+                edit={true}
+            >
+                <div>
+                    <AuthSelect
+                        label="Selecione o Nível"
+                        value={selectedLevel}
+                        options={dropdownLevelStudent}
+                        changeValue={setSelectedLevel}
+                        edit={true}
+                        required
+                    />
+                    {errorMessage && (
+                        <div className="text-red-500 text-sm mt-2">
+                            {errorMessage}
+                        </div>
+                    )}
+                </div>
             </Modal>
         </PageDefault>
     )
