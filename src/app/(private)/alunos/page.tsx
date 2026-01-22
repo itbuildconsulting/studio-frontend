@@ -67,6 +67,26 @@ export default function Students() {
         )
     }
 
+    const displayLevel = (cell: any, row: any) => {
+    if (!row.levelInfo) {
+        return <span className="text-gray-400">Sem nível</span>;
+    }
+    
+    return (
+        <div className="flex items-center gap-2">
+            <div
+                style={{
+                    width: '12px',
+                    height: '12px',
+                    borderRadius: '50%',
+                    backgroundColor: row.levelInfo.color || '#gray',
+                }}
+            />
+            <span>{row.levelInfo.name}</span>
+        </div>
+    );
+};
+
     const columns = [
         {
             dataField: 'name',
@@ -80,6 +100,11 @@ export default function Students() {
             dataField: 'phone',
             text: `Telefone`,
             formatter: convertPhone
+        },
+        {
+            dataField: 'levelInfo', // ✅ NOVA COLUNA
+            text: `Nível`,
+            formatter: displayLevel
         },
         {
             dataField: 'updatedAt',
