@@ -58,4 +58,5 @@ export default interface PersonsRepository {
         active: number
     ): Promise<Persons[]>;
     delete(id: number): Promise<Persons[]>
+    updateStudentLevel(id: number, student_level: number): Promise<[]>
 }
