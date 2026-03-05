@@ -3,7 +3,7 @@ import Image from "next/image";
 import styles from "../../styles/menu.module.css";
 import {
   IconAdmin, IconAdminFilter, IconClass, IconClose, IconDollar, IconFinance,
-  IconHome, IconInstallment, IconLeave, IconProducts, IconStats, IconStudents, IconWorkers,
+  IconHome, IconInstallment, IconLeave, IconProducts, IconStudents, IconWorkers,
 } from "../icons";
 import LogoShort from "../../../public/images/spingo.png";
 import MenuItem from "./MenuItem";
@@ -22,12 +22,11 @@ export default function MenuSideBar({ menuMobileOpen, handleMenuOpen }: MenuSide
 
   const [ready, setReady] = useState(false);
   const [hasAccess, setHasAccess] = useState<boolean>(false);
-  const [isMarketing, setIsMarketing] = useState<boolean>(false);
 
   useEffect(() => {
+    // roda só no client, pode ler cookie/localStorage aqui
     try {
       setHasAccess(checkUserLevel("1"));
-      setIsMarketing(checkUserLevel("3"));
     } finally {
       setReady(true);
     }
@@ -47,10 +46,6 @@ export default function MenuSideBar({ menuMobileOpen, handleMenuOpen }: MenuSide
           <div aria-busy={!ready}>
             {!ready ? (
               <SkeletonMenu />
-            ) : isMarketing ? (
-              <ul>
-                <MenuItem url="/estatisticas" text="Estatísticas" icon={IconStats} />
-              </ul>
             ) : !hasAccess ? (
               <ul>
                 <MenuItem url="/aulas" text="Aulas" icon={IconClass} />
@@ -64,7 +59,6 @@ export default function MenuSideBar({ menuMobileOpen, handleMenuOpen }: MenuSide
                 <MenuItem url="/funcionarios" text="Funcionários" icon={IconWorkers} />
                 <MenuItem url="/produtos" text="Produtos" icon={IconProducts} />
                 <MenuItem url="/creditos" text="Créditos" icon={IconDollar} />
-                <MenuItem url="/estatisticas" text="Estatísticas" icon={IconStats} />
                 <MenuItem url="/administrativo" text="Administrativo" icon={IconAdmin} />
                 <MenuItem url="/configuracoes" text="Configurações" icon={IconAdminFilter} />
                 <MenuItem url="/parcelamento" text="Parcelamento" icon={IconInstallment} />

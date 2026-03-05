@@ -24,7 +24,7 @@ export default function InstallmentRules() {
     const [minAmount, setMinAmount] = useState<number | null>(null);
     const [maxAmount, setMaxAmount] = useState<number | null>(null);
     const [maxInstallments, setMaxInstallments] = useState<number | null>(null);
-    const [interestFreeInstallments, setInterestFreeInstallments] = useState<number | null>(1);
+    const [interestFreeInstallments, setInterestFreeInstallments] = useState<number | null>(null);
     const [description, setDescription] = useState<string | null>(null);
     const [isActive, setIsActive] = useState<boolean>(true);
 
@@ -403,7 +403,7 @@ export default function InstallmentRules() {
                             required
                         />
                     </div>
-                    {/*<div className="col-span-6">
+                    <div className="col-span-6">
                         <AuthInput
                             label="Parcelas Sem Juros"
                             value={interestFreeInstallments}
@@ -412,7 +412,7 @@ export default function InstallmentRules() {
                             edit={edit}
                             maskType="positivo"
                         />
-                    </div>*/}
+                    </div>
                     <div className="col-span-12">
                         <AuthInput
                             label="Descrição"
