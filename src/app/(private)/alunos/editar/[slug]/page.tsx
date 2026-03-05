@@ -94,7 +94,7 @@ export default function EditStudents() {
                 setSuccessMessage('Nível atualizado com sucesso!');
                 setModalLevelShow(false);
                 // Recarregar dados ou atualizar estado local
-                window.location.reload();
+                //window.location.reload();
             }
         } catch (error: any) {
             const errorData = JSON.parse(error.message);
