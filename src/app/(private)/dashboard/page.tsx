@@ -156,7 +156,7 @@ export default function Home() {
     // ─── Formatters ──────────────────────────────────────────────────────────
     const customCol = (cell: any, row: any) => (
         <>
-            <small>{row.type}</small>
+            <small>{row.type.split("T")[0].split("-").reverse().join("/")}</small>
             <p>{cell}</p>
         </>
     );
@@ -229,20 +229,22 @@ export default function Home() {
         }).catch(() => {});
 
         // ✅ FIX: Calendário de Aulas — busca aulas reais da API
-        repoCalendar.consult().then((result: any) => {
+       repoCalendar.consult().then((result: any) => {
+            console.log('CALENDAR RESULT:', result); // ← adiciona isso
             if (!(result instanceof Error) && result?.data) {
-                // A API retorna um objeto agrupado por data; achatamos em array
                 const allClasses: any[] = Object.values(result.data).flat();
+                console.log('ALL CLASSES:', allClasses); // ← e isso
                 const rows = allClasses.map((cls: any) => ({
                     time: cls.time?.slice(0, 5) ?? '—',
-                    type: cls.location ?? 'Studio',
-                    tipoAula: cls.productType ?? 'Aula Coletiva',
+                    type: cls.classDate ?? '—',
+                    tipoAula: cls.location?.replace(/`/g, "'") ?? '—',  // ✅ substitui backtick
                     qtdAlunos: cls.studentCount ?? 0,
                 }));
+                console.log('ROWS:', rows); // ← e isso
                 setCalendarClasses(rows);
             }
         }).catch(() => {});
-    }, []);
+            }, []);
 
     useEffect(() => {
         const username = Cookies.get(CookiesAuth.USERNAME) || '';
@@ -279,6 +281,7 @@ export default function Home() {
                             columns={columns}
                             class={styles.table_dashboard}
                             rowClasses={rowClasses}
+                            loading={false}
                         />
                     </Card>
                 </div>
