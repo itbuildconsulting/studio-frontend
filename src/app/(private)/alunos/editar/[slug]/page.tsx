@@ -19,6 +19,8 @@ import ValidationFields from "@/validators/fields";
 import listStates from '../../../../../json/states.json';
 import listCountry from '../../../../../json/country.json';
 
+import Cookies from 'js-cookie';
+
 export default function EditStudents() {
     const dropdownStates = listStates?.estados;
     const dropdownCountry = listCountry?.pais;
@@ -59,6 +61,23 @@ export default function EditStudents() {
     const [selectedLevel, setSelectedLevel] = useState<any>(0);
     const [dropdownLevelStudent, setDropdownLevelStudent] = useState([]);
     const [loadingLevel, setLoadingLevel] = useState(false);
+
+    const [summary, setSummary] = useState<any>(null);
+
+    // Buscar resumo do aluno
+    useEffect(() => {
+        if (!searchParams?.slug) return;
+
+        fetch(`${process.env.NEXT_PUBLIC_SERVER_URL_API}/app/v2/studentSummary/${searchParams.slug}`, {
+            headers: {
+                'Authorization': `Bearer ${Cookies.get('admin-user-sci-auth')}`,
+                'Content-Type': 'application/json',
+            }
+        })
+        .then(res => res.json())
+        .then(result => { if (result.success) setSummary(result.data); })
+        .catch(() => {});
+    }, [searchParams?.slug]);
 
     useEffect(() => {
         if (modalLevelShow) {
@@ -442,10 +461,68 @@ export default function EditStudents() {
         },
     ];
 
+    const summaryItems = summary ? [
+        {
+            label: 'Créditos disponíveis',
+            value: summary.credits ?? 0,
+            icon: (
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+            ),
+            color: 'text-green-600',
+            bg: 'bg-green-50',
+        },
+        {
+            label: 'Aulas agendadas',
+            value: summary.scheduledClasses ?? 0,
+            icon: (
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
+            ),
+            color: 'text-blue-600',
+            bg: 'bg-blue-50',
+        },
+        {
+            label: 'Aulas realizadas',
+            value: summary.completedClasses ?? 0,
+            icon: (
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
+                </svg>
+            ),
+            color: 'text-purple-600',
+            bg: 'bg-purple-50',
+        },
+    ] : [];
+
     return (
         <PageDefault title={"Editar Aluno"}>
+
+            {/* Card de Resumo do Aluno */}
+            {summary && (
+                <div className="col-span-12 mb-6">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        {summaryItems.map((item) => (
+                            <Card key={item.label}>
+                                <div className="flex items-center gap-4 p-2">
+                                    <div className={`p-3 rounded-xl ${item.bg} ${item.color}`}>
+                                        {item.icon}
+                                    </div>
+                                    <div>
+                                        <p className="text-2xl font-bold">{item.value}</p>
+                                        <p className="text-sm" style={{ color: '#6b7280' }}>{item.label}</p>
+                                    </div>
+                                </div>
+                            </Card>
+                        ))}
+                    </div>
+                </div>
+            )}
+
             <button 
-                className="btn-primary px-4 "
+                className="btn-primary px-4 mb-6"
                 onClick={() => setModalLevelShow(true)}
             >
                 Atualizar Nível
