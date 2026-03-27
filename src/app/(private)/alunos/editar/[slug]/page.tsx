@@ -64,6 +64,9 @@ export default function EditStudents() {
 
     const [summary, setSummary] = useState<any>(null);
 
+    const [extrato, setExtrato] = useState<any>(null);
+    const [loadingExtrato, setLoadingExtrato] = useState(false);
+
     // Buscar resumo do aluno
     useEffect(() => {
         if (!searchParams?.slug) return;
@@ -339,6 +342,12 @@ export default function EditStudents() {
 
     useEffect(() => {
         if (!searchParams?.slug) return;
+
+        setLoadingExtrato(true);
+            repo.extrato(Number(searchParams.slug)).then((result: any) => {
+                if (result?.data) setExtrato(result.data);
+                setLoadingExtrato(false);
+            });
         
         repo?.details(+searchParams?.slug).then((result: any) => {
             console.log()
@@ -496,6 +505,7 @@ export default function EditStudents() {
             bg: 'bg-purple-50',
         },
     ] : [];
+
 
     return (
         <PageDefault title={"Editar Aluno"}>
@@ -723,6 +733,113 @@ export default function EditStudents() {
                             </div>
                             <ValidationForm errorMessage={errorMessage} />
                         </div>
+                    </Card>
+
+                     <Card customClass="mt-6" hasFooter={false} eventsButton={[]} loading={loadingExtrato}>
+                        <h2 className="text-2xl font-semibold mb-4">Extrato de Aulas e Créditos</h2>
+
+                        {/* Tabela de Aulas */}
+                        <h3 className="text-lg font-medium mb-2">Aulas</h3>
+                        <div className="overflow-x-auto mb-6">
+                            <table className="w-full text-sm text-left border-collapse">
+                                <thead>
+                                    <tr className="bg-gray-100">
+                                        <th className="px-3 py-2 border">Data</th>
+                                        <th className="px-3 py-2 border">Horário</th>
+                                        <th className="px-3 py-2 border">Status</th>
+                                        <th className="px-3 py-2 border">Checkin</th>
+                                        <th className="px-3 py-2 border">TransactionId</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {extrato?.aulas?.map((aula: any) => (
+                                        <tr key={aula.classStudentId} className="border-b">
+                                            <td className="px-3 py-2 border">{aula.date?.split('-').reverse().join('/')}</td>
+                                            <td className="px-3 py-2 border">{aula.time}</td>
+                                            <td className="px-3 py-2 border">
+                                                <span className={`px-2 py-1 rounded text-xs font-medium ${aula.status ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
+                                                    {aula.status ? 'Ativa' : 'Cancelada'}
+                                                </span>
+                                            </td>
+                                            <td className="px-3 py-2 border">{aula.checkin ? '✅' : '—'}</td>
+                                            <td className="px-3 py-2 border text-xs text-gray-500">{aula.transactionId ?? '—'}</td>
+                                        </tr>
+                                    ))}
+                                    {!extrato?.aulas?.length && (
+                                        <tr><td colSpan={5} className="px-3 py-4 text-center text-gray-400">Nenhuma aula encontrada</td></tr>
+                                    )}
+                                </tbody>
+                            </table>
+                        </div>
+
+                        {/* Tabela de Créditos */}
+                        <h3 className="text-lg font-medium mb-2">Créditos</h3>
+                        <div className="overflow-x-auto mb-6">
+                            <table className="w-full text-sm text-left border-collapse">
+                                <thead>
+                                    <tr className="bg-gray-100">
+                                        <th className="px-3 py-2 border">CreditBatch</th>
+                                        <th className="px-3 py-2 border">Disponível</th>
+                                        <th className="px-3 py-2 border">Usado</th>
+                                        <th className="px-3 py-2 border">Status</th>
+                                        <th className="px-3 py-2 border">Validade</th>
+                                        <th className="px-3 py-2 border">Origem</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {extrato?.creditos?.map((c: any) => (
+                                        <tr key={c.id} className="border-b">
+                                            <td className="px-3 py-2 border text-xs text-gray-500">{c.creditBatch}</td>
+                                            <td className="px-3 py-2 border">{c.availableCredits}</td>
+                                            <td className="px-3 py-2 border">{c.usedCredits}</td>
+                                            <td className="px-3 py-2 border">
+                                                <span className={`px-2 py-1 rounded text-xs font-medium ${c.status === 'valid' ? 'bg-green-100 text-green-700' : c.status === 'expired' ? 'bg-yellow-100 text-yellow-700' : 'bg-gray-100 text-gray-500'}`}>
+                                                    {c.status}
+                                                </span>
+                                            </td>
+                                            <td className="px-3 py-2 border">{c.expirationDate?.split('T')[0].split('-').reverse().join('/')}</td>
+                                            <td className="px-3 py-2 border">{c.origin ?? '—'}</td>
+                                        </tr>
+                                    ))}
+                                    {!extrato?.creditos?.length && (
+                                        <tr><td colSpan={6} className="px-3 py-4 text-center text-gray-400">Nenhum crédito encontrado</td></tr>
+                                    )}
+                                </tbody>
+                            </table>
+                        </div>
+
+                        {/* Cancelamentos com problema */}
+                        {extrato?.cancelamentos?.length > 0 && (
+                            <>
+                                <h3 className="text-lg font-medium mb-2 text-red-600">⚠️ Cancelamentos — Verificar Crédito</h3>
+                                <div className="overflow-x-auto">
+                                    <table className="w-full text-sm text-left border-collapse">
+                                        <thead>
+                                            <tr className="bg-red-50">
+                                                <th className="px-3 py-2 border">Aula</th>
+                                                <th className="px-3 py-2 border">Lote encontrado?</th>
+                                                <th className="px-3 py-2 border">Expirado?</th>
+                                                <th className="px-3 py-2 border">Crédito devolvido?</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {extrato.cancelamentos.map((c: any, i: number) => (
+                                                <tr key={i} className="border-b">
+                                                    <td className="px-3 py-2 border">{c.date?.split('-').reverse().join('/')}</td>
+                                                    <td className="px-3 py-2 border">{c.loteEncontrado ? '✅' : '❌ Não'}</td>
+                                                    <td className="px-3 py-2 border">{c.loteExpirado ? '⚠️ Sim' : '—'}</td>
+                                                    <td className="px-3 py-2 border">
+                                                        <span className={`px-2 py-1 rounded text-xs font-medium ${c.creditoDevolvido ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
+                                                            {c.creditoDevolvido ? '✅ Devolvido' : '❌ Não devolvido'}
+                                                        </span>
+                                                    </td>
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </>
+                        )}
                     </Card>
                 </div>
             </div>
