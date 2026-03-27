@@ -182,4 +182,8 @@ export default class PersonsRepository implements PersonsRepository {
         };
         return conectAPI(req, `/persons/${id}/student-level`, "PUT");
     }
+
+    async extrato(studentId: number): Promise<[]> {
+        return conectAPI(null, `/app/v2/extrato/${studentId}`, "GET");
+    }
 }
