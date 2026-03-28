@@ -747,7 +747,6 @@ export default function EditStudents() {
                                         <th className="px-3 py-2 border">Data</th>
                                         <th className="px-3 py-2 border">Horário</th>
                                         <th className="px-3 py-2 border">Status</th>
-                                        <th className="px-3 py-2 border">Checkin</th>
                                         <th className="px-3 py-2 border">TransactionId</th>
                                     </tr>
                                 </thead>
@@ -761,7 +760,6 @@ export default function EditStudents() {
                                                     {aula.status ? 'Ativa' : 'Cancelada'}
                                                 </span>
                                             </td>
-                                            <td className="px-3 py-2 border">{aula.checkin ? '✅' : '—'}</td>
                                             <td className="px-3 py-2 border text-xs text-gray-500">{aula.transactionId ?? '—'}</td>
                                         </tr>
                                     ))}
