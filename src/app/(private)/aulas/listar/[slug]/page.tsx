@@ -296,6 +296,9 @@ export default function ListClass() {
                                         handleCheckin={(classId: number, studentId: number) => {
                                             console.log('Checkin:', classId, studentId);
                                         }}
+                                        handleAddStudent={(classId: number, studentId: number) => {
+                                            console.log('Checkin:', classId, studentId);
+                                        }}
                                     />
                                 </div>
                             </div>

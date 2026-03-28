@@ -279,7 +279,7 @@ export default function AddClass() {
 
     // Adicionar função
     const handleAddStudent = (studentId: number, bikeNumber: number) => {
-        repo?.addStudent(+searchParams?.slug, studentId, bikeNumber).then((result: any) => {
+        repo?.addStudent(+(searchParams?.slug ?? 0), studentId, bikeNumber).then((result: any) => {
             if (result instanceof Error) {
                 const message: any = JSON.parse(result.message);
                 setErrorMessage(message.message);
