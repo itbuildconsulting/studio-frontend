@@ -22,11 +22,12 @@ type BikeStatusProps = {
     bikes: any;
     totalBikes: number; // Número total de bikes (por exemplo, 12)
     onUpdateBikes: (updatedBikes: any[]) => void; // Callback para atualizar bikes
-    handleRemoveStudent: (classId: number, studentId: number) => void;
+    handleRemoveStudent: (classId: number, studentId: number, bikeId: number) => void;
     handleCheckin: (classId: number, studentId: number) => void;
+    handleAddStudent: (studentId: number, bikeNumber: number) => void;
 };
 
-const BikeView: React.FC<BikeStatusProps> = ({ bikes, totalBikes, onUpdateBikes, handleRemoveStudent, handleCheckin }) => {
+const BikeView: React.FC<BikeStatusProps> = ({ bikes, totalBikes, onUpdateBikes, handleRemoveStudent, handleCheckin, handleAddStudent }) => {
     const edit: boolean = false;
 
     const repoDrop = useMemo(() => new DropDownsCollection(), []);
@@ -182,10 +183,8 @@ const BikeView: React.FC<BikeStatusProps> = ({ bikes, totalBikes, onUpdateBikes,
                     showModal={!!modalType}
                     hasFooter={true}
                     onSubmit={() => {
-                        if (students) {
-                            let studentName: any = convertArray(dropdownStudent).find((elem: any) => { console.log(elem.value, students); return elem.value === Number(students) }).label;
-                            const updatedBike = { bikeNumber: selectedBike, status: 'in_use', studentId: students, studentName };
-                            handleUpdateBike(updatedBike)
+                        if (students && selectedBike) {
+                            handleAddStudent(Number(students), selectedBike);
                             setStudents(null);
                             closeModal();
                         }
@@ -250,7 +249,7 @@ const BikeView: React.FC<BikeStatusProps> = ({ bikes, totalBikes, onUpdateBikes,
                         if (currentBike) {
                             if (!searchParams?.slug) return;
 
-                            handleRemoveStudent(+searchParams?.slug, currentBike.studentId);
+                            handleRemoveStudent(+searchParams?.slug, currentBike.studentId, currentBike.id);
                             setBikeStatus('');
                             closeModal();
                         }

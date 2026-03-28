@@ -119,10 +119,11 @@ export default class ClassRepository implements ClassRepository {
     async details(id: number): Promise<[]> {
         return conectAPI(null, `/class/${id}`, "GET");
     }
-    async remove(classId: number, studentId: number): Promise<[]> {
+    async remove(classId: number, studentId: number, bikeId: number): Promise<[]> {
         const req = {
             classId,
             studentId,
+            bikeId
         };
 
         return conectAPI(req, `/app/v2/classes/cancelPresenceInClass`, "POST");
@@ -168,6 +169,11 @@ export default class ClassRepository implements ClassRepository {
 
     async cancel(id: number): Promise<[]> {
         return conectAPI(null, `/class/cancelClass/${id}`, "GET");
+    }
+
+    async addStudent(classId: number, studentId: number, bikeNumber: number): Promise<[]> {
+        const req = { classId, studentId, bikeNumber };
+        return conectAPI(req, `/app/v2/classes/enterClass`, "POST");
     }
 
 }

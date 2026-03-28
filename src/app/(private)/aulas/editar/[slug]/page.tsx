@@ -222,8 +222,9 @@ export default function AddClass() {
         )
     };
 
-    const handleRemoveStudent = (classId: number, studentId: number) => {
-        repo?.remove(classId, studentId).then((result: any) => {
+    const handleRemoveStudent = (classId: number, studentId: number, bikeId: number) => {
+        console.log('[DEBUG]', bikeId)
+        repo?.remove(classId, studentId, bikeId).then((result: any) => {
             if (result instanceof Error) {
                 const message: any = JSON.parse(result.message);
                 setModalSuccess(true)
@@ -273,6 +274,22 @@ export default function AddClass() {
             setErrorMessage(error.message);
             setLog(1);
             setLoading(false);
+        });
+    }
+
+    // Adicionar função
+    const handleAddStudent = (studentId: number, bikeNumber: number) => {
+        repo?.addStudent(+searchParams?.slug, studentId, bikeNumber).then((result: any) => {
+            if (result instanceof Error) {
+                const message: any = JSON.parse(result.message);
+                setErrorMessage(message.message);
+                setLog(1);
+                setTimeout(() => setErrorMessage(null), 2500);
+            } else {
+                setModalMessage("Aluno adicionado com sucesso!");
+                setModalSuccess(true);
+                setLog(0);
+            }
         });
     }
 
@@ -484,7 +501,13 @@ export default function AddClass() {
                                     </div>
 
                                 </div>*/}
-                                <BikeView bikes={bikes} totalBikes={12} onUpdateBikes={onUpdateBikes} handleRemoveStudent={handleRemoveStudent} handleCheckin={handleCheckin} />
+                                <BikeView 
+                                    bikes={bikes} 
+                                    totalBikes={12} 
+                                    onUpdateBikes={onUpdateBikes} 
+                                    handleRemoveStudent={handleRemoveStudent} 
+                                    handleCheckin={handleCheckin}
+                                    handleAddStudent={handleAddStudent}  />
                             </div>
                         </div>
                     </Card>
