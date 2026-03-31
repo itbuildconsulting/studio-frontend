@@ -167,8 +167,31 @@ export default class ClassRepository implements ClassRepository {
         return conectAPI(req, `/class/${id}`, "PUT");
     }
 
-    async cancel(id: number): Promise<[]> {
-        return conectAPI(null, `/class/cancelClass/${id}`, "GET");
+    async cancel(id: number): Promise<any> {
+        const token = Cookies.get('admin-user-sci-auth');
+
+        try {
+            const resp = await fetch(
+                `${process.env.NEXT_PUBLIC_SERVER_URL_API}/class/cancelClass/${id}`,
+                {
+                    method: "GET",
+                    headers: {
+                        "Content-Type": "application/json",
+                        'Authorization': `Bearer ${token}`
+                    },
+                }
+            );
+
+            const text = await resp.text(); // ✅ lê como texto, não JSON
+
+            if (resp.status === 200) {
+                return text;
+            } else {
+                throw new Error(text);
+            }
+        } catch (error) {
+            return error;
+        }
     }
 
     async addStudent(classId: number, studentId: number, bikeNumber: number): Promise<[]> {
