@@ -91,6 +91,7 @@ export default function ListClass() {
             const bikesData = result.bikes || [];
             setBikes(Array.isArray(bikesData) ? bikesData : []);
 
+            if (!searchParams?.slug) return;
             repoWaitingList.listByClass(+searchParams?.slug).then((wlResult: any) => {
                 if (wlResult?.data) {
                     setWaitlist(wlResult.data);
