@@ -13,13 +13,15 @@ import useConvertDate from "@/data/hooks/useConvertDate";
 import { convertDate, convertDateDayMonthYear } from "@/utils/formatterText";
 import { EventBtn } from "@/types/btn";
 import ValidationFields from "@/validators/fields";
-import Table from "@/components/Table/Table";
 import BikeView from "@/components/BikeView/BikeView";
+import { CalendarDays, Clock, Tag, User, Bike, Users } from "lucide-react";
+import WaitingListCollection from "../../../../../../core/WaitingList";
 
 export default function ListClass() {
     const repo = useMemo(() => new ClassCollection(), []);
     const repoDrop = useMemo(() => new DropDownsCollection(), []);
-    const searchParams = useParams()
+    const repoWaitingList = useMemo(() => new WaitingListCollection(), []);
+    const searchParams = useParams();
     const router = useRouter();
     const formatterDate = useConvertDate;
 
@@ -30,7 +32,8 @@ export default function ListClass() {
     const [canCommission, setCanCommission] = useState<boolean | null>(null);
     const [commissionRules, setCommissionRules] = useState<string | null>(null);
     const [commissionValue, setCommissionValue] = useState<number | null>(0);
-    const [bikes, setBikes] = useState<string[]>([]);
+    const [bikes, setBikes] = useState<any[]>([]);
+    const [waitlist, setWaitlist] = useState<any[]>([]);
 
     const [dropdownType, setDropdownType] = useState<DropdownType[]>([]);
     const [dropdownEmployee, setDropdownEmployee] = useState<DropdownType[]>([]);
@@ -41,13 +44,13 @@ export default function ListClass() {
     const [loading, setLoading] = useState<any>(false);
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-    // Estado para controlar qual visualização está ativa
     const [viewMode, setViewMode] = useState<'table' | 'bikeview'>('table');
-    const [isAccordionOpen, setIsAccordionOpen] = useState(false);
+    
 
     useEffect(() => {
         repoDrop.dropdown('productTypes/dropdown').then(setDropdownType);
         repoDrop.dropdown('persons/employee/dropdown').then(setDropdownEmployee);
+        
     }, []);
 
     useEffect(() => {
@@ -56,7 +59,7 @@ export default function ListClass() {
 
     const back = () => {
         router.push("/aulas");
-    }
+    };
 
     const handleClosed = () => {
         if (log === 0) {
@@ -64,11 +67,11 @@ export default function ListClass() {
         } else {
             setModalSuccess(false);
         }
-    }
+    };
 
     useEffect(() => {
         if (!searchParams?.slug) return;
-        
+
         repo?.details(+searchParams?.slug).then((result: any) => {
             if (result instanceof Error) {
                 const message: any = JSON.parse(result.message);
@@ -84,29 +87,19 @@ export default function ListClass() {
             setCanCommission(result.canCommission);
             setCommissionRules(result.commissionRules);
             setCommissionValue(result.commissionValue);
-            
-            // Garantir que bikes seja um array válido
+
             const bikesData = result.bikes || [];
             setBikes(Array.isArray(bikesData) ? bikesData : []);
-            
+
+            repoWaitingList.listByClass(+searchParams?.slug).then((wlResult: any) => {
+                if (wlResult?.data) {
+                    setWaitlist(wlResult.data);
+                }
+            });
+
             setLoading(false);
         });
     }, [searchParams?.slug, repo]);
-
-    const columns = [
-        { text: 'Bike', dataField: 'bikeNumber' },
-        { 
-            text: 'Status', 
-            dataField: 'status',
-            formatter: (cell: string) => {
-                if (cell === 'available') return 'Disponível';
-                if (cell === 'in_use') return 'Em uso';
-                if (cell === 'maintenance') return 'Manutenção';
-                return 'Desabilitada';
-            }
-        },
-        { text: 'Aluno', dataField: 'studentName', formatter: (cell: string) => cell || '-' }
-    ];
 
     if (loading) {
         return <Loading />;
@@ -114,202 +107,194 @@ export default function ListClass() {
 
     return (
         <PageDefault title="Detalhes da Aula">
-            <div className="grid grid-cols-12 gap-4">
-                <div className="col-span-6">
-                    {/* Card com informações da aula */}
+            <div className="grid grid-cols-12 gap-6">
+
+                {/* Card de informações da aula */}
+                <div className="col-span-6 flex flex-col gap-6">
                     <Card>
-                        <div className="grid grid-cols-2 gap-4 p-4">
-                            <div>
-                                <p className="text-sm text-gray-600">Data</p>
-                                <p className="font-semibold">{convertDateDayMonthYear(date || '')}</p>
+                        <div>
+                            {/* Badges de resumo */}
+                            <div className="flex gap-3 mb-5">
+                                <span className="inline-flex items-center gap-1.5 bg-rose-100 text-rose-600 text-xs font-medium px-3 py-1 rounded-full">
+                                    <Bike className="w-3.5 h-3.5" />
+                                    {bikes.filter((b: any) => b.status === 'in_use').length}/12 bikes
+                                </span>
+                                <span className="inline-flex items-center gap-1.5 bg-gray-100 text-gray-600 text-xs font-medium px-3 py-1 rounded-full">
+                                    <Users className="w-3.5 h-3.5" />
+                                    {waitlist.length} na fila
+                                </span>
                             </div>
-                            <div>
-                                <p className="text-sm text-gray-600">Horário</p>
-                                <p className="font-semibold">{time}</p>
-                            </div>
-                            <div>
-                                <p className="text-sm text-gray-600">Tipo de Produto</p>
-                                <p className="font-semibold">
-                                    {dropdownType.find(t => String(t.id) === String(typeProduct))?.name || '-'}
-                                </p>
-                            </div>
-                            <div>
-                                <p className="text-sm text-gray-600">Professor</p>
-                                <p className="font-semibold">
-                                    {dropdownEmployee.find(e => String(e.id) === String(teacher))?.name || '-'}
-                                </p>
+
+                            {/* Campos */}
+                            <div className="grid grid-cols-2 gap-5">
+                                <div className="flex items-start gap-3">
+                                    <div className="w-8 h-8 rounded-lg bg-gray-100 flex items-center justify-center shrink-0">
+                                        <CalendarDays className="w-4 h-4 text-gray-500" />
+                                    </div>
+                                    <div>
+                                        <span className="text-[11px] text-gray-400 uppercase tracking-wider">Data</span>
+                                        <p className="text-sm font-semibold text-gray-800">{convertDateDayMonthYear(date || '')}</p>
+                                    </div>
+                                </div>
+
+                                <div className="flex items-start gap-3">
+                                    <div className="w-8 h-8 rounded-lg bg-gray-100 flex items-center justify-center shrink-0">
+                                        <Clock className="w-4 h-4 text-gray-500" />
+                                    </div>
+                                    <div>
+                                        <span className="text-[11px] text-gray-400 uppercase tracking-wider">Horário</span>
+                                        <p className="text-sm font-semibold text-gray-800">{time}</p>
+                                    </div>
+                                </div>
+
+                                <div className="flex items-start gap-3">
+                                    <div className="w-8 h-8 rounded-lg bg-gray-100 flex items-center justify-center shrink-0">
+                                        <Tag className="w-4 h-4 text-gray-500" />
+                                    </div>
+                                    <div>
+                                        <span className="text-[11px] text-gray-400 uppercase tracking-wider">Tipo de Produto</span>
+                                        <p className="text-sm font-semibold text-gray-800">
+                                            {dropdownType.find(t => String(t.id) === String(typeProduct))?.name || '-'}
+                                        </p>
+                                    </div>
+                                </div>
+
+                                <div className="flex items-start gap-3">
+                                    <div className="w-8 h-8 rounded-lg bg-gray-100 flex items-center justify-center shrink-0">
+                                        <User className="w-4 h-4 text-gray-500" />
+                                    </div>
+                                    <div>
+                                        <span className="text-[11px] text-gray-400 uppercase tracking-wider">Professor</span>
+                                        <p className="text-sm font-semibold text-gray-800">
+                                            {dropdownEmployee.find(e => String(e.id) === String(teacher))?.name || '-'}
+                                        </p>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </Card>
-                </div>
 
-                <div className="col-span-5 gap-4">
-                    {/* Accordion para escolher tipo de visualização */}
+                     {/* Card de fila de espera */}
                     <Card>
-                        <div className="border rounded-lg overflow-hidden">
-                            {/* Header do Accordion */}
-                            <button
-                                onClick={() => setIsAccordionOpen(!isAccordionOpen)}
-                                className="w-full flex items-center justify-between p-4 bg-gray-50 hover:bg-gray-100 transition-colors"
-                            >
-                                <div className="flex items-center gap-2">
-                                    <svg 
-                                        className="w-5 h-5 text-gray-600" 
-                                        fill="none" 
-                                        stroke="currentColor" 
-                                        viewBox="0 0 24 24"
-                                    >
-                                        <path 
-                                            strokeLinecap="round" 
-                                            strokeLinejoin="round" 
-                                            strokeWidth={2} 
-                                            d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" 
-                                        />
-                                        <path 
-                                            strokeLinecap="round" 
-                                            strokeLinejoin="round" 
-                                            strokeWidth={2} 
-                                            d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" 
-                                        />
-                                    </svg>
-                                    <span className="font-semibold text-gray-700">
-                                        {viewMode === 'table' ? 'Tabela' : 'BikeView'}
-                                    </span>
+                        <div>
+                            <div className="flex items-center gap-2 mb-4" >
+                                <div className="w-8 h-8 rounded-lg bg-gray-100 flex items-center justify-center">
+                                    <Users className="w-4 h-4 text-gray-500" />
                                 </div>
-                                <svg 
-                                    className={`w-5 h-5 text-gray-600 transition-transform ${isAccordionOpen ? 'rotate-180' : ''}`}
-                                    fill="none" 
-                                    stroke="currentColor" 
-                                    viewBox="0 0 24 24"
-                                >
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                                </svg>
-                            </button>
+                                <h3 className="text-base font-semibold text-gray-800">Fila de Espera</h3>
+                                <span className="ml-auto bg-gray-100 text-gray-600 text-xs font-bold px-2.5 py-0.5 rounded-full">
+                                    {waitlist.length}
+                                </span>
+                            </div>
 
-                            {/* Conteúdo do Accordion */}
-                            {isAccordionOpen && (
-                                <div className="p-4 bg-white border-t">
-                                    <div className="grid grid-cols-2 gap-4">
-                                        <button
-                                            onClick={() => {
-                                                setViewMode('table');
-                                                setIsAccordionOpen(false);
-                                            }}
-                                            className={`
-                                                flex flex-col items-center justify-center gap-3
-                                                py-6 px-4 rounded-lg border-2 transition-all
-                                                min-h-[120px]
-                                                ${viewMode === 'table' 
-                                                    ? 'border-blue-500 bg-blue-50 text-blue-700' 
-                                                    : 'border-gray-200 hover:border-gray-300 text-gray-700 hover:bg-gray-50'
-                                                }
-                                            `}
+                            {waitlist.length === 0 ? (
+                                <p className="text-sm text-gray-400 text-center py-4">Nenhum aluno na fila</p>
+                            ) : (
+                                <div className="flex flex-col gap-2">
+                                    {waitlist.map((person: any) => (
+                                        <div
+                                            key={person.id}
+                                            className="flex items-center gap-3 bg-gray-100 rounded-lg px-4 py-3 hover:bg-gray-200 transition-colors"
                                         >
-                                            <svg 
-                                                className="w-10 h-10" 
-                                                fill="none" 
-                                                stroke="currentColor" 
-                                                viewBox="0 0 24 24"
-                                            >
-                                                <path 
-                                                    strokeLinecap="round" 
-                                                    strokeLinejoin="round" 
-                                                    strokeWidth={2} 
-                                                    d="M3 10h18M3 14h18m-9-4v8m-7 0h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" 
-                                                />
-                                            </svg>
-                                            <div className="flex flex-col items-center gap-1">
-                                                <span className="font-semibold text-base">Tabela</span>
-                                                {viewMode === 'table' && (
-                                                    <span className="text-xs bg-blue-500 text-white px-3 py-1 rounded-full">
-                                                        ✓ Selecionado
-                                                    </span>
-                                                )}
-                                            </div>
-                                        </button>
-
-                                        <button
-                                            onClick={() => {
-                                                setViewMode('bikeview');
-                                                setIsAccordionOpen(false);
-                                            }}
-                                            className={`
-                                                flex flex-col items-center justify-center gap-3
-                                                py-6 px-4 rounded-lg border-2 transition-all
-                                                min-h-[120px]
-                                                ${viewMode === 'bikeview' 
-                                                    ? 'border-blue-500 bg-blue-50 text-blue-700' 
-                                                    : 'border-gray-200 hover:border-gray-300 text-gray-700 hover:bg-gray-50'
-                                                }
-                                            `}
-                                        >
-                                            <svg 
-                                                className="w-10 h-10" 
-                                                fill="none" 
-                                                stroke="currentColor" 
-                                                viewBox="0 0 24 24"
-                                            >
-                                                <path 
-                                                    strokeLinecap="round" 
-                                                    strokeLinejoin="round" 
-                                                    strokeWidth={2} 
-                                                    d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z" 
-                                                />
-                                            </svg>
-                                            <div className="flex flex-col items-center gap-1">
-                                                <span className="font-semibold text-base">BikeView</span>
-                                                {viewMode === 'bikeview' && (
-                                                    <span className="text-xs bg-blue-500 text-white px-3 py-1 rounded-full">
-                                                        ✓ Selecionado
-                                                    </span>
-                                                )}
-                                            </div>
-                                        </button>
-                                    </div>
+                                            <span className="w-7 h-7 rounded-full bg-rose-100 text-rose-600 text-xs font-bold flex items-center justify-center shrink-0">
+                                                {person.order}º
+                                            </span>
+                                            <span className="text-sm font-medium text-gray-800 flex-1">
+                                                {person.studentName || '-'}
+                                            </span>
+                                        </div>
+                                    ))}
                                 </div>
                             )}
                         </div>
                     </Card>
+                </div>
 
-                    {/* Visualização condicional */}
+                {/* Coluna direita */}
+                <div className="col-span-6 flex flex-col ">
+
+                    {/* Card de bikes */}
                     <Card>
-                        {viewMode === 'table' ? (
-                            <div>
-                                <h3 className="text-lg font-semibold mb-4 px-4 pt-4">Lista de Bikes</h3>
-                                <Table 
-                                    data={bikes}
-                                    columns={columns}
-                                    loading={false}
-                                />
-                            </div>
-                        ) : (
-                            <div>
-                                <h3 className="text-lg font-semibold mb-4 px-4 pt-4">Layout das Bikes</h3>
-                                <div className="p-4">
-                                    <BikeView 
-                                        bikes={bikes}
-                                        totalBikes={13} 
-                                        onUpdateBikes={(updatedBikes: any) => setBikes(updatedBikes)}
-                                        handleRemoveStudent={(classId: number, studentId: number) => {
-                                            console.log('Remove student:', classId, studentId);
-                                        }}
-                                        handleCheckin={(classId: number, studentId: number) => {
-                                            console.log('Checkin:', classId, studentId);
-                                        }}
-                                        handleAddStudent={(classId: number, studentId: number) => {
-                                            console.log('Checkin:', classId, studentId);
-                                        }}
-                                    />
+                        <div>
+                            {/* Header com título e toggle */}
+                            <div className="flex items-center justify-between mb-4">
+                                <h3 className="text-base font-semibold text-gray-800">
+                                    {viewMode === 'table' ? 'Lista de Bikes' : 'Layout das Bikes'}
+                                </h3>
+                                <div className="flex items-center gap-1 border border-gray-200 rounded-lg p-1" style={{maxWidth: '88px', backgroundColor: '#f4f2f1'}}>
+                                    <button
+                                        onClick={() => setViewMode('table')}
+                                        className={`p-1.5 rounded-md transition-colors ${
+                                            viewMode === 'table' ? 'bg-white text-gray-700' : 'text-gray-400 hover:text-gray-600'
+                                        }`}
+                                    >
+                                        <Users className="w-4 h-4" />
+                                    </button>
+                                    <button
+                                        onClick={() => setViewMode('bikeview')}
+                                        className={`p-1.5 rounded-md transition-colors ${
+                                            viewMode === 'bikeview' ? 'bg-white text-gray-700' : 'text-gray-400 hover:text-gray-600'
+                                        }`}
+                                    >
+                                        <Bike className="w-4 h-4" />
+                                    </button>
                                 </div>
                             </div>
-                        )}
+
+                            {/* Visualização condicional */}
+                            {viewMode === 'table' ? (
+                                <div className="flex flex-col gap-3">
+                                    {bikes
+                                        .filter((b: any) => b.status === 'in_use')
+                                        .map((bike: any) => (
+                                            <div
+                                                key={bike.bikeNumber}
+                                                className="flex items-center gap-6 bg-gray-100 rounded-lg px-4 py-3"
+                                            >
+                                                <div>
+                                                    <span className="text-[10px] text-gray-400">Bike</span>
+                                                    <p className="text-lg font-bold text-gray-800">{bike.bikeNumber}</p>
+                                                </div>
+                                                <div>
+                                                    <span className="text-[10px] text-gray-400">Status</span>
+                                                    <p className="text-sm font-medium text-gray-700">Em uso</p>
+                                                </div>
+                                                <div>
+                                                    <span className="text-[10px] text-gray-400">Aluno</span>
+                                                    <p className="text-sm font-medium text-gray-700">{bike.studentName || '-'}</p>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    {bikes.filter((b: any) => b.status === 'in_use').length === 0 && (
+                                        <p className="text-sm text-gray-400 text-center py-4">Nenhuma bike em uso</p>
+                                    )}
+                                </div>
+                            ) : (
+                                <BikeView
+                                    bikes={bikes}
+                                    totalBikes={13}
+                                    onUpdateBikes={(updatedBikes: any) => setBikes(updatedBikes)}
+                                    handleRemoveStudent={(classId: number, studentId: number) => {
+                                        console.log('Remove student:', classId, studentId);
+                                    }}
+                                    handleCheckin={(classId: number, studentId: number) => {
+                                        console.log('Checkin:', classId, studentId);
+                                    }}
+                                    handleAddStudent={(classId: number, studentId: number) => {
+                                        console.log('Add student:', classId, studentId);
+                                    }}
+                                />
+                            )}
+                        </div>
                     </Card>
 
+                   
+
                     {/* Botão Voltar */}
-                    <div className="flex justify-end gap-2">
+                    <div className="flex justify-end mt-6">
                         <button
                             onClick={back}
-                            className="px-6 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors"
+                            className="px-6 py-2 bg-gray-500 text-white hover:bg-gray-600 transition-colors text-sm rounded-full"
                         >
                             Voltar
                         </button>
@@ -336,8 +321,8 @@ export default function ListClass() {
                             </svg>
                         )}
                         <h5 className="text-gray-700 mt-4">{successMessage || errorMessage}</h5>
-                        <button 
-                            className="btn-outline-primary px-5 mt-5" 
+                        <button
+                            className="btn-outline-primary px-5 mt-5"
                             onClick={handleClosed}
                         >
                             Fechar

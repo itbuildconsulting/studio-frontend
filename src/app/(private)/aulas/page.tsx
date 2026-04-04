@@ -52,17 +52,62 @@ export default function Class() {
     const [selectedClassId, setSelectedClassId] = useState<any>(null);
     const [loadingCancel, setLoadingCancel] = useState<boolean>(false);
 
+    const [selectedClassActive, setSelectedClassActive] = useState<boolean>(true);
+
     const convertDate = (cell: any, row: any) => {
         return cell.split("T")[0].split("-").reverse().join("/");
     }
 
-    const convertStatus = (cell: any, row: any) => {
-        return cell ? "Ativo" : "Inativo";
+    const convertStatus = (cell: any) => {
+        return (
+            <span style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '5px',
+                padding: '3px 9px',
+                borderRadius: '8px',
+                fontSize: '11px',
+                fontWeight: 500,
+                backgroundColor: cell ? '#b7e9bb' : '#f5d1d1',
+                color: cell ? '#3B6D11' : '#A32D2D',
+                justifyContent: "center",
+                maxWidth: '100px'
+            }}>
+                <span style={{
+                    width: '6px',
+                    height: '6px',
+                    borderRadius: '50%',
+                    backgroundColor: cell ? '#3B6D11' : '#A32D2D',
+                    flexShrink: 0,
+                }} />
+                {cell ? 'Ativo' : 'Inativo'}
+            </span>
+        );
+    }
+
+    const convertStudentCount = (cell: any) => {
+        return (
+            <span style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '4px',
+                padding: '3px 9px',
+                borderRadius: '8px',
+                fontSize: '11px',
+                fontWeight: 500,
+                backgroundColor: 'var(--color-background-info)',
+                color: 'var(--color-text-info)',
+            }}>
+                {`👥 ${cell ?? 0}`}
+            </span>
+        );
     }
 
     // Abre modal de confirmação antes de cancelar
-    const handleDelete = (id: any) => {
-        setSelectedClassId(id);
+    const handleDelete = (cell: any) => {
+        console.log(cell)
+        setSelectedClassActive(cell.active);
+        setSelectedClassId(cell.id);
         setModalConfirm(true);
     }
 
@@ -76,17 +121,16 @@ export default function Class() {
             setLoadingCancel(false);
             if (result instanceof Error) {
                 const message: any = JSON.parse(result.message);
-                setErrorMessage(message?.error || "Erro ao cancelar aula.");
+                setErrorMessage(message?.error || "Erro ao alterar status da aula.");
                 setLog(1);
             } else {
-                setSuccessMessage("Aula cancelada com sucesso!");
+                setSuccessMessage(selectedClassActive ? "Aula cancelada com sucesso!" : "Aula reativada com sucesso!"); // ← usa o state
                 setLog(0);
-                // Atualiza a lista
-                listClass(date, time, teacherId, type, page);
+                listClass(date, time, teacherId, type, page); // ← refresh atualiza o row.active e o dropdown
             }
         }).catch((error: any) => {
             setLoadingCancel(false);
-            setErrorMessage(error?.message || "Erro ao cancelar aula.");
+            setErrorMessage(error?.message || "Erro ao alterar status da aula.");
             setLog(1);
         });
     }
@@ -110,8 +154,8 @@ export default function Class() {
                         { href: `/aulas/editar/${cell}`, label: 'Editar' },
                         {
                             href: "#", 
-                            label: 'Cancelar Aula',
-                            onClick: () => handleDelete(cell)
+                            label: row.active ? 'Cancelar Aula' : 'Reativar Aula',
+                            onClick: () => handleDelete(row)
                         }
                     ]}
                 />
@@ -147,25 +191,30 @@ export default function Class() {
     const columns = [
         {
             dataField: 'date',
-            text: `Data`,
+            text: 'Data',
             formatter: convertDate
         },
         {
             dataField: 'time',
-            text: `Hora`,
+            text: 'Hora',
         },
         {
             dataField: 'teacher',
-            text: `Professor`
+            text: 'Professor'
         },
         {
             dataField: 'productType',
-            text: `Tipo de Produto`
+            text: 'Tipo de Produto'
+        },
+        {
+            dataField: 'studentCount',  // ← novo
+            text: 'Alunos',
+            formatter: convertStudentCount
         },
         {
             dataField: 'active',
-            text: `Status`,
-            formatter: convertStatus
+            text: 'Status',
+            formatter: convertStatus  // ← agora com badge colorido
         },
         {
             dataField: 'id',
@@ -299,19 +348,29 @@ export default function Class() {
 
             {/* Modal de Confirmação */}
             <Modal
-                title="Cancelar Aula"
+                title={selectedClassActive ? 'Cancelar Aula' : 'Reativar Aula'} // ← dinâmico
                 btnClose={true}
-                setShowModal={setModalConfirm}
                 showModal={modalConfirm}
+                setShowModal={setModalConfirm}
                 hasFooter={true}
+                edit={true}
+                customButtonText={["Voltar", selectedClassActive ? "Confirmar Cancelamento" : "Confirmar Reativação"]}
                 onSubmit={confirmCancel}
-                loading={false}
-                customButtonText={["Voltar", "Confirmar Cancelamento"]}
                 customStyle={{ height: 'auto' }}
             >
-                <div className="py-4">
-                    <p className="text-gray-700">Tem certeza que deseja cancelar esta aula?</p>
-                    <p className="text-gray-500 text-sm mt-2">Todos os alunos inscritos terão seus créditos devolvidos automaticamente.</p>
+                <div className="text-center p-4">
+                    <p className="text-gray-700 mb-4">
+                        {selectedClassActive
+                            ? 'Tem certeza que deseja cancelar esta aula?'
+                            : 'Tem certeza que deseja reativar esta aula?'
+                        }
+                    </p>
+                    <p className="text-sm text-gray-500">
+                        {selectedClassActive
+                            ? 'Todos os alunos inscritos terão seus créditos devolvidos automaticamente.'
+                            : 'A aula voltará a ficar disponível para os alunos.'
+                        }
+                    </p>
                 </div>
             </Modal>
 
