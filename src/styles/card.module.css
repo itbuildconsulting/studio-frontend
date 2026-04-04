@@ -8,6 +8,9 @@
 .bg_card button {
     height: 33px;
     width: 131px;
+    align-items: center;
+    justify-content: center;
+    display: flex;
 }
 
 .footer_card {
