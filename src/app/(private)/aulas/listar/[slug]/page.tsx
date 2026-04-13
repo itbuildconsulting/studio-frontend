@@ -108,10 +108,12 @@ export default function ListClass() {
 
     return (
         <PageDefault title="Detalhes da Aula">
-            <div className="grid grid-cols-12 gap-6">
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 lg:gap-6">
 
-                {/* Card de informações da aula */}
-                <div className="col-span-6 flex flex-col gap-6">
+                {/* Coluna esquerda */}
+                <div className="lg:col-span-6 flex flex-col gap-4 lg:gap-6">
+
+                    {/* Card de informações da aula */}
                     <Card>
                         <div>
                             {/* Badges de resumo */}
@@ -127,7 +129,7 @@ export default function ListClass() {
                             </div>
 
                             {/* Campos */}
-                            <div className="grid grid-cols-2 gap-5">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 lg:gap-5">
                                 <div className="flex items-start gap-3">
                                     <div className="w-8 h-8 rounded-lg bg-gray-100 flex items-center justify-center shrink-0">
                                         <CalendarDays className="w-4 h-4 text-gray-500" />
@@ -175,10 +177,10 @@ export default function ListClass() {
                         </div>
                     </Card>
 
-                     {/* Card de fila de espera */}
+                    {/* Card de fila de espera */}
                     <Card>
                         <div>
-                            <div className="flex items-center gap-2 mb-4" >
+                            <div className="flex items-center gap-2 mb-4">
                                 <div className="w-8 h-8 rounded-lg bg-gray-100 flex items-center justify-center">
                                     <Users className="w-4 h-4 text-gray-500" />
                                 </div>
@@ -212,7 +214,7 @@ export default function ListClass() {
                 </div>
 
                 {/* Coluna direita */}
-                <div className="col-span-6 flex flex-col ">
+                <div className="lg:col-span-6 flex flex-col">
 
                     {/* Card de bikes */}
                     <Card>
@@ -222,7 +224,10 @@ export default function ListClass() {
                                 <h3 className="text-base font-semibold text-gray-800">
                                     {viewMode === 'table' ? 'Lista de Bikes' : 'Layout das Bikes'}
                                 </h3>
-                                <div className="flex items-center gap-1 border border-gray-200 rounded-lg p-1" style={{maxWidth: '88px', backgroundColor: '#f4f2f1'}}>
+                                <div
+                                    className="flex items-center gap-1 border border-gray-200 rounded-lg p-1"
+                                    style={{ maxWidth: '88px', backgroundColor: '#f4f2f1' }}
+                                >
                                     <button
                                         onClick={() => setViewMode('table')}
                                         className={`p-1.5 rounded-md transition-colors ${
@@ -250,19 +255,19 @@ export default function ListClass() {
                                         .map((bike: any) => (
                                             <div
                                                 key={bike.bikeNumber}
-                                                className="flex items-center gap-6 bg-gray-100 rounded-lg px-4 py-3"
+                                                className="flex items-center gap-4 lg:gap-6 bg-gray-100 rounded-lg px-4 py-3"
                                             >
-                                                <div>
+                                                <div className="shrink-0">
                                                     <span className="text-[10px] text-gray-400">Bike</span>
                                                     <p className="text-lg font-bold text-gray-800">{bike.bikeNumber}</p>
                                                 </div>
-                                                <div>
+                                                <div className="shrink-0">
                                                     <span className="text-[10px] text-gray-400">Status</span>
                                                     <p className="text-sm font-medium text-gray-700">Em uso</p>
                                                 </div>
-                                                <div>
+                                                <div className="min-w-0">
                                                     <span className="text-[10px] text-gray-400">Aluno</span>
-                                                    <p className="text-sm font-medium text-gray-700">{bike.studentName || '-'}</p>
+                                                    <p className="text-sm font-medium text-gray-700 truncate">{bike.studentName || '-'}</p>
                                                 </div>
                                             </div>
                                         ))}
@@ -271,28 +276,28 @@ export default function ListClass() {
                                     )}
                                 </div>
                             ) : (
-                                <BikeView
-                                    bikes={bikes}
-                                    totalBikes={13}
-                                    onUpdateBikes={(updatedBikes: any) => setBikes(updatedBikes)}
-                                    handleRemoveStudent={(classId: number, studentId: number) => {
-                                        console.log('Remove student:', classId, studentId);
-                                    }}
-                                    handleCheckin={(classId: number, studentId: number) => {
-                                        console.log('Checkin:', classId, studentId);
-                                    }}
-                                    handleAddStudent={(classId: number, studentId: number) => {
-                                        console.log('Add student:', classId, studentId);
-                                    }}
-                                />
+                                <div className="overflow-x-auto">
+                                    <BikeView
+                                        bikes={bikes}
+                                        totalBikes={13}
+                                        onUpdateBikes={(updatedBikes: any) => setBikes(updatedBikes)}
+                                        handleRemoveStudent={(classId: number, studentId: number) => {
+                                            console.log('Remove student:', classId, studentId);
+                                        }}
+                                        handleCheckin={(classId: number, studentId: number) => {
+                                            console.log('Checkin:', classId, studentId);
+                                        }}
+                                        handleAddStudent={(classId: number, studentId: number) => {
+                                            console.log('Add student:', classId, studentId);
+                                        }}
+                                    />
+                                </div>
                             )}
                         </div>
                     </Card>
 
-                   
-
                     {/* Botão Voltar */}
-                    <div className="flex justify-end mt-6">
+                    <div className="flex justify-end mt-4 lg:mt-6">
                         <button
                             onClick={back}
                             className="px-6 py-2 bg-gray-500 text-white hover:bg-gray-600 transition-colors text-sm rounded-full"

@@ -82,10 +82,6 @@ export default function AddClass() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
-    useEffect(() => {
-        setTeacher(String(dropdownEmployee[0]?.id));
-    }, [dropdownEmployee]);
-
     const clear = () => {
         router.push("/aulas");
     }
@@ -113,10 +109,10 @@ export default function AddClass() {
             } else {
                 setBikes(result.bikes)
                 setDate(result.date);
-                setTime(result.time);
+                setTime(result.time.slice(0, 5));
                 setTypeProduct(result.productTypeId);
                 setProduct(result.productId);
-                setTeacher(result.teacherId);;
+                setTeacher(result.teacherId);
                 setQtdStudents(result.limit)
                 setCanCommission(result.hasCommission);
                 setStudents(result.weight);
@@ -335,7 +331,7 @@ export default function AddClass() {
                                 </div>
                                 <hr className="mt-3 mb-5 pb-3" style={{ borderColor: "#F4F5F6" }} />
                                 <div className="grid grid-cols-12 gap-x-8">
-                                    <div className="col-span-12 sm:col-span-6">
+                                    {/*<div className="col-span-12 sm:col-span-6">
 
                                         <AuthSelect
                                             label="Quantidade de alunos"
@@ -355,7 +351,7 @@ export default function AddClass() {
                                             edit={edit}
                                             required
                                         />
-                                    </div>
+                                    </div>*/}
                                     <div className="col-span-12 sm:col-span-6">
                                         {dropdownEmployee.length > 0
                                             ?
@@ -401,7 +397,7 @@ export default function AddClass() {
                                     <div className="hidden xl:flex xl:grid-rows-4"></div>
                                     <div className="hidden xl:flex xl:grid-rows-4"></div>
                                 </div>
-                                {
+                                 {/*{
                                     Boolean(canCommission) === true &&
                                     <>
                                         <hr className="mt-3 mb-5 pb-3" style={{ borderColor: "#F4F5F6" }} />
@@ -428,7 +424,7 @@ export default function AddClass() {
                                             </div>
                                         </div>
                                     </>
-                                }                            
+                                }    */}                        
                                 <ValidationForm errorMessage={errorMessage} />
                             </div>
                             <div className="col-span-5 flex items-center justify-center" style={{ borderLeft: "1px solid #999999" }}>

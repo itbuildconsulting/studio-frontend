@@ -296,6 +296,7 @@ export default function EditTeachers() {
                 setAddress(result.address);
                 setCountry(result.country);
                 setStatus(result.active);
+                setLevel(result.employee_level)
             }
         }).catch((error) => {
             setErrorMessage(error.message);
