@@ -15,6 +15,8 @@ import { convertArray } from "@/utils/convertArray";
 import DropDown from "@/components/dropdown/DropDown";
 import Link from "next/link";
 import KPICard from "@/components/KPICard";
+import Modal from "@/components/Modal/Modal";
+import CheckoutCollecion from "../../../../core/Checkout";
 import { Line, Doughnut } from 'react-chartjs-2';
 import {
     Chart as ChartJS,
@@ -46,6 +48,7 @@ export default function Results() {
     const edit: boolean = false;
     const repo = useMemo(() => new ResultsCollection(), []);
     const repoDrop = useMemo(() => new DropDownsCollection(), []);
+    const repoCheckout = useMemo(() => new CheckoutCollecion(), []);
 
     const [page, setPage] = useState<number>(1);
     const [transaction, setTransaction] = useState<string>("");
@@ -54,6 +57,51 @@ export default function Results() {
     const [loading, setLoading] = useState<boolean>(false);
     const [resultsList, setResultsList] = useState<any[]>([]);
     const [dropdownStudent, setDropdownStudent] = useState<DropdownType[]>([]);
+
+    // Estados para verificação de PIX
+    const [pixModal, setPixModal] = useState<boolean>(false);
+    const [pixStatus, setPixStatus] = useState<any>(null);
+    const [pixLoading, setPixLoading] = useState<boolean>(false);
+
+    // Estados para cancelamento
+    const [cancelModal, setCancelModal] = useState<boolean>(false);
+    const [cancelChargeId, setCancelChargeId] = useState<string>('');
+    const [adminPassword, setAdminPassword] = useState<string>('');
+    const [cancelLoading, setCancelLoading] = useState<boolean>(false);
+    const [cancelResult, setCancelResult] = useState<{ success: boolean; message: string } | null>(null);
+
+    const openCancelModal = (chargeId: string) => {
+        setCancelChargeId(chargeId);
+        setAdminPassword('');
+        setCancelResult(null);
+        setCancelModal(true);
+    };
+
+    const confirmCancel = () => {
+        setCancelLoading(true);
+        repoCheckout.cancelPaymentAndRefund(cancelChargeId, adminPassword).then((result: any) => {
+            if (result instanceof Error) {
+                const msg = JSON.parse(result.message);
+                setCancelResult({ success: false, message: msg.error || 'Erro ao cancelar.' });
+            } else {
+                setCancelResult({ success: true, message: 'Pagamento cancelado com sucesso.' });
+                listResults();
+            }
+            setCancelLoading(false);
+        });
+    };
+
+    const checkPixStatus = (chargeId: string) => {
+        setPixStatus(null);
+        setPixLoading(true);
+        setPixModal(true);
+        repoCheckout.getPixStatus(chargeId).then((result: any) => {
+            if (!(result instanceof Error)) {
+                setPixStatus(result);
+            }
+            setPixLoading(false);
+        });
+    };
 
     // Estados para métricas
     const [metrics, setMetrics] = useState<any>(null);
@@ -147,6 +195,14 @@ export default function Results() {
             <DropDown style={'bg-white'}>
                 <>...</>
                 <Link href={`/financeiro/${cell}`}>Ver</Link>
+                {row.payment_method === 'pix' && row.status === 'pending' && (
+                    <span onClick={() => checkPixStatus(row.chargeId || cell)}>
+                        Verificar PIX
+                    </span>
+                )}
+                <span onClick={() => openCancelModal(row.chargeId || cell)}>
+                    Cancelar pagamento
+                </span>
             </DropDown>
         );
     };
@@ -441,6 +497,119 @@ export default function Results() {
                     </Card>
                 </div>
             </div>
+            <Modal
+                btnClose
+                showModal={pixModal}
+                setShowModal={setPixModal}
+                isModalStatus={true}
+            >
+                <div className="rounded-lg bg-white w-full py-10 px-10 flex flex-col m-auto">
+                    {pixLoading ? (
+                        <div className="flex flex-col items-center gap-4">
+                            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900" />
+                            <p className="text-gray-500">Verificando pagamento...</p>
+                        </div>
+                    ) : pixStatus && (
+                        <div className="flex flex-col items-center gap-4">
+                            <div className={`w-16 h-16 rounded-full flex items-center justify-center ${pixStatus.status === 'paid' ? 'bg-green-100' : 'bg-yellow-100'}`}>
+                                {pixStatus.status === 'paid' ? (
+                                    <svg width="32" height="32" fill="none" viewBox="0 0 24 24" stroke="#16a34a" strokeWidth={2}>
+                                        <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                    </svg>
+                                ) : (
+                                    <svg width="32" height="32" fill="none" viewBox="0 0 24 24" stroke="#ca8a04" strokeWidth={2}>
+                                        <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
+                                    </svg>
+                                )}
+                            </div>
+                            <h5 className="text-gray-700 font-semibold">
+                                {pixStatus.status === 'paid' ? 'PIX confirmado!' : 'Aguardando pagamento'}
+                            </h5>
+                            {pixStatus.status !== 'paid' && (
+                                <p className="text-sm text-gray-500 text-center">
+                                    O pagamento via PIX ainda não foi identificado.
+                                </p>
+                            )}
+                            <button className="btn-outline-primary px-5 mt-2" onClick={() => setPixModal(false)}>
+                                Fechar
+                            </button>
+                        </div>
+                    )}
+                </div>
+            </Modal>
+
+            {/* Modal de Cancelamento */}
+            <Modal
+                btnClose
+                showModal={cancelModal}
+                setShowModal={setCancelModal}
+                isModalStatus={true}
+            >
+                <div className="rounded-lg bg-white w-full py-10 px-10 flex flex-col m-auto">
+                    {cancelLoading ? (
+                        <div className="flex flex-col items-center gap-4">
+                            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900" />
+                            <p className="text-gray-500">Cancelando pagamento...</p>
+                        </div>
+                    ) : cancelResult ? (
+                        <div className="flex flex-col items-center gap-4">
+                            <div className={`w-16 h-16 rounded-full flex items-center justify-center ${cancelResult.success ? 'bg-green-100' : 'bg-red-100'}`}>
+                                {cancelResult.success ? (
+                                    <svg width="32" height="32" fill="none" viewBox="0 0 24 24" stroke="#16a34a" strokeWidth={2}>
+                                        <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                    </svg>
+                                ) : (
+                                    <svg width="32" height="32" fill="none" viewBox="0 0 24 24" stroke="#dc2626" strokeWidth={2}>
+                                        <path strokeLinecap="round" strokeLinejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                                    </svg>
+                                )}
+                            </div>
+                            <h5 className="text-gray-700 font-semibold text-center">{cancelResult.message}</h5>
+                            <button className="btn-outline-primary px-5 mt-2" onClick={() => setCancelModal(false)}>
+                                Fechar
+                            </button>
+                        </div>
+                    ) : (
+                        <div className="flex flex-col gap-6">
+                            <div className="flex flex-col items-center gap-2 text-center">
+                                <div className="w-14 h-14 rounded-full bg-red-100 flex items-center justify-center">
+                                    <svg width="28" height="28" fill="none" viewBox="0 0 24 24" stroke="#dc2626" strokeWidth={2}>
+                                        <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
+                                    </svg>
+                                </div>
+                                <h5 className="text-gray-800 font-semibold">Cancelar pagamento</h5>
+                                <p className="text-sm text-gray-500">
+                                    Essa ação é irreversível. Informe sua senha de administrador para confirmar.
+                                </p>
+                            </div>
+
+                            <div className="flex flex-col gap-1">
+                                <label className="text-xs text-gray-500 uppercase tracking-wider">Senha do administrador</label>
+                                <input
+                                    type="password"
+                                    value={adminPassword}
+                                    onChange={(e) => setAdminPassword(e.target.value)}
+                                    className="border border-gray-300 rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-red-300"
+                                    placeholder="Digite sua senha"
+                                />
+                            </div>
+
+                            <div className="flex gap-3 justify-end">
+                                <button className="btn-outline-primary px-5" onClick={() => setCancelModal(false)}>
+                                    Voltar
+                                </button>
+                                <button
+                                    className="btn-primary px-5 !bg-red-600 !border-red-600 hover:!bg-red-700"
+                                    disabled={!adminPassword}
+                                    onClick={confirmCancel}
+                                >
+                                    Confirmar cancelamento
+                                </button>
+                            </div>
+                        </div>
+                    )}
+                </div>
+            </Modal>
         </PageDefault>
     );
 }
