@@ -1,6 +1,5 @@
 import Cookies from 'js-cookie';
 
-import { ClassFilterType, ClassType } from '@/types/class';
 
 async function conectAPI(req: object | null, url: string, method: string) {
     const token = Cookies.get('admin-user-sci-auth');
@@ -55,7 +54,9 @@ export default class ClassRepository implements ClassRepository {
         kickbackRule: string,
         productTypeId: string | null,
         students: string[],
-        active: boolean
+        active: boolean,
+        title?: string | null,
+        description?: string | null,
     ): Promise<[]> {
         const req = {
             date,
@@ -67,7 +68,9 @@ export default class ClassRepository implements ClassRepository {
             kickbackRule,
             productTypeId,
             students,
-            active
+            active,
+            title: title || null,
+            description: description || null,
         };
         return conectAPI(req, "/class", "POST");
     }
@@ -82,7 +85,9 @@ export default class ClassRepository implements ClassRepository {
         kickbackRule: string,
         productTypeId: string | null,
         students: string[],
-        active: boolean
+        active: boolean,
+        title?: string | null,
+        description?: string | null,
     ): Promise<[]> {
         const req = {
             date,
@@ -94,7 +99,9 @@ export default class ClassRepository implements ClassRepository {
             kickbackRule,
             productTypeId,
             students,
-            active
+            active,
+            title: title || null,
+            description: description || null,
         };
         return conectAPI(req, "/class/multiple/", "POST");
     }
@@ -149,7 +156,9 @@ export default class ClassRepository implements ClassRepository {
         kickbackRule: string | null,
         productTypeId: string | null,
         bikes: string[] | null,
-        active: boolean
+        active: boolean,
+        title?: string | null,
+        description?: string | null,
     ): Promise<[]> {
         const req = {
             id,
@@ -162,7 +171,9 @@ export default class ClassRepository implements ClassRepository {
             kickbackRule,
             productTypeId,
             bikes,
-            active
+            active,
+            title: title || null,
+            description: description || null,
         };
         return conectAPI(req, `/class/${id}`, "PUT");
     }

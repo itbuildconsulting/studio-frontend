@@ -12,5 +12,7 @@ export type ClassType = {
     kickback: number | null,
     kickbackRule: string | null,
     students: string[] | null,
-    active: boolean
+    active: boolean,
+    title?: string | null,
+    description?: string | null,
 } & ClassFilterType;

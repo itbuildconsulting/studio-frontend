@@ -9,16 +9,15 @@ import { useParams, useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 
 import ClassCollection from "../../../../../../core/Class";
+import RichTextEditor from "@/components/RichTextEditor/RichTextEditor";
 import DropDownsCollection from "../../../../../../core/DropDowns";
 import Modal from "@/components/Modal/Modal";
 import Loading from "@/components/loading/Loading";
 
 import DropdownType from "../../../../../model/Dropdown";
-import AuthSelectMulti from "@/components/auth/AuthSelectMulti";
 import useConvertDate from "@/data/hooks/useConvertDate";
 import { convertDate } from "@/utils/formatterText";
 import { EventBtn } from "@/types/btn";
-import { BikeAvalible, BikeBusy } from "@/components/icons";
 import BikeView from "@/components/BikeView/BikeView";
 import { convertArray, convertArrayType } from "@/utils/convertArray";
 import { ValidationForm } from "@/components/formValidation/validation";
@@ -49,6 +48,8 @@ export default function AddClass() {
     const [commissionRules, setCommissionRules] = useState<string | null>(null);
     const [commissionValue, setCommissionValue] = useState<number | null>(0);
     const [bikes, setBikes] = useState<string[]>([]);
+    const [title, setTitle] = useState<string>('');
+    const [description, setDescription] = useState<string | null>('');
 
     const [dropdownType, setDropdownType] = useState<string[]>([]);
     const [dropdownEmployee, setDropdownEmployee] = useState<DropdownType[]>([]);
@@ -118,6 +119,8 @@ export default function AddClass() {
                 setStudents(result.weight);
                 setCommissionRules(result.kickbackRule);
                 setCommissionValue(result.kickback);
+                setTitle(result.title || '');
+                setDescription(result.description || '');
             }
         }).catch((error) => {
             setErrorMessage(error.message);
@@ -146,7 +149,7 @@ export default function AddClass() {
             return;
         }
 
-        repo?.edit(+searchParams?.slug, convertDate(date), time, teacher, limit, canCommission, commissionValue, commissionRules, typeProduct, bikes, true).then((result: any) => {
+        repo?.edit(+searchParams?.slug, convertDate(date), time, teacher, limit, canCommission, commissionValue, commissionRules, typeProduct, bikes, true, title || null, description || null).then((result: any) => {
             if (result instanceof Error) {
                 const message: any = JSON.parse(result.message);
                 setErrorMessage(message.error);
@@ -299,6 +302,26 @@ export default function AddClass() {
                     >
                         <div className="grid grid-cols-12 gap-8">
                             <div className="col-span-7">
+                                <div className="grid grid-cols-12 gap-x-8 mb-6">
+                                    <div className="col-span-12">
+                                        <AuthInput
+                                            label="Título"
+                                            value={title}
+                                            type="text"
+                                            changeValue={setTitle}
+                                            edit={edit}
+                                        />
+                                    </div>
+                                    <div className="col-span-12">
+                                        <RichTextEditor
+                                            label="Descrição"
+                                            value={description}
+                                            onChange={setDescription}
+                                        />
+                                    </div>
+                                </div>
+                                <hr className="mb-5 pb-3" style={{ borderColor: "#F4F5F6" }} />
+
                                 <div className="grid grid-cols-12 gap-x-8">
                                     <div className="col-span-12 sm:col-span-6">
                                         <SingleCalendar
