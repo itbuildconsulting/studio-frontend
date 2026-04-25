@@ -303,7 +303,7 @@ export default function AddClass() {
                                         <RichTextEditor
                                             label="Descrição"
                                             value={description}
-                                            onChange={setDescription}
+                                            onChange={(html) => setDescription(html ?? '')}
                                         />
                                     </div>
                                 </div>
