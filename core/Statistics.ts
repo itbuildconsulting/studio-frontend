@@ -163,7 +163,8 @@ export default class StatisticsRepository {
         return conectAPI(null, "/performance/monthly-comparison", "GET");
     }
 
-    async getWeeklyTrends(): Promise<any> {
-        return conectAPI(null, "/performance/weekly-trends", "GET");
+    async getWeeklyTrends(startDate?: string, endDate?: string, period?: string): Promise<any> {
+        const req = { startDate, endDate, period };
+        return conectAPI(req, "/performance/weekly-trends", "POST");
     }
 }
