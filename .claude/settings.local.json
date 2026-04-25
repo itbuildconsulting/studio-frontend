@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm install *)",
+      "Bash(node -e \"require\\('@tiptap/react'\\)\")",
+      "Bash(echo \"EXIT: $?\")",
+      "Bash(echo \"EXIT:$?\")",
+      "Bash(npm config *)"
+    ]
+  }
+}

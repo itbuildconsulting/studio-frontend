@@ -34,6 +34,8 @@ export default function ListClass() {
     const [commissionValue, setCommissionValue] = useState<number | null>(0);
     const [bikes, setBikes] = useState<any[]>([]);
     const [waitlist, setWaitlist] = useState<any[]>([]);
+    const [title, setTitle] = useState<string | null>(null);
+    const [description, setDescription] = useState<string | null>(null);
 
     const [dropdownType, setDropdownType] = useState<DropdownType[]>([]);
     const [dropdownEmployee, setDropdownEmployee] = useState<DropdownType[]>([]);
@@ -84,6 +86,8 @@ export default function ListClass() {
             setTime(result.time);
             setTypeProduct(result.productTypeId);
             setTeacher(result.teacherId);
+            setTitle(result.title ?? null);
+            setDescription(result.description ?? null);
             setCanCommission(result.canCommission);
             setCommissionRules(result.commissionRules);
             setCommissionValue(result.commissionValue);
@@ -116,6 +120,14 @@ export default function ListClass() {
                     {/* Card de informações da aula */}
                     <Card>
                         <div>
+                            {/* Título e descrição */}
+                            {title && (
+                                <h4 className="text-gray-800 font-semibold mb-1">{title}</h4>
+                            )}
+                            {description && (
+                                <p className="text-sm text-gray-500 mb-4">{description}</p>
+                            )}
+
                             {/* Badges de resumo */}
                             <div className="flex gap-3 mb-5">
                                 <span className="inline-flex items-center gap-1.5 bg-rose-100 text-rose-600 text-xs font-medium px-3 py-1 rounded-full">
