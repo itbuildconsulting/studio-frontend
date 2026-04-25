@@ -106,6 +106,18 @@ function toObject(res: any): any {
   return res?.data ?? res;
 }
 
+function BarTooltip({ active, payload, label }: any) {
+  if (!active || !payload?.length) return null;
+  return (
+    <div className="rounded-lg border border-border bg-card px-3 py-2 shadow-lg text-xs">
+      <p className="font-medium text-muted-foreground mb-1">{label}</p>
+      <p className="font-bold text-foreground">
+        {payload[0].value} <span className="font-normal text-muted-foreground">{payload[0].name}</span>
+      </p>
+    </div>
+  );
+}
+
 export default function Estatisticas() {
   const repo = useMemo(() => new StatisticsRepository(), []);
   const [periodo, setPeriodo] = useState<Periodo>("mes");
@@ -513,22 +525,14 @@ export default function Estatisticas() {
                       tickLine={false}
                     />
                     <RTooltip
-                      cursor={{ fill: "hsl(var(--muted))" }}
-                      contentStyle={{
-                        background: "hsl(var(--card))",
-                        border: "1px solid hsl(var(--border))",
-                        borderRadius: 8,
-                        fontSize: 12,
-                        color: "hsl(var(--foreground))",
-                      }}
-                      itemStyle={{ color: "hsl(var(--foreground))" }}
-                      labelStyle={{ color: "hsl(var(--muted-foreground))" }}
+                      cursor={{ fill: "rgba(0,0,0,0.06)" }}
+                      content={<BarTooltip />}
                     />
                     <Bar
                       dataKey="alunos"
                       fill="hsl(var(--primary))"
                       radius={[6, 6, 0, 0]}
-                      activeBar={{ fill: "hsl(var(--primary))", opacity: 0.75 }}
+                      activeBar={{ fill: "hsl(var(--primary))", opacity: 0.8 }}
                     />
                   </BarChart>
                 </ResponsiveContainer>
@@ -574,22 +578,14 @@ export default function Estatisticas() {
                       tickLine={false}
                     />
                     <RTooltip
-                      cursor={{ fill: "hsl(var(--muted))" }}
-                      contentStyle={{
-                        background: "hsl(var(--card))",
-                        border: "1px solid hsl(var(--border))",
-                        borderRadius: 8,
-                        fontSize: 12,
-                        color: "hsl(var(--foreground))",
-                      }}
-                      itemStyle={{ color: "hsl(var(--foreground))" }}
-                      labelStyle={{ color: "hsl(var(--muted-foreground))" }}
+                      cursor={{ fill: "rgba(0,0,0,0.06)" }}
+                      content={<BarTooltip />}
                     />
                     <Bar
                       dataKey="alunos"
                       fill="hsl(var(--primary))"
                       radius={[6, 6, 0, 0]}
-                      activeBar={{ fill: "hsl(var(--primary))", opacity: 0.75 }}
+                      activeBar={{ fill: "hsl(var(--primary))", opacity: 0.8 }}
                     />
                   </BarChart>
                 </ResponsiveContainer>
