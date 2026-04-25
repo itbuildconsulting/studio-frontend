@@ -3,7 +3,7 @@ import Image from "next/image";
 import styles from "../../styles/menu.module.css";
 import {
   IconAdmin, IconAdminFilter, IconClass, IconClose, IconDollar, IconFinance,
-  IconHome, IconInstallment, IconLeave, IconProducts, IconStudents, IconWorkers,
+  IconHome, IconInstallment, IconLeave, IconProducts, IconStats, IconStudents, IconWorkers,
 } from "../icons";
 import LogoShort from "../../../public/images/spingo.png";
 import MenuItem from "./MenuItem";
@@ -59,6 +59,7 @@ export default function MenuSideBar({ menuMobileOpen, handleMenuOpen }: MenuSide
                 <MenuItem url="/funcionarios" text="Funcionários" icon={IconWorkers} />
                 <MenuItem url="/produtos" text="Produtos" icon={IconProducts} />
                 <MenuItem url="/creditos" text="Créditos" icon={IconDollar} />
+                <MenuItem url="/estatisticas" text="Estatísticas" icon={IconStats} />
                 <MenuItem url="/administrativo" text="Administrativo" icon={IconAdmin} />
                 <MenuItem url="/configuracoes" text="Configurações" icon={IconAdminFilter} />
                 <MenuItem url="/parcelamento" text="Parcelamento" icon={IconInstallment} />

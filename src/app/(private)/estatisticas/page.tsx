@@ -20,6 +20,7 @@ import {
   MessageSquare,
   Send,
   Download,
+  Clock,
 } from "lucide-react";
 import {
   ResponsiveContainer,
@@ -109,7 +110,7 @@ function toObject(res: any): any {
 function BarTooltip({ active, payload, label }: any) {
   if (!active || !payload?.length) return null;
   return (
-    <div className="rounded-xl border border-border/40 bg-card/95 backdrop-blur-sm px-4 py-3 shadow-xl text-xs min-w-[100px]">
+    <div className="rounded-xl border border-border/40 bg-white/90 px-4 py-3 shadow-xl text-xs min-w-[100px]">
       <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wide mb-2">
         {label}
       </p>
@@ -287,26 +288,21 @@ export default function Estatisticas() {
   }, [weeklyTrends]);
 
   const ocupacaoHorario = useMemo(() => {
-    if (!occupancyByTime) return [];
-    if (Array.isArray(occupancyByTime))
-      return occupancyByTime.map((item: any) => ({
-        horario: item.horario ?? item.label ?? "",
-        ocupacao: item.ocupacao ?? item.rate ?? item.count ?? 0,
-      }));
-    if (occupancyByTime.labels && occupancyByTime.data)
-      return (occupancyByTime.labels as string[]).map((label, i) => ({
-        horario: label,
-        ocupacao: occupancyByTime.data[i] ?? 0,
-      }));
-    return [];
+    if (!occupancyByTime?.labels || !occupancyByTime?.data) return [];
+    return (occupancyByTime.labels as string[]).map((label: string, i: number) => ({
+      horario: String(label).slice(0, 5),
+      ocupacao: occupancyByTime.data[i] ?? 0,
+      alunos: occupancyByTime.counts?.[i] ?? 0,
+      vagas: occupancyByTime.spots?.[i] ?? null,
+    }));
   }, [occupancyByTime]);
 
   const topAlunos = topStudents.map((s: any, i: number) => ({
     rank: i + 1,
     nome: s.name ?? s.nome ?? "",
     aulas: s.classCount ?? s.aulas ?? 0,
-    sequencia: s.streak ?? s.sequencia ?? 0,
     presenca: s.attendanceRate ?? s.presenca ?? 0,
+    last7: s.last7 ?? [],
   }));
 
   const topProfessores = topTeachers.map((t: any) => ({
@@ -632,29 +628,46 @@ export default function Estatisticas() {
                 else if (intensity >= 40) bg = "bg-primary/70";
                 else if (intensity >= 25) bg = "bg-primary/40";
                 else if (intensity >= 15) bg = "bg-primary/20";
+                const isLight = intensity < 40;
                 return (
                   <div
                     key={slot.horario}
-                    className="flex flex-col items-center gap-1.5"
+                    className={cn(
+                      "w-full rounded-xl flex flex-col items-center justify-between py-3 px-2 transition-all hover:scale-105 cursor-default border",
+                      bg,
+                      isLight ? "border-border" : "border-primary-foreground/20"
+                    )}
                   >
-                    <div
+                    <Clock
                       className={cn(
-                        "w-full h-16 rounded-lg flex items-end justify-center pb-1.5 transition-all hover:scale-105",
-                        bg
+                        "w-3.5 h-3.5",
+                        isLight ? "text-foreground/40" : "text-primary-foreground/70"
+                      )}
+                    />
+                    <span
+                      className={cn(
+                        "text-[11px] font-bold tabular-nums mt-2",
+                        isLight ? "text-foreground/80" : "text-primary-foreground"
                       )}
                     >
-                      <span
-                        className={cn(
-                          "text-[10px] font-bold",
-                          intensity >= 40
-                            ? "text-primary-foreground"
-                            : "text-foreground/70"
-                        )}
-                      >
-                        {slot.ocupacao}%
-                      </span>
-                    </div>
-                    <span className="text-[10px] text-muted-foreground font-medium">
+                      {slot.vagas > 0
+                        ? `${slot.alunos}/${slot.vagas}`
+                        : `${slot.alunos}`}
+                    </span>
+                    <span
+                      className={cn(
+                        "text-[10px] font-semibold mt-0.5",
+                        isLight ? "text-foreground/50" : "text-primary-foreground/70"
+                      )}
+                    >
+                      {slot.ocupacao}%
+                    </span>
+                    <span
+                      className={cn(
+                        "text-[10px] font-semibold mt-2 tabular-nums",
+                        isLight ? "text-foreground/60" : "text-primary-foreground/80"
+                      )}
+                    >
                       {slot.horario}
                     </span>
                   </div>
@@ -685,12 +698,8 @@ export default function Estatisticas() {
                   <th className="text-left py-2 px-2 font-medium w-10">#</th>
                   <th className="text-left py-2 px-2 font-medium">Aluno</th>
                   <th className="text-right py-2 px-2 font-medium">Aulas</th>
-                  <th className="text-right py-2 px-2 font-medium">
-                    Sequência
-                  </th>
-                  <th className="text-right py-2 px-2 font-medium">
-                    Presença
-                  </th>
+                  <th className="text-right py-2 px-2 font-medium">Últimos 7 dias</th>
+                  <th className="text-right py-2 px-2 font-medium">Presença</th>
                 </tr>
               </thead>
               <tbody>
@@ -727,8 +736,24 @@ export default function Estatisticas() {
                         <td className="py-2.5 px-2 text-right tabular-nums font-semibold">
                           {aluno.aulas}
                         </td>
-                        <td className="py-2.5 px-2 text-right tabular-nums text-muted-foreground">
-                          {aluno.sequencia} dias
+                        <td className="py-2.5 px-2">
+                          <div className="flex items-center justify-end gap-0.5">
+                            {aluno.last7.length > 0
+                              ? aluno.last7.map((status: string, i: number) => (
+                                  <div
+                                    key={i}
+                                    title={status === 'attended' ? 'Presente' : status === 'missed' ? 'Faltou' : 'Sem aula'}
+                                    className={cn(
+                                      "w-3.5 h-3.5 rounded-sm",
+                                      status === 'attended' && "bg-emerald-400",
+                                      status === 'missed' && "bg-rose-400",
+                                      status === 'no_class' && "bg-muted"
+                                    )}
+                                  />
+                                ))
+                              : <span className="text-[11px] text-muted-foreground">—</span>
+                            }
+                          </div>
                         </td>
                         <td className="py-2.5 px-2 text-right tabular-nums font-semibold text-emerald-600">
                           {aluno.presenca}%
