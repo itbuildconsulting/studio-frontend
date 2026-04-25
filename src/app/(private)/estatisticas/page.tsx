@@ -192,9 +192,9 @@ export default function Estatisticas() {
       hint: "vs período anterior",
     },
     {
-      label: "Check-ins",
-      value: overview?.totalCheckins ?? 0,
-      hint: "no período",
+      label: "Média / Aula",
+      value: overview?.avgStudentsPerClass ?? 0,
+      hint: "alunos por aula",
     },
     {
       label: "Taxa Ocupação",
@@ -220,6 +220,7 @@ export default function Estatisticas() {
     description: string;
     count: number;
     cta: string;
+    anchor?: string;
   }[] = [
     {
       id: "inativos",
@@ -228,6 +229,7 @@ export default function Estatisticas() {
       description: "Não comparecem há mais de 14 dias",
       count: inactiveStudents.length,
       cta: "Ver detalhes",
+      anchor: "#section-inativos",
     },
     {
       id: "risco",
@@ -236,6 +238,7 @@ export default function Estatisticas() {
       description: "Alunos com redução significativa de aulas",
       count: studentsAtRisk.length,
       cta: "Ver quem são",
+      anchor: "#section-top-alunos",
     },
     {
       id: "creditos",
@@ -252,6 +255,7 @@ export default function Estatisticas() {
       description: "Alunos com sequência de 7+ dias consecutivos",
       count: topStudents.filter((s: any) => (s.streak ?? 0) >= 7).length,
       cta: "Reconhecer alunos",
+      anchor: "#section-top-alunos",
     },
   ];
 
@@ -462,9 +466,18 @@ export default function Estatisticas() {
                   <p className="text-[11px] text-muted-foreground mt-1 mb-3 leading-snug">
                     {insight.description}
                   </p>
-                  <button className="mt-auto text-[11px] font-semibold text-foreground/80 hover:text-foreground self-start inline-flex items-center gap-1">
-                    {insight.cta} →
-                  </button>
+                  {insight.anchor ? (
+                    <a
+                      href={insight.anchor}
+                      className="mt-auto text-[11px] font-semibold text-foreground/80 hover:text-foreground self-start inline-flex items-center gap-1"
+                    >
+                      {insight.cta} →
+                    </a>
+                  ) : (
+                    <button className="mt-auto text-[11px] font-semibold text-foreground/80 hover:text-foreground self-start inline-flex items-center gap-1">
+                      {insight.cta} →
+                    </button>
+                  )}
                 </div>
               );
             })}
@@ -547,7 +560,10 @@ export default function Estatisticas() {
                         border: "1px solid hsl(var(--border))",
                         borderRadius: 8,
                         fontSize: 12,
+                        color: "hsl(var(--foreground))",
                       }}
+                      itemStyle={{ color: "hsl(var(--foreground))" }}
+                      labelStyle={{ color: "hsl(var(--muted-foreground))" }}
                     />
                     <Area
                       type="monotone"
@@ -610,12 +626,16 @@ export default function Estatisticas() {
                         border: "1px solid hsl(var(--border))",
                         borderRadius: 8,
                         fontSize: 12,
+                        color: "hsl(var(--foreground))",
                       }}
+                      itemStyle={{ color: "hsl(var(--foreground))" }}
+                      labelStyle={{ color: "hsl(var(--muted-foreground))" }}
                     />
                     <Bar
                       dataKey="checkins"
                       fill="hsl(var(--primary))"
                       radius={[6, 6, 0, 0]}
+                      activeBar={{ fill: "hsl(var(--primary))", opacity: 0.75 }}
                     />
                   </BarChart>
                 </ResponsiveContainer>
@@ -689,7 +709,7 @@ export default function Estatisticas() {
         </section>
 
         {/* Rankings */}
-        <section className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+        <section id="section-top-alunos" className="grid grid-cols-1 lg:grid-cols-3 gap-4">
           {/* Top alunos */}
           <div className="bg-card border border-border rounded-xl p-5 lg:col-span-2">
             <div className="flex items-center justify-between mb-4">
@@ -814,7 +834,7 @@ export default function Estatisticas() {
         </section>
 
         {/* Alunos inativos */}
-        <section className="bg-card border border-border rounded-xl p-5">
+        <section id="section-inativos" className="bg-card border border-border rounded-xl p-5">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-2">
               <AlertTriangle className="w-4 h-4 text-amber-500" />

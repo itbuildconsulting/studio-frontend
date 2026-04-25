@@ -5,7 +5,8 @@
       "Bash(node -e \"require\\('@tiptap/react'\\)\")",
       "Bash(echo \"EXIT: $?\")",
       "Bash(echo \"EXIT:$?\")",
-      "Bash(npm config *)"
+      "Bash(npm config *)",
+      "Bash(npx tsc *)"
     ]
   }
 }
