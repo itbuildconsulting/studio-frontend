@@ -109,11 +109,17 @@ function toObject(res: any): any {
 function BarTooltip({ active, payload, label }: any) {
   if (!active || !payload?.length) return null;
   return (
-    <div className="rounded-lg border border-border bg-card px-3 py-2 shadow-lg text-xs">
-      <p className="font-medium text-muted-foreground mb-1">{label}</p>
-      <p className="font-bold text-foreground">
-        {payload[0].value} <span className="font-normal text-muted-foreground">{payload[0].name}</span>
+    <div className="rounded-xl border border-border/40 bg-card/95 backdrop-blur-sm px-4 py-3 shadow-xl text-xs min-w-[100px]">
+      <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wide mb-2">
+        {label}
       </p>
+      <div className="flex items-center gap-2">
+        <span className="w-2 h-2 rounded-full bg-primary flex-shrink-0" />
+        <span className="text-sm font-bold text-foreground tabular-nums">
+          {payload[0].value}
+        </span>
+        <span className="text-muted-foreground">{payload[0].name}</span>
+      </div>
     </div>
   );
 }
