@@ -23,8 +23,6 @@ import {
 } from "lucide-react";
 import {
   ResponsiveContainer,
-  AreaChart,
-  Area,
   BarChart,
   Bar,
   XAxis,
@@ -49,7 +47,6 @@ const PERIODOS: { value: Periodo; label: string }[] = [
   { value: "trimestre", label: "Trimestre" },
 ];
 
-const DIAS_SEMANA = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"];
 
 const INSIGHT_STYLES: Record<
   InsightTone,
@@ -128,7 +125,6 @@ export default function Estatisticas() {
   const [occupancyByTime, setOccupancyByTime] = useState<any>(null);
   const [topTeachers, setTopTeachers] = useState<any[]>([]);
   const [weeklyTrends, setWeeklyTrends] = useState<any>(null);
-  const [occupancyByDay, setOccupancyByDay] = useState<any>(null);
 
   const loadData = useCallback(async () => {
     setLoading(true);
@@ -143,7 +139,6 @@ export default function Estatisticas() {
         occupancyTimeRes,
         teachersRes,
         trendsRes,
-        occupancyDayRes,
       ] = await Promise.all([
         repo.getOverviewMetrics(startDate, endDate),
         repo.getTopStudents(10, periodo),
@@ -152,8 +147,7 @@ export default function Estatisticas() {
         repo.getCreditsExpiringSoon(7),
         repo.getOccupancyByTime(startDate, endDate),
         repo.getTopTeachers(5),
-        repo.getWeeklyTrends(),
-        repo.getOccupancyByDayOfWeek(),
+        repo.getWeeklyTrends(startDate, endDate, periodo),
       ]);
 
       setOverview(toObject(overviewRes));
@@ -164,7 +158,6 @@ export default function Estatisticas() {
       setOccupancyByTime(toObject(occupancyTimeRes));
       setTopTeachers(toArray(teachersRes));
       setWeeklyTrends(toObject(trendsRes));
-      setOccupancyByDay(toObject(occupancyDayRes));
     } catch (e) {
       console.error("Erro ao carregar estatísticas:", e);
     } finally {
@@ -259,28 +252,21 @@ export default function Estatisticas() {
     },
   ];
 
-  const evolucaoCheckins = useMemo(() => {
-    if (!weeklyTrends) return [];
-    if (Array.isArray(weeklyTrends))
-      return weeklyTrends.map((item: any) => ({
-        dia: item.dia ?? item.label ?? item.date ?? "",
-        checkins: item.checkins ?? item.count ?? item.value ?? 0,
-      }));
-    if (weeklyTrends.labels && weeklyTrends.data)
-      return (weeklyTrends.labels as string[]).map((label, i) => ({
-        dia: label,
-        checkins: weeklyTrends.data[i] ?? 0,
-      }));
-    return [];
-  }, [weeklyTrends]);
+  const alunosPorHorario = useMemo(() => {
+    if (!occupancyByTime?.labels || !occupancyByTime?.counts) return [];
+    return (occupancyByTime.labels as string[]).map((label: string, i: number) => ({
+      horario: label,
+      alunos: occupancyByTime.counts[i] ?? 0,
+    }));
+  }, [occupancyByTime]);
 
-  const frequenciaSemana = useMemo(() => {
-    if (!occupancyByDay) return [];
-    const raw: number[] = Array.isArray(occupancyByDay)
-      ? occupancyByDay
-      : occupancyByDay.data ?? [];
-    return DIAS_SEMANA.map((dia, i) => ({ dia, checkins: raw[i] ?? 0 }));
-  }, [occupancyByDay]);
+  const alunosPorDia = useMemo(() => {
+    if (!weeklyTrends?.labels || !weeklyTrends?.data) return [];
+    return (weeklyTrends.labels as string[]).map((label: string, i: number) => ({
+      dia: label,
+      alunos: weeklyTrends.data[i] ?? 0,
+    }));
+  }, [weeklyTrends]);
 
   const ocupacaoHorario = useMemo(() => {
     if (!occupancyByTime) return [];
@@ -486,17 +472,15 @@ export default function Estatisticas() {
 
         {/* Charts row */}
         <section className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-          {/* Evolução check-ins */}
+          {/* Alunos por Horário */}
           <div className="bg-card border border-border rounded-xl p-5 lg:col-span-2">
             <div className="flex items-center justify-between mb-4">
               <div>
                 <h3 className="text-sm font-bold text-foreground">
-                  Evolução de Check-ins
+                  Alunos por Horário
                 </h3>
                 <p className="text-[11px] text-muted-foreground">
-                  {evolucaoCheckins.length > 0
-                    ? `Últimos ${evolucaoCheckins.length} dias`
-                    : "Dados do período"}
+                  Número de alunos por faixa de horário
                 </p>
               </div>
               <Badge variant="secondary" className="text-[10px]">
@@ -508,114 +492,23 @@ export default function Estatisticas() {
                 <div className="h-full bg-muted animate-pulse rounded-lg" />
               ) : (
                 <ResponsiveContainer width="100%" height="100%">
-                  <AreaChart
-                    data={evolucaoCheckins}
+                  <BarChart
+                    data={alunosPorHorario}
                     margin={{ top: 5, right: 5, left: -20, bottom: 0 }}
                   >
-                    <defs>
-                      <linearGradient
-                        id="grad-checkins"
-                        x1="0"
-                        y1="0"
-                        x2="0"
-                        y2="1"
-                      >
-                        <stop
-                          offset="0%"
-                          stopColor="hsl(var(--primary))"
-                          stopOpacity={0.3}
-                        />
-                        <stop
-                          offset="100%"
-                          stopColor="hsl(var(--primary))"
-                          stopOpacity={0}
-                        />
-                      </linearGradient>
-                    </defs>
                     <CartesianGrid
                       strokeDasharray="3 3"
                       stroke="hsl(var(--border))"
                       vertical={false}
                     />
                     <XAxis
-                      dataKey="dia"
-                      tick={{
-                        fontSize: 10,
-                        fill: "hsl(var(--muted-foreground))",
-                      }}
+                      dataKey="horario"
+                      tick={{ fontSize: 10, fill: "hsl(var(--muted-foreground))" }}
                       axisLine={false}
                       tickLine={false}
                     />
                     <YAxis
-                      tick={{
-                        fontSize: 10,
-                        fill: "hsl(var(--muted-foreground))",
-                      }}
-                      axisLine={false}
-                      tickLine={false}
-                    />
-                    <RTooltip
-                      contentStyle={{
-                        background: "hsl(var(--card))",
-                        border: "1px solid hsl(var(--border))",
-                        borderRadius: 8,
-                        fontSize: 12,
-                        color: "hsl(var(--foreground))",
-                      }}
-                      itemStyle={{ color: "hsl(var(--foreground))" }}
-                      labelStyle={{ color: "hsl(var(--muted-foreground))" }}
-                    />
-                    <Area
-                      type="monotone"
-                      dataKey="checkins"
-                      stroke="hsl(var(--primary))"
-                      strokeWidth={2}
-                      fill="url(#grad-checkins)"
-                    />
-                  </AreaChart>
-                </ResponsiveContainer>
-              )}
-            </div>
-          </div>
-
-          {/* Frequência por dia */}
-          <div className="bg-card border border-border rounded-xl p-5">
-            <div className="mb-4">
-              <h3 className="text-sm font-bold text-foreground">
-                Frequência por Dia
-              </h3>
-              <p className="text-[11px] text-muted-foreground">
-                Check-ins na semana
-              </p>
-            </div>
-            <div className="h-56">
-              {loading ? (
-                <div className="h-full bg-muted animate-pulse rounded-lg" />
-              ) : (
-                <ResponsiveContainer width="100%" height="100%">
-                  <BarChart
-                    data={frequenciaSemana}
-                    margin={{ top: 5, right: 5, left: -25, bottom: 0 }}
-                  >
-                    <CartesianGrid
-                      strokeDasharray="3 3"
-                      stroke="hsl(var(--border))"
-                      vertical={false}
-                    />
-                    <XAxis
-                      dataKey="dia"
-                      tick={{
-                        fontSize: 10,
-                        fill: "hsl(var(--muted-foreground))",
-                      }}
-                      axisLine={false}
-                      tickLine={false}
-                    />
-                    <YAxis
-                      tick={{
-                        fontSize: 10,
-                        fill: "hsl(var(--muted-foreground))",
-                      }}
+                      tick={{ fontSize: 10, fill: "hsl(var(--muted-foreground))" }}
                       axisLine={false}
                       tickLine={false}
                     />
@@ -632,7 +525,68 @@ export default function Estatisticas() {
                       labelStyle={{ color: "hsl(var(--muted-foreground))" }}
                     />
                     <Bar
-                      dataKey="checkins"
+                      dataKey="alunos"
+                      fill="hsl(var(--primary))"
+                      radius={[6, 6, 0, 0]}
+                      activeBar={{ fill: "hsl(var(--primary))", opacity: 0.75 }}
+                    />
+                  </BarChart>
+                </ResponsiveContainer>
+              )}
+            </div>
+          </div>
+
+          {/* Alunos por Dia */}
+          <div className="bg-card border border-border rounded-xl p-5">
+            <div className="mb-4">
+              <h3 className="text-sm font-bold text-foreground">
+                Alunos por Dia
+              </h3>
+              <p className="text-[11px] text-muted-foreground">
+                {periodo === "hoje" || periodo === "semana"
+                  ? "Distribuição Dom–Sáb"
+                  : "Evolução no período"}
+              </p>
+            </div>
+            <div className="h-56">
+              {loading ? (
+                <div className="h-full bg-muted animate-pulse rounded-lg" />
+              ) : (
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart
+                    data={alunosPorDia}
+                    margin={{ top: 5, right: 5, left: -25, bottom: 0 }}
+                  >
+                    <CartesianGrid
+                      strokeDasharray="3 3"
+                      stroke="hsl(var(--border))"
+                      vertical={false}
+                    />
+                    <XAxis
+                      dataKey="dia"
+                      tick={{ fontSize: 10, fill: "hsl(var(--muted-foreground))" }}
+                      axisLine={false}
+                      tickLine={false}
+                    />
+                    <YAxis
+                      tick={{ fontSize: 10, fill: "hsl(var(--muted-foreground))" }}
+                      axisLine={false}
+                      tickLine={false}
+                    />
+                    <RTooltip
+                      cursor={{ fill: "hsl(var(--muted))" }}
+                      contentStyle={{
+                        background: "hsl(var(--card))",
+                        border: "1px solid hsl(var(--border))",
+                        borderRadius: 8,
+                        fontSize: 12,
+                        color: "hsl(var(--foreground))",
+                      }}
+                      itemStyle={{ color: "hsl(var(--foreground))" }}
+                      labelStyle={{ color: "hsl(var(--muted-foreground))" }}
+                    />
+                    <Bar
+                      dataKey="alunos"
                       fill="hsl(var(--primary))"
                       radius={[6, 6, 0, 0]}
                       activeBar={{ fill: "hsl(var(--primary))", opacity: 0.75 }}
