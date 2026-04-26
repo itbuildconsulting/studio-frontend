@@ -65,6 +65,10 @@ export default class StatisticsRepository {
         return conectAPI(null, "/performance/students-at-risk", "GET");
     }
 
+    async getDormantClients(): Promise<any> {
+        return conectAPI(null, "/performance/dormant-clients", "GET");
+    }
+
     async getFrequencyDropStudents(): Promise<any> {
         return conectAPI(null, "/performance/frequency-drop", "GET");
     }
