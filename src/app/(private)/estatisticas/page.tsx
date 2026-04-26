@@ -18,7 +18,6 @@ import {
   Trophy,
   Medal,
   MessageSquare,
-  Send,
   Download,
   Clock,
 } from "lucide-react";
@@ -258,7 +257,7 @@ export default function Estatisticas() {
       title: "Créditos Vencendo",
       description: "Créditos que expiram nos próximos 7 dias",
       count: expiringCredits.length,
-      cta: "Alertar alunos",
+      cta: "",
     },
     {
       id: "engajamento",
@@ -433,7 +432,6 @@ export default function Estatisticas() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
             {insights.map((insight) => {
               const style = INSIGHT_STYLES[insight.tone];
-              const Icon = style.icon;
               return (
                 <div
                   key={insight.id}
@@ -443,13 +441,8 @@ export default function Estatisticas() {
                   )}
                 >
                   <div className="flex items-center justify-between mb-2">
-                    <div
-                      className={cn(
-                        "w-8 h-8 rounded-lg flex items-center justify-center",
-                        style.iconWrap
-                      )}
-                    >
-                      <Icon className="w-4 h-4" />
+                    <div className="font-bold text-sm text-foreground">
+                      {insight.title}
                     </div>
                     <span
                       className={cn(
@@ -460,23 +453,16 @@ export default function Estatisticas() {
                       {loading ? "—" : insight.count}
                     </span>
                   </div>
-                  <div className="font-bold text-sm text-foreground">
-                    {insight.title}
-                  </div>
                   <p className="text-[11px] text-muted-foreground mt-1 mb-3 leading-snug">
                     {insight.description}
                   </p>
-                  {insight.anchor ? (
+                  {insight.cta && insight.anchor && (
                     <a
                       href={insight.anchor}
                       className="mt-auto text-[11px] font-semibold text-foreground/80 hover:text-foreground self-start inline-flex items-center gap-1"
                     >
                       {insight.cta} →
                     </a>
-                  ) : (
-                    <button className="mt-auto text-[11px] font-semibold text-foreground/80 hover:text-foreground self-start inline-flex items-center gap-1">
-                      {insight.cta} →
-                    </button>
                   )}
                 </div>
               );
@@ -872,24 +858,16 @@ export default function Estatisticas() {
                         <td className="py-3 px-2 text-right tabular-nums font-semibold text-emerald-600">
                           {aluno.creditos}
                         </td>
-                        <td className="py-3 px-2">
-                          <div className="flex items-center justify-end gap-1.5">
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              className="h-7 gap-1 text-[11px]"
-                            >
-                              <MessageSquare className="w-3 h-3" />
-                              WhatsApp
-                            </Button>
-                            <Button
-                              size="sm"
-                              className="h-7 gap-1 text-[11px]"
-                            >
-                              <Send className="w-3 h-3" />
-                              Reativar
-                            </Button>
-                          </div>
+                        <td className="py-3 px-2 text-right">
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            disabled
+                            className="h-7 gap-1 text-[11px]"
+                          >
+                            <MessageSquare className="w-3 h-3" />
+                            WhatsApp
+                          </Button>
                         </td>
                       </tr>
                     ))}
