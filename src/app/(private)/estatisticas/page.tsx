@@ -143,6 +143,8 @@ export default function Estatisticas() {
   const [occupancyByTime, setOccupancyByTime] = useState<any>(null);
   const [topTeachers, setTopTeachers] = useState<any[]>([]);
   const [weeklyTrends, setWeeklyTrends] = useState<any>(null);
+  const [dormantClients, setDormantClients] = useState<any[]>([]);
+  const [dormantFilters, setDormantFilters] = useState<Set<string>>(new Set());
 
   const loadData = useCallback(async () => {
     setLoading(true);
@@ -157,6 +159,7 @@ export default function Estatisticas() {
         occupancyTimeRes,
         teachersRes,
         trendsRes,
+        dormantRes,
       ] = await Promise.all([
         repo.getOverviewMetrics(startDate, endDate),
         repo.getTopStudents(10, periodo),
@@ -166,6 +169,7 @@ export default function Estatisticas() {
         repo.getOccupancyByTime(startDate, endDate),
         repo.getTopTeachers(5),
         repo.getWeeklyTrends(startDate, endDate, periodo),
+        repo.getDormantClients(),
       ]);
 
       setOverview(toObject(overviewRes));
@@ -176,6 +180,7 @@ export default function Estatisticas() {
       setOccupancyByTime(toObject(occupancyTimeRes));
       setTopTeachers(toArray(teachersRes));
       setWeeklyTrends(toObject(trendsRes));
+      setDormantClients(toArray(dormantRes));
     } catch (e) {
       console.error("Erro ao carregar estatísticas:", e);
     } finally {
@@ -874,6 +879,142 @@ export default function Estatisticas() {
               </tbody>
             </table>
           </div>
+        </section>
+
+        {/* Clientes Dormentes */}
+        <section className="bg-card border border-border rounded-xl p-5">
+          <div className="flex items-center justify-between mb-4">
+            <div>
+              <h3 className="text-sm font-bold text-foreground">
+                Clientes Sem Atividade
+              </h3>
+              <p className="text-[11px] text-muted-foreground">
+                Cadastrados no sistema com pelo menos uma condição inativa
+              </p>
+            </div>
+            <span className="text-[11px] font-bold px-2.5 py-1 rounded-full bg-muted text-muted-foreground">
+              {loading ? "—" : `${dormantClients.length} clientes`}
+            </span>
+          </div>
+
+          {/* Filtros */}
+          <div className="flex flex-wrap gap-1.5 mb-4">
+            {[
+              { key: "hasNoClass", label: "Sem aula", dot: "bg-rose-400", color: "text-rose-700 border-rose-200 hover:bg-rose-50", active: "bg-rose-500 text-white border-rose-500" },
+              { key: "hasNoPurchase", label: "Sem compra", dot: "bg-amber-400", color: "text-amber-700 border-amber-200 hover:bg-amber-50", active: "bg-amber-500 text-white border-amber-500" },
+              { key: "hasNoContract", label: "Sem contrato ativo", dot: "bg-sky-400", color: "text-sky-700 border-sky-200 hover:bg-sky-50", active: "bg-sky-500 text-white border-sky-500" },
+            ].map((f) => {
+              const isActive = dormantFilters.has(f.key);
+              return (
+                <button
+                  key={f.key}
+                  onClick={() => {
+                    setDormantFilters((prev) => {
+                      const next = new Set(prev);
+                      isActive ? next.delete(f.key) : next.add(f.key);
+                      return next;
+                    });
+                  }}
+                  className={cn(
+                    "inline-flex items-center gap-1 px-2.5 h-7 rounded text-[11px] font-semibold border transition-all",
+                    isActive ? f.active : f.color
+                  )}
+                >
+                  <span className={cn("w-1.5 h-1.5 rounded-full flex-shrink-0", isActive ? "bg-white/80" : f.dot)} />
+                  {f.label}
+                </button>
+              );
+            })}
+          </div>
+
+          {(() => {
+            const filtered = dormantFilters.size === 0
+              ? dormantClients
+              : dormantClients.filter((c: any) =>
+                  [...dormantFilters].every((key) => c[key] === true)
+                );
+
+            if (loading) return (
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
+                {Array.from({ length: 5 }).map((_, i) => (
+                  <div key={i} className="h-32 bg-muted animate-pulse rounded-xl" />
+                ))}
+              </div>
+            );
+
+            if (filtered.length === 0) return (
+              <p className="text-sm text-muted-foreground text-center py-8">
+                Nenhum cliente encontrado para os filtros selecionados
+              </p>
+            );
+
+            return (
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
+                {filtered.map((client: any) => {
+                  const initials = client.name
+                    .split(" ")
+                    .map((n: string) => n[0])
+                    .slice(0, 2)
+                    .join("")
+                    .toUpperCase();
+                  return (
+                    <div
+                      key={client.id}
+                      className="border border-border rounded-xl p-3 flex flex-col gap-2 hover:bg-muted/40 transition-colors"
+                    >
+                      <div className="flex items-center gap-2">
+                        <div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center text-[11px] font-bold text-muted-foreground flex-shrink-0">
+                          {initials}
+                        </div>
+                        <span className="text-[12px] font-semibold text-foreground truncate">
+                          {client.name}
+                        </span>
+                      </div>
+                      {client.email && (
+                        <p className="text-[10px] text-muted-foreground truncate">
+                          {client.email}
+                        </p>
+                      )}
+                      {client.phone && (
+                        <p className="text-[10px] text-muted-foreground">
+                          {client.phone}
+                        </p>
+                      )}
+                      {/* Badges de condição */}
+                      <div className="flex flex-col items-start gap-1 mt-1">
+                        {client.hasNoClass && (
+                          <span className="inline-flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 rounded-md bg-rose-50 text-rose-600 border border-rose-200">
+                            <span className="w-1.5 h-1.5 rounded-full bg-rose-400 flex-shrink-0" />
+                            Sem aula
+                          </span>
+                        )}
+                        {client.hasNoPurchase && (
+                          <span className="inline-flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 rounded-md bg-amber-50 text-amber-600 border border-amber-200">
+                            <span className="w-1.5 h-1.5 rounded-full bg-amber-400 flex-shrink-0" />
+                            Sem compra
+                          </span>
+                        )}
+                        {client.hasNoContract && (
+                          <span className="inline-flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 rounded-md bg-sky-50 text-sky-600 border border-sky-200">
+                            <span className="w-1.5 h-1.5 rounded-full bg-sky-400 flex-shrink-0" />
+                            Sem contrato ativo
+                          </span>
+                        )}
+                      </div>
+                      <div className="mt-auto pt-1 border-t border-border/50">
+                        <span className="text-[10px] text-muted-foreground">
+                          Cadastrado há{" "}
+                          <span className="font-semibold text-foreground">
+                            {client.daysSinceRegistration}d
+                          </span>
+                        </span>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            );
+          })()}
         </section>
       </div>
     </div>
