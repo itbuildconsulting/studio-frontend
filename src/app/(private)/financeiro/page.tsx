@@ -190,6 +190,40 @@ export default function Results() {
         );
     };
 
+    const convertPaymentMethod = (cell: string) => {
+        const labels: Record<string, string> = {
+            pix: 'PIX',
+            credit_card: 'Cartão de Crédito',
+            debit_card: 'Cartão de Débito',
+            cash: 'Dinheiro',
+            boleto: 'Boleto',
+        };
+        const colors: Record<string, string> = {
+            pix: '#10b981',
+            credit_card: '#6366f1',
+            debit_card: '#3b82f6',
+            cash: '#f59e0b',
+            boleto: '#8b5cf6',
+        };
+        const label = labels[cell] ?? cell;
+        const color = colors[cell] ?? '#9ca3af';
+        return (
+            <div style={{
+                backgroundColor: `${color}20`,
+                color,
+                padding: '3px 8px',
+                borderRadius: '5px',
+                textAlign: 'center',
+                display: 'inline-block',
+                fontSize: '13px',
+                fontWeight: 600,
+                border: `1px solid ${color}40`,
+            }}>
+                {label}
+            </div>
+        );
+    };
+
     const actionButtonResults = (cell: any, row: any) => {
         return (
             <DropDown style={'bg-white'}>
@@ -241,6 +275,7 @@ export default function Results() {
         { dataField: 'createdAt', text: 'Data', formatter: (cell: string) => formatDateToBrazilIntl(cell) },
         { dataField: 'amount', text: 'Valor', formatter: convertValue },
         { dataField: 'status', text: 'Status', formatter: convertStatus },
+        { dataField: 'payment_method', text: 'Pagamento', formatter: convertPaymentMethod },
         { dataField: 'transactionId', formatter: actionButtonResults }
     ];
 
