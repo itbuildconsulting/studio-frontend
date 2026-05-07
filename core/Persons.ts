@@ -45,6 +45,10 @@ async function conectAPI(req: object | null, url: string, method: string) {
 }
 
 export default class PersonsRepository implements PersonsRepository {
+    async getBirthdaysThisWeek(): Promise<any> {
+        return conectAPI(null, '/persons/birthdays/week', 'GET');
+    }
+
     async create(
         name: string | null,
         identity: string | null,

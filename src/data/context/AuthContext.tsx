@@ -94,6 +94,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
             if (authResp.level == "2") {
                 router.push("/aulas");
+            } else if (authResp.level == "3") {
+                router.push("/estatisticas");
             } else {
                 router.push("/dashboard");
             }

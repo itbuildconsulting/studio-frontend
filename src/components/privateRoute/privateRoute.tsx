@@ -41,8 +41,12 @@ export const PrivateRoute = ({ children }: PrivateRouteProps) => {
 
                 // Exemplo de restrição de acesso: impedir que um funcionário acesse qualquer página, exceto a de aula
                 if (userLevel === '2' && !pathname.startsWith('/aula')) {
-                    console.log('Funcionário não autorizado a acessar essa página. Redirecionando para a página de aula...');
-                    router.push('/aula'); // Redireciona para a página de aula
+                    router.push('/aulas');
+                    return;
+                }
+
+                if (userLevel === '3' && !pathname.startsWith('/estatisticas')) {
+                    router.push('/estatisticas');
                     return;
                 }
 
