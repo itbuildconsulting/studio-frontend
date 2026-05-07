@@ -22,11 +22,12 @@ export default function MenuSideBar({ menuMobileOpen, handleMenuOpen }: MenuSide
 
   const [ready, setReady] = useState(false);
   const [hasAccess, setHasAccess] = useState<boolean>(false);
+  const [isMarketing, setIsMarketing] = useState<boolean>(false);
 
   useEffect(() => {
-    // roda só no client, pode ler cookie/localStorage aqui
     try {
       setHasAccess(checkUserLevel("1"));
+      setIsMarketing(checkUserLevel("3"));
     } finally {
       setReady(true);
     }
@@ -46,6 +47,10 @@ export default function MenuSideBar({ menuMobileOpen, handleMenuOpen }: MenuSide
           <div aria-busy={!ready}>
             {!ready ? (
               <SkeletonMenu />
+            ) : isMarketing ? (
+              <ul>
+                <MenuItem url="/estatisticas" text="Estatísticas" icon={IconStats} />
+              </ul>
             ) : !hasAccess ? (
               <ul>
                 <MenuItem url="/aulas" text="Aulas" icon={IconClass} />

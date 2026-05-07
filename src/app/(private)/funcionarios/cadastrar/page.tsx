@@ -60,6 +60,10 @@ export default function AddTeachers() {
             {
                 label: 'Administrador',
                 value: '1'
+            },
+            {
+                label: 'Marketing',
+                value: '3'
             }
             
         ]

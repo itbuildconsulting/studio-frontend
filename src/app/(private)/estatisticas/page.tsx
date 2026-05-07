@@ -31,6 +31,7 @@ import {
   Tooltip as RTooltip,
 } from "recharts";
 import StatisticsRepository from "../../../../core/Statistics";
+import PersonsRepository from "../../../../core/Persons";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
@@ -126,6 +127,7 @@ function BarTooltip({ active, payload, label }: any) {
 
 export default function Estatisticas() {
   const repo = useMemo(() => new StatisticsRepository(), []);
+  const repoPersons = useMemo(() => new PersonsRepository(), []);
   const [periodo, setPeriodo] = useState<Periodo>("mes");
   const [loading, setLoading] = useState(true);
   const [menuMobileOpen, setMenuMobileOpen] = useState(false);
@@ -145,6 +147,7 @@ export default function Estatisticas() {
   const [weeklyTrends, setWeeklyTrends] = useState<any>(null);
   const [dormantClients, setDormantClients] = useState<any[]>([]);
   const [dormantFilters, setDormantFilters] = useState<Set<string>>(new Set());
+  const [birthdays, setBirthdays] = useState<any[]>([]);
 
   const loadData = useCallback(async () => {
     setLoading(true);
@@ -160,6 +163,7 @@ export default function Estatisticas() {
         teachersRes,
         trendsRes,
         dormantRes,
+        birthdaysRes,
       ] = await Promise.all([
         repo.getOverviewMetrics(startDate, endDate),
         repo.getTopStudents(10, periodo),
@@ -170,6 +174,7 @@ export default function Estatisticas() {
         repo.getTopTeachers(5),
         repo.getWeeklyTrends(startDate, endDate, periodo),
         repo.getDormantClients(),
+        repoPersons.getBirthdaysThisWeek(),
       ]);
 
       setOverview(toObject(overviewRes));
@@ -181,6 +186,7 @@ export default function Estatisticas() {
       setTopTeachers(toArray(teachersRes));
       setWeeklyTrends(toObject(trendsRes));
       setDormantClients(toArray(dormantRes));
+      setBirthdays(toArray(birthdaysRes));
     } catch (e) {
       console.error("Erro ao carregar estatísticas:", e);
     } finally {
@@ -424,6 +430,57 @@ export default function Estatisticas() {
               );
             })}
           </div>
+        </section>
+
+        {/* Aniversariantes da Semana */}
+        <section className="bg-card border border-border rounded-xl p-5">
+          <div className="flex items-center gap-2 mb-4">
+            <span className="text-lg">🎂</span>
+            <h2 className="text-sm font-bold text-foreground">Aniversariantes da Semana</h2>
+            <span className="ml-auto text-[11px] font-bold px-2 py-0.5 rounded-full bg-amber-100 text-amber-700">
+              {loading ? "—" : birthdays.length}
+            </span>
+          </div>
+          {loading ? (
+            <div className="flex gap-3">
+              {Array.from({ length: 4 }).map((_, i) => (
+                <div key={i} className="h-16 w-32 bg-muted animate-pulse rounded-xl" />
+              ))}
+            </div>
+          ) : birthdays.length === 0 ? (
+            <p className="text-sm text-muted-foreground py-2">Nenhum aniversariante esta semana.</p>
+          ) : (
+            <div className="flex flex-wrap gap-3">
+              {birthdays.map((b: any) => {
+                const day = new Date(b.birthday);
+                const formatted = `${String(day.getDate() + 1).padStart(2, '0')}/${String(day.getMonth() + 1).padStart(2, '0')}`;
+                return (
+                  <div
+                    key={b.id}
+                    className={cn(
+                      "flex items-center gap-3 px-4 py-3 rounded-xl border transition-colors",
+                      b.isToday
+                        ? "border-amber-300 bg-amber-50"
+                        : "border-border bg-muted/30"
+                    )}
+                  >
+                    <div className={cn(
+                      "w-9 h-9 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0",
+                      b.isToday ? "bg-amber-400 text-white" : "bg-muted text-muted-foreground"
+                    )}>
+                      {b.name.split(' ').map((n: string) => n[0]).slice(0, 2).join('').toUpperCase()}
+                    </div>
+                    <div>
+                      <p className="text-[13px] font-semibold text-foreground">{b.name}</p>
+                      <p className="text-[11px] text-muted-foreground">
+                        {b.isToday ? "🎉 Hoje!" : `Em ${b.daysUntil} dia${b.daysUntil !== 1 ? "s" : ""}`} · {formatted}
+                      </p>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
         </section>
 
         {/* Insights */}

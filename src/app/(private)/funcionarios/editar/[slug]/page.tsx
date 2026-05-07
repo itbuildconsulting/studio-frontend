@@ -59,6 +59,10 @@ export default function EditTeachers() {
             {
                 label: 'Professor',
                 value: '2'
+            },
+            {
+                label: 'Marketing',
+                value: '3'
             }
         ]
     );

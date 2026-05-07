@@ -19,17 +19,20 @@ import { getDatesOfWeek } from "@/utils/getDatesOfWeek";
 import Cookies from 'js-cookie';
 import { CookiesAuth } from "@/shared/enum";
 import CalendarClassRepository from "../../../../core/CalendarClass";
+import PersonsRepository from "../../../../core/Persons";
 
 export default function Home() {
     const repo = useMemo(() => new TotalSalesRepository(), []);
     const repoFreq = useMemo(() => new FrequencyStudentsRepository(), []);
     const repoFinancial = useMemo(() => new FinancialRepository(), []);
     const repoCalendar = useMemo(() => new CalendarClassRepository(), []);
+    const repoPersons = useMemo(() => new PersonsRepository(), []);
 
     const [totalSales, setTotalSales] = useState<any[]>([]);
     const [frequency, setFrequency] = useState<any[]>([]);
     const [recentTransactions, setRecentTransactions] = useState<any[]>([]);
     const [calendarClasses, setCalendarClasses] = useState<any[]>([]);
+    const [birthdays, setBirthdays] = useState<any[]>([]);
     const [userNameAuth, setUserNameAuth] = useState<string | null>(null);
 
     ChartJS.register(CategoryScale, LineElement, BarElement, LinearScale, PointElement, Title, Tooltip, Legend, Filler);
@@ -229,6 +232,10 @@ export default function Home() {
         }).catch(() => {});
 
         // ✅ FIX: Calendário de Aulas — busca aulas reais da API
+        repoPersons.getBirthdaysThisWeek().then((result: any) => {
+            if (!(result instanceof Error) && result?.data) setBirthdays(result.data);
+        }).catch(() => {});
+
        repoCalendar.consult().then((result: any) => {
             console.log('CALENDAR RESULT:', result); // ← adiciona isso
             if (!(result instanceof Error) && result?.data) {
@@ -272,8 +279,7 @@ export default function Home() {
                         </div>
                     </Card>
                 </div>
-                <div className="row-span-2 col-span-12 lg:col-span-4">
-                    {/* ✅ FIX: data dinâmica + dados reais */}
+                <div className="row-span-2 col-span-12 lg:col-span-4 flex flex-col gap-6">
                     <Card title="Calendário de Aulas">
                         <h5>{todayFormatted}</h5>
                         <Table
@@ -283,6 +289,30 @@ export default function Home() {
                             rowClasses={rowClasses}
                             loading={false}
                         />
+                    </Card>
+
+                    <Card title={`🎂 Aniversariantes da Semana`}>
+                        {birthdays.length === 0 ? (
+                            <p className="text-sm text-gray-400 py-2">Nenhum aniversariante esta semana.</p>
+                        ) : (
+                            <ul className="space-y-2 pt-1">
+                                {birthdays.map((b: any) => {
+                                    const day = new Date(b.birthday);
+                                    const formatted = `${String(day.getDate() + 1).padStart(2, '0')}/${String(day.getMonth() + 1).padStart(2, '0')}`;
+                                    return (
+                                        <li key={b.id} className="flex items-center gap-3">
+                                            <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 ${b.isToday ? 'bg-amber-400 text-white' : 'bg-gray-100 text-gray-600'}`}>
+                                                {b.name.split(' ').map((n: string) => n[0]).slice(0, 2).join('').toUpperCase()}
+                                            </div>
+                                            <div className="flex-1 min-w-0">
+                                                <p className="text-sm font-semibold truncate">{b.name}</p>
+                                                <p className="text-xs text-gray-400">{b.isToday ? '🎉 Hoje!' : `Em ${b.daysUntil} dia${b.daysUntil !== 1 ? 's' : ''}`} · {formatted}</p>
+                                            </div>
+                                        </li>
+                                    );
+                                })}
+                            </ul>
+                        )}
                     </Card>
                 </div>
                 <div className="col-span-12 lg:col-span-8 mb-8 lg:mb-0">
