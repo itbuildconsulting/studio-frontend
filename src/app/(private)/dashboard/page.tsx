@@ -297,8 +297,8 @@ export default function Home() {
                         ) : (
                             <ul className="space-y-2 pt-1">
                                 {birthdays.map((b: any) => {
-                                    const day = new Date(b.birthday);
-                                    const formatted = `${String(day.getDate() + 1).padStart(2, '0')}/${String(day.getMonth() + 1).padStart(2, '0')}`;
+                                    const parts = String(b.birthday).split('T')[0].split('-');
+                                    const formatted = `${parts[2]}/${parts[1]}`;
                                     return (
                                         <li key={b.id} className="flex items-center gap-3">
                                             <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 ${b.isToday ? 'bg-amber-400 text-white' : 'bg-gray-100 text-gray-600'}`}>

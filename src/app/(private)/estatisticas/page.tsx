@@ -452,8 +452,8 @@ export default function Estatisticas() {
           ) : (
             <div className="flex flex-wrap gap-3">
               {birthdays.map((b: any) => {
-                const day = new Date(b.birthday);
-                const formatted = `${String(day.getDate() + 1).padStart(2, '0')}/${String(day.getMonth() + 1).padStart(2, '0')}`;
+                const parts = String(b.birthday).split('T')[0].split('-');
+                const formatted = `${parts[2]}/${parts[1]}`;
                 return (
                   <div
                     key={b.id}
