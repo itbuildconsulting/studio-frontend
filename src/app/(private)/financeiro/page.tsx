@@ -109,6 +109,15 @@ export default function Results() {
     const [paymentDistribution, setPaymentDistribution] = useState<any>(null);
     const [loadingMetrics, setLoadingMetrics] = useState<boolean>(true);
 
+    // Estados para relatório financeiro
+    type ReportPeriod = 'month' | 'quarter' | 'year' | 'custom';
+    const [reportPeriod, setReportPeriod] = useState<ReportPeriod>('month');
+    const [reportStartDate, setReportStartDate] = useState<string>('');
+    const [reportEndDate, setReportEndDate] = useState<string>('');
+    const [reportData, setReportData] = useState<any>(null);
+    const [reportTotal, setReportTotal] = useState<number>(0);
+    const [loadingReport, setLoadingReport] = useState<boolean>(false);
+
     const statusColors: any = {
         processing: '#FFA500',
         authorized: '#87CEEB',
@@ -120,6 +129,23 @@ export default function Results() {
         chargeback: '#8A2BE2',
         analyzing: '#FFD700',
         pending_review: '#F08080',
+    };
+
+    // Carregar relatório financeiro
+    const loadReport = async (period: ReportPeriod = reportPeriod, start = reportStartDate, end = reportEndDate) => {
+        setLoadingReport(true);
+        try {
+            const result = await repo.getRevenueOverTime(period, start || undefined, end || undefined);
+            if (!(result instanceof Error)) {
+                setReportData(result);
+                const total = (result.data || []).reduce((acc: number, v: number) => acc + v, 0);
+                setReportTotal(total);
+            }
+        } catch (e) {
+            console.error('Erro ao carregar relatório:', e);
+        } finally {
+            setLoadingReport(false);
+        }
     };
 
     // Carregar métricas
@@ -265,6 +291,7 @@ export default function Results() {
     useEffect(() => {
         listResults();
         loadMetrics();
+        loadReport('month');
         repoDrop.dropdown('persons/student/dropdown').then(setDropdownStudent);
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
@@ -480,6 +507,124 @@ export default function Results() {
                             ) : (
                                 <div className="flex items-center justify-center h-full text-gray-400">
                                     Sem dados disponíveis
+                                </div>
+                            )}
+                        </div>
+                    </Card>
+                </div>
+
+                {/* Relatório Financeiro */}
+                <div className="col-span-12">
+                    <Card title="Relatório Financeiro">
+                        {/* Seletores de período */}
+                        <div className="flex flex-wrap items-center gap-3 mb-5">
+                            <div className="inline-flex rounded-lg border border-gray-200 overflow-hidden">
+                                {([
+                                    { value: 'month', label: 'Mensal' },
+                                    { value: 'quarter', label: 'Trimestral' },
+                                    { value: 'year', label: 'Anual' },
+                                    { value: 'custom', label: 'Personalizado' },
+                                ] as { value: ReportPeriod; label: string }[]).map((p) => (
+                                    <button
+                                        key={p.value}
+                                        onClick={() => {
+                                            setReportPeriod(p.value);
+                                            if (p.value !== 'custom') loadReport(p.value, '', '');
+                                        }}
+                                        className={`px-4 py-1.5 text-sm font-medium transition-colors ${
+                                            reportPeriod === p.value
+                                                ? 'bg-[#003d58] text-white'
+                                                : 'bg-white text-gray-600 hover:bg-gray-50'
+                                        }`}
+                                    >
+                                        {p.label}
+                                    </button>
+                                ))}
+                            </div>
+
+                            {reportPeriod === 'custom' && (
+                                <div className="flex items-center gap-2">
+                                    <input
+                                        type="date"
+                                        value={reportStartDate}
+                                        onChange={(e) => setReportStartDate(e.target.value)}
+                                        className="border border-gray-200 rounded-lg px-3 py-1.5 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#003d58]/30"
+                                    />
+                                    <span className="text-gray-400 text-sm">até</span>
+                                    <input
+                                        type="date"
+                                        value={reportEndDate}
+                                        onChange={(e) => setReportEndDate(e.target.value)}
+                                        className="border border-gray-200 rounded-lg px-3 py-1.5 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#003d58]/30"
+                                    />
+                                    <button
+                                        onClick={() => loadReport('custom', reportStartDate, reportEndDate)}
+                                        disabled={!reportStartDate || !reportEndDate}
+                                        className="px-4 py-1.5 text-sm font-medium bg-[#003d58] text-white rounded-lg disabled:opacity-40 hover:bg-[#004f72] transition-colors"
+                                    >
+                                        Aplicar
+                                    </button>
+                                </div>
+                            )}
+
+                            {reportTotal > 0 && (
+                                <div className="ml-auto text-right">
+                                    <p className="text-xs text-gray-400">Total do período</p>
+                                    <p className="text-lg font-bold text-[#003d58]">
+                                        {reportTotal.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
+                                    </p>
+                                </div>
+                            )}
+                        </div>
+
+                        {/* Gráfico */}
+                        <div style={{ height: '300px', position: 'relative' }}>
+                            {loadingReport ? (
+                                <div className="flex items-center justify-center h-full">
+                                    <div className="animate-pulse text-gray-400">Carregando...</div>
+                                </div>
+                            ) : reportData?.labels?.length ? (
+                                <Line
+                                    data={{
+                                        labels: reportData.labels,
+                                        datasets: [{
+                                            label: 'Receita (R$)',
+                                            data: reportData.data,
+                                            borderColor: '#003d58',
+                                            backgroundColor: 'rgba(0, 61, 88, 0.08)',
+                                            fill: true,
+                                            tension: 0.4,
+                                            pointRadius: 4,
+                                            pointHoverRadius: 6,
+                                        }]
+                                    }}
+                                    options={{
+                                        responsive: true,
+                                        maintainAspectRatio: false,
+                                        plugins: {
+                                            legend: { display: false },
+                                            tooltip: {
+                                                callbacks: {
+                                                    label: (ctx: any) =>
+                                                        ctx.raw.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
+                                                }
+                                            }
+                                        },
+                                        scales: {
+                                            y: {
+                                                beginAtZero: true,
+                                                ticks: {
+                                                    callback: (v: any) =>
+                                                        v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
+                                                }
+                                            },
+                                            x: { grid: { display: false } }
+                                        }
+                                    }}
+                                />
+                            ) : (
+                                <div className="flex items-center justify-center h-full text-gray-400 text-sm">
+                                    Sem dados para o período selecionado
                                 </div>
                             )}
                         </div>
