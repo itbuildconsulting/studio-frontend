@@ -92,9 +92,9 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
             await sessionConfig(authResp);
 
-            if (authResp.level == "2") {
+            if (authResp.employee_level == "2") {
                 router.push("/aulas");
-            } else if (authResp.level == "3") {
+            } else if (authResp.employee_level == "3") {
                 router.push("/estatisticas");
             } else {
                 router.push("/dashboard");
