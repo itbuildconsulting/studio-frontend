@@ -463,3 +463,9 @@ input.select-multi__input {
 .select-multi__control{
   background-color: transparent !important;
 }
+
+.custom-button {
+    height: auto !important;
+    width: auto !important;
+    min-width: 50px;
+}

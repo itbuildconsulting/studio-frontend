@@ -61,4 +61,12 @@ export default class CheckoutRepository implements CheckoutRepository {
         console.log(req)
         return conectAPI(req, "/checkout/dashboard/", "POST");
     }
+
+    async getPixStatus(chargeId: string): Promise<any> {
+        return conectAPI(null, `/checkout/pix/status/${chargeId}`, "GET");
+    }
+
+    async cancelPaymentAndRefund(paymentId: string, adminPassword: string): Promise<any> {
+        return conectAPI({ paymentId, adminPassword }, "/checkout/cancelPaymentAndRefund", "POST");
+    }
 }

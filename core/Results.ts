@@ -100,7 +100,7 @@ export default class ResultsRepository {
 
     // Novo: Buscar receita ao longo do tempo
     async getRevenueOverTime(
-        period: 'week' | 'month' | 'year' = 'month',
+        period: 'week' | 'month' | 'quarter' | 'year' | 'custom' = 'month',
         startDate?: string,
         endDate?: string
     ): Promise<RevenueOverTime | ApiResponse<RevenueOverTime> | any> {

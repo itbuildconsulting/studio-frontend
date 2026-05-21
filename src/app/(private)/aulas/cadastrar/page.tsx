@@ -9,6 +9,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 
 import ClassCollection from "../../../../../core/Class";
+import RichTextEditor from "@/components/RichTextEditor/RichTextEditor";
 import DropDownsCollection from "../../../../../core/DropDowns";
 import Modal from "@/components/Modal/Modal";
 import Loading from "@/components/loading/Loading";
@@ -47,6 +48,9 @@ export default function AddClass() {
     const [commissionRules, setCommissionRules] = useState<string>("1");
     const [commissionValue, setCommissionValue] = useState<number | null>(null);
     const [edit] = useState<boolean>(false);
+
+    const [title, setTitle] = useState<string>('');
+    const [description, setDescription] = useState<string>('');
 
     const [weekdays, setWeekdays] = useState<string[]>([]);
     const [recurring, setRecurring] = useState<number>(1);
@@ -113,7 +117,7 @@ export default function AddClass() {
             return;
         }
 
-        repo?.create(convertDate(date), time, teacher, limit, JSON.parse(canCommission), commissionValue, commissionRules, typeProduct, students, true).then((result: any) => {
+        repo?.create(convertDate(date), time, teacher, limit, JSON.parse(canCommission), commissionValue, commissionRules, typeProduct, students, true, title || null, description || null).then((result: any) => {
             if (result instanceof Error) {
                 const message: any = JSON.parse(result.message);
                 setErrorMessage(message.error);
@@ -171,7 +175,7 @@ export default function AddClass() {
 
 
 
-        repo?.createM(formattedDates, timeArr, teacher, limit, JSON.parse(canCommission), commissionValue, commissionRules, typeProduct, students, true).then((result: any) => {
+        repo?.createM(formattedDates, timeArr, teacher, limit, JSON.parse(canCommission), commissionValue, commissionRules, typeProduct, students, true, title || null, description || null).then((result: any) => {
             if (result instanceof Error) {
                 const message: any = JSON.parse(result.message);
                 setErrorMessage(message.error);
@@ -285,6 +289,27 @@ export default function AddClass() {
                         loading={loading}
                     >
                         <div className="grid grid-cols-12 gap-x-8">
+                            <div className="col-span-7">
+                                <div className="grid grid-cols-12 gap-x-8 mb-6">
+                                    <div className="col-span-12 sm:col-span-12">
+                                        <AuthInput
+                                            label="Título"
+                                            value={title}
+                                            type="text"
+                                            changeValue={setTitle}
+                                        />
+                                    </div>
+                                    <div className="col-span-12">
+                                        <RichTextEditor
+                                            label="Descrição"
+                                            value={description}
+                                            onChange={(html) => setDescription(html ?? '')}
+                                        />
+                                    </div>
+                                </div>
+                                <hr className="mb-5 pb-3" style={{ borderColor: "#F4F5F6" }} />
+                            </div>
+
                             <div className="col-span-7 grid grid-cols-12 gap-x-8 mb-8">
                                 <button className={`recurringButton ${isRecurring === false ? 'btn-primary' : 'btn-outline-primary'} px-5 flex items-center gap-1 col-span-6`} onClick={() => handleToggleCadastro(false)}>
                                     {CalendarDate()}
@@ -382,16 +407,6 @@ export default function AddClass() {
                                 </div>
                                 <hr className="mt-3 mb-5 pb-3" style={{ borderColor: "#F4F5F6" }} />
                                 <div className="grid grid-cols-12 gap-x-8">
-                                    <div className="col-span-12 sm:col-span-6">
-                                        <AuthSelect
-                                            label="Possui comissão?"
-                                            value={canCommission}
-                                            options={[{ label: 'Não', value: false }, { label: 'Sim', value: true }]}
-                                            changeValue={setCanCommission}
-                                            edit={edit}
-                                            required
-                                        />
-                                    </div>
                                     <div className="col-span-12 sm:col-span-6">
                                         {dropdownEmployee.length > 0
                                             ?

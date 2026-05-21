@@ -22,11 +22,12 @@ type BikeStatusProps = {
     bikes: any;
     totalBikes: number; // Número total de bikes (por exemplo, 12)
     onUpdateBikes: (updatedBikes: any[]) => void; // Callback para atualizar bikes
-    handleRemoveStudent: (classId: number, studentId: number) => void;
+    handleRemoveStudent: (classId: number, studentId: number, bikeId: number) => void;
     handleCheckin: (classId: number, studentId: number) => void;
+    handleAddStudent: (studentId: number, bikeNumber: number) => void;
 };
 
-const BikeView: React.FC<BikeStatusProps> = ({ bikes, totalBikes, onUpdateBikes, handleRemoveStudent, handleCheckin }) => {
+const BikeView: React.FC<BikeStatusProps> = ({ bikes, totalBikes, onUpdateBikes, handleRemoveStudent, handleCheckin, handleAddStudent }) => {
     const edit: boolean = false;
 
     const repoDrop = useMemo(() => new DropDownsCollection(), []);
@@ -72,6 +73,13 @@ const BikeView: React.FC<BikeStatusProps> = ({ bikes, totalBikes, onUpdateBikes,
         onUpdateBikes(updatedBikes);
     };
 
+    const shortName = (fullName?: string): string => {
+        if (!fullName) return '';
+        const parts = fullName.trim().split(' ');
+        if (parts.length <= 2) return fullName;
+        return `${parts[0]} ${parts[parts.length - 1]}`;
+    };
+
     const renderBikeStatus = (bikeNumber: number) => {
         // Procura se a bike está no array de bikes
         const bike = bikes.find((b: any) => b.bikeNumber === bikeNumber);
@@ -99,8 +107,15 @@ const BikeView: React.FC<BikeStatusProps> = ({ bikes, totalBikes, onUpdateBikes,
                         <div className="flex flex-col items-center text-red-500">
                             {BikeBusy()}
                              
-                            <span className='absolute text-xs -bottom-4 z-10'>
-                                {bike?.studentName}
+                            <span
+                                className='absolute -bottom-4 z-10 cursor-default group'
+                                style={{fontSize: '11px'}}
+                                title={bike?.studentName}
+                            >
+                                {shortName(bike?.studentName)}
+                                <span className="absolute top-3 left-1/2 -translate-x-1/2 mb-2 px-2 py-1 bg-gray-800 text-white text-xs rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50">
+                                    {bike?.studentName}
+                                </span>
                             </span>
                             {isBirthday(bike?.studentBirthday) && (
                                 <span className='text-xs text-yellow-500 font-bold absolute text-xs -bottom-8 z-10'>
@@ -182,10 +197,8 @@ const BikeView: React.FC<BikeStatusProps> = ({ bikes, totalBikes, onUpdateBikes,
                     showModal={!!modalType}
                     hasFooter={true}
                     onSubmit={() => {
-                        if (students) {
-                            let studentName: any = convertArray(dropdownStudent).find((elem: any) => { console.log(elem.value, students); return elem.value === Number(students) }).label;
-                            const updatedBike = { bikeNumber: selectedBike, status: 'in_use', studentId: students, studentName };
-                            handleUpdateBike(updatedBike)
+                        if (students && selectedBike) {
+                            handleAddStudent(Number(students), selectedBike);
                             setStudents(null);
                             closeModal();
                         }
@@ -250,7 +263,7 @@ const BikeView: React.FC<BikeStatusProps> = ({ bikes, totalBikes, onUpdateBikes,
                         if (currentBike) {
                             if (!searchParams?.slug) return;
 
-                            handleRemoveStudent(+searchParams?.slug, currentBike.studentId);
+                            handleRemoveStudent(+searchParams?.slug, currentBike.studentId, currentBike.id);
                             setBikeStatus('');
                             closeModal();
                         }

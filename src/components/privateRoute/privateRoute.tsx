@@ -11,8 +11,9 @@ interface PrivateRouteProps {
 }
 
 interface DecodedToken {
-    userId: number;
-    level: string;
+    id: number;
+    name: string;
+    employee_level: string;
     exp: number;
 }
 
@@ -36,13 +37,15 @@ export const PrivateRoute = ({ children }: PrivateRouteProps) => {
                 // Decodifica o token
                 const decoded: DecodedToken = jwtDecode(token);
 
-                // Verifica o nível do usuário
-                const userLevel = decoded.level;
+                const userLevel = decoded.employee_level;
 
-                // Exemplo de restrição de acesso: impedir que um funcionário acesse qualquer página, exceto a de aula
                 if (userLevel === '2' && !pathname.startsWith('/aula')) {
-                    console.log('Funcionário não autorizado a acessar essa página. Redirecionando para a página de aula...');
-                    router.push('/aula'); // Redireciona para a página de aula
+                    router.push('/aulas');
+                    return;
+                }
+
+                if (userLevel === '3' && !pathname.startsWith('/estatisticas')) {
+                    router.push('/estatisticas');
                     return;
                 }
 

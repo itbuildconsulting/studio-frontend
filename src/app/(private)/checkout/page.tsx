@@ -61,7 +61,7 @@ export default function Checkout() {
 
     const [modalSuccess, setModalSuccess] = useState<any>(false);
     const [log, setLog] = useState<number | null>(null);
-    const [successMessage, setSuccessMessage] = useState<any>(null);
+    const [transactionResult, setTransactionResult] = useState<any>(null);
     const [loading, setLoading] = useState<any>(false);
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
@@ -98,9 +98,9 @@ export default function Checkout() {
                 setLog(1);
                 setModalSuccess(true);
             } else {
-                setLoading(false);
-                setSuccessMessage("Cadastro realizado com sucesso!");
+                setTransactionResult(result);
                 setLog(0);
+                setLoading(false);
                 setModalSuccess(true);
             }
         }).catch((error) => {
@@ -144,21 +144,44 @@ export default function Checkout() {
     };
 
     const SuccessStatus = () => {
-        return (
-            <div className="flex flex-col items-center gap-4">
-                {log === 0 ? (
+        if (log === 0 && transactionResult) {
+            console.log('[DEBUG]', transactionResult)
+            return (
+                <div className="flex flex-col items-center gap-4">
                     <svg className="mt-4 pb-2" width="135" height="135" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1} stroke={"var(--primary)"}>
                         <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
-                ) : (
-                    <svg className="mt-4 pb-2" width="135" height="135" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1} stroke={"var(--primary)"}>
-                        <path strokeLinecap="round" strokeLinejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
-                    </svg>
-                )}
 
-                <h5 className="text-gray-700">{log === 0 ? successMessage : errorMessage}</h5>
+                    <h5 className="text-gray-700">Transação realizada com sucesso!</h5>
 
-                <button className="btn-outline-primary px-5 mt-5" onClick={() => handleClosed()}>
+                    <div className="flex flex-col items-center gap-1">
+                        <span className="text-xs text-gray-400 uppercase tracking-wider">ID da Transação</span>
+                        <span className="font-mono text-sm text-gray-700 bg-gray-100 px-3 py-1 rounded-lg">
+                            {transactionResult.details.id}
+                        </span>
+                    </div>
+
+                    <div className="flex gap-3 mt-3">
+                        <button className="btn-outline-primary px-5" onClick={handleClosed}>
+                            Fechar
+                        </button>
+                        <button className="btn-primary px-5" onClick={() => router.push(`/financeiro/${transactionResult.details.id}`)}>
+                            Ver detalhes
+                        </button>
+                    </div>
+                </div>
+            );
+        }
+
+        return (
+            <div className="flex flex-col items-center gap-4">
+                <svg className="mt-4 pb-2" width="135" height="135" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1} stroke={"var(--primary)"}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                </svg>
+
+                <h5 className="text-gray-700">{errorMessage}</h5>
+
+                <button className="btn-outline-primary px-5 mt-5" onClick={handleClosed}>
                     Fechar
                 </button>
             </div>

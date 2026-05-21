@@ -65,6 +65,10 @@ export default class StatisticsRepository {
         return conectAPI(null, "/performance/students-at-risk", "GET");
     }
 
+    async getDormantClients(): Promise<any> {
+        return conectAPI(null, "/performance/dormant-clients", "GET");
+    }
+
     async getFrequencyDropStudents(): Promise<any> {
         return conectAPI(null, "/performance/frequency-drop", "GET");
     }
@@ -163,7 +167,8 @@ export default class StatisticsRepository {
         return conectAPI(null, "/performance/monthly-comparison", "GET");
     }
 
-    async getWeeklyTrends(): Promise<any> {
-        return conectAPI(null, "/performance/weekly-trends", "GET");
+    async getWeeklyTrends(startDate?: string, endDate?: string, period?: string): Promise<any> {
+        const req = { startDate, endDate, period };
+        return conectAPI(req, "/performance/weekly-trends", "POST");
     }
 }

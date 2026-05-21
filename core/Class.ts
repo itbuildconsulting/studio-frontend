@@ -1,6 +1,5 @@
 import Cookies from 'js-cookie';
 
-import { ClassFilterType, ClassType } from '@/types/class';
 
 async function conectAPI(req: object | null, url: string, method: string) {
     const token = Cookies.get('admin-user-sci-auth');
@@ -55,7 +54,9 @@ export default class ClassRepository implements ClassRepository {
         kickbackRule: string,
         productTypeId: string | null,
         students: string[],
-        active: boolean
+        active: boolean,
+        title?: string | null,
+        description?: string | null,
     ): Promise<[]> {
         const req = {
             date,
@@ -67,7 +68,9 @@ export default class ClassRepository implements ClassRepository {
             kickbackRule,
             productTypeId,
             students,
-            active
+            active,
+            title: title || null,
+            description: description || null,
         };
         return conectAPI(req, "/class", "POST");
     }
@@ -82,7 +85,9 @@ export default class ClassRepository implements ClassRepository {
         kickbackRule: string,
         productTypeId: string | null,
         students: string[],
-        active: boolean
+        active: boolean,
+        title?: string | null,
+        description?: string | null,
     ): Promise<[]> {
         const req = {
             date,
@@ -94,7 +99,9 @@ export default class ClassRepository implements ClassRepository {
             kickbackRule,
             productTypeId,
             students,
-            active
+            active,
+            title: title || null,
+            description: description || null,
         };
         return conectAPI(req, "/class/multiple/", "POST");
     }
@@ -119,10 +126,11 @@ export default class ClassRepository implements ClassRepository {
     async details(id: number): Promise<[]> {
         return conectAPI(null, `/class/${id}`, "GET");
     }
-    async remove(classId: number, studentId: number): Promise<[]> {
+    async remove(classId: number, studentId: number, bikeId: number): Promise<[]> {
         const req = {
             classId,
             studentId,
+            bikeId
         };
 
         return conectAPI(req, `/app/v2/classes/cancelPresenceInClass`, "POST");
@@ -148,7 +156,9 @@ export default class ClassRepository implements ClassRepository {
         kickbackRule: string | null,
         productTypeId: string | null,
         bikes: string[] | null,
-        active: boolean
+        active: boolean,
+        title?: string | null,
+        description?: string | null,
     ): Promise<[]> {
         const req = {
             id,
@@ -161,13 +171,43 @@ export default class ClassRepository implements ClassRepository {
             kickbackRule,
             productTypeId,
             bikes,
-            active
+            active,
+            title: title || null,
+            description: description || null,
         };
         return conectAPI(req, `/class/${id}`, "PUT");
     }
 
-    async cancel(id: number): Promise<[]> {
-        return conectAPI(null, `/class/cancelClass/${id}`, "GET");
+    async cancel(id: number): Promise<any> {
+        const token = Cookies.get('admin-user-sci-auth');
+
+        try {
+            const resp = await fetch(
+                `${process.env.NEXT_PUBLIC_SERVER_URL_API}/class/cancelClass/${id}`,
+                {
+                    method: "GET",
+                    headers: {
+                        "Content-Type": "application/json",
+                        'Authorization': `Bearer ${token}`
+                    },
+                }
+            );
+
+            const text = await resp.text(); // ✅ lê como texto, não JSON
+
+            if (resp.status === 200) {
+                return text;
+            } else {
+                throw new Error(text);
+            }
+        } catch (error) {
+            return error;
+        }
+    }
+
+    async addStudent(classId: number, studentId: number, bikeNumber: number): Promise<[]> {
+        const req = { classId, studentId, bikeNumber };
+        return conectAPI(req, `/app/v2/classes/enterClass`, "POST");
     }
 
 }

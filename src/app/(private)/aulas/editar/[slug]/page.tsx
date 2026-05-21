@@ -9,16 +9,15 @@ import { useParams, useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 
 import ClassCollection from "../../../../../../core/Class";
+import RichTextEditor from "@/components/RichTextEditor/RichTextEditor";
 import DropDownsCollection from "../../../../../../core/DropDowns";
 import Modal from "@/components/Modal/Modal";
 import Loading from "@/components/loading/Loading";
 
 import DropdownType from "../../../../../model/Dropdown";
-import AuthSelectMulti from "@/components/auth/AuthSelectMulti";
 import useConvertDate from "@/data/hooks/useConvertDate";
 import { convertDate } from "@/utils/formatterText";
 import { EventBtn } from "@/types/btn";
-import { BikeAvalible, BikeBusy } from "@/components/icons";
 import BikeView from "@/components/BikeView/BikeView";
 import { convertArray, convertArrayType } from "@/utils/convertArray";
 import { ValidationForm } from "@/components/formValidation/validation";
@@ -49,6 +48,8 @@ export default function AddClass() {
     const [commissionRules, setCommissionRules] = useState<string | null>(null);
     const [commissionValue, setCommissionValue] = useState<number | null>(0);
     const [bikes, setBikes] = useState<string[]>([]);
+    const [title, setTitle] = useState<string>('');
+    const [description, setDescription] = useState<string | null>('');
 
     const [dropdownType, setDropdownType] = useState<string[]>([]);
     const [dropdownEmployee, setDropdownEmployee] = useState<DropdownType[]>([]);
@@ -82,10 +83,6 @@ export default function AddClass() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
-    useEffect(() => {
-        setTeacher(String(dropdownEmployee[0]?.id));
-    }, [dropdownEmployee]);
-
     const clear = () => {
         router.push("/aulas");
     }
@@ -113,15 +110,17 @@ export default function AddClass() {
             } else {
                 setBikes(result.bikes)
                 setDate(result.date);
-                setTime(result.time);
+                setTime(result.time.slice(0, 5));
                 setTypeProduct(result.productTypeId);
                 setProduct(result.productId);
-                setTeacher(result.teacherId);;
+                setTeacher(result.teacherId);
                 setQtdStudents(result.limit)
                 setCanCommission(result.hasCommission);
                 setStudents(result.weight);
                 setCommissionRules(result.kickbackRule);
                 setCommissionValue(result.kickback);
+                setTitle(result.title || '');
+                setDescription(result.description || '');
             }
         }).catch((error) => {
             setErrorMessage(error.message);
@@ -150,7 +149,7 @@ export default function AddClass() {
             return;
         }
 
-        repo?.edit(+searchParams?.slug, convertDate(date), time, teacher, limit, canCommission, commissionValue, commissionRules, typeProduct, bikes, true).then((result: any) => {
+        repo?.edit(+searchParams?.slug, convertDate(date), time, teacher, limit, canCommission, commissionValue, commissionRules, typeProduct, bikes, true, title || null, description || null).then((result: any) => {
             if (result instanceof Error) {
                 const message: any = JSON.parse(result.message);
                 setErrorMessage(message.error);
@@ -222,8 +221,9 @@ export default function AddClass() {
         )
     };
 
-    const handleRemoveStudent = (classId: number, studentId: number) => {
-        repo?.remove(classId, studentId).then((result: any) => {
+    const handleRemoveStudent = (classId: number, studentId: number, bikeId: number) => {
+        console.log('[DEBUG]', bikeId)
+        repo?.remove(classId, studentId, bikeId).then((result: any) => {
             if (result instanceof Error) {
                 const message: any = JSON.parse(result.message);
                 setModalSuccess(true)
@@ -276,6 +276,22 @@ export default function AddClass() {
         });
     }
 
+    // Adicionar função
+    const handleAddStudent = (studentId: number, bikeNumber: number) => {
+        repo?.addStudent(+(searchParams?.slug ?? 0), studentId, bikeNumber).then((result: any) => {
+            if (result instanceof Error) {
+                const message: any = JSON.parse(result.message);
+                setErrorMessage(message.message);
+                setLog(1);
+                setTimeout(() => setErrorMessage(null), 2500);
+            } else {
+                setModalMessage("Aluno adicionado com sucesso!");
+                setModalSuccess(true);
+                setLog(0);
+            }
+        });
+    }
+
     return (
         <PageDefault title={"Editar Aula"}>
             <div className="grid grid-cols-12">
@@ -286,6 +302,26 @@ export default function AddClass() {
                     >
                         <div className="grid grid-cols-12 gap-8">
                             <div className="col-span-7">
+                                <div className="grid grid-cols-12 gap-x-8 mb-6">
+                                    <div className="col-span-12">
+                                        <AuthInput
+                                            label="Título"
+                                            value={title}
+                                            type="text"
+                                            changeValue={setTitle}
+                                            edit={edit}
+                                        />
+                                    </div>
+                                    <div className="col-span-12">
+                                        <RichTextEditor
+                                            label="Descrição"
+                                            value={description}
+                                            onChange={setDescription}
+                                        />
+                                    </div>
+                                </div>
+                                <hr className="mb-5 pb-3" style={{ borderColor: "#F4F5F6" }} />
+
                                 <div className="grid grid-cols-12 gap-x-8">
                                     <div className="col-span-12 sm:col-span-6">
                                         <SingleCalendar
@@ -318,7 +354,7 @@ export default function AddClass() {
                                 </div>
                                 <hr className="mt-3 mb-5 pb-3" style={{ borderColor: "#F4F5F6" }} />
                                 <div className="grid grid-cols-12 gap-x-8">
-                                    <div className="col-span-12 sm:col-span-6">
+                                    {/*<div className="col-span-12 sm:col-span-6">
 
                                         <AuthSelect
                                             label="Quantidade de alunos"
@@ -338,7 +374,7 @@ export default function AddClass() {
                                             edit={edit}
                                             required
                                         />
-                                    </div>
+                                    </div>*/}
                                     <div className="col-span-12 sm:col-span-6">
                                         {dropdownEmployee.length > 0
                                             ?
@@ -384,7 +420,7 @@ export default function AddClass() {
                                     <div className="hidden xl:flex xl:grid-rows-4"></div>
                                     <div className="hidden xl:flex xl:grid-rows-4"></div>
                                 </div>
-                                {
+                                 {/*{
                                     Boolean(canCommission) === true &&
                                     <>
                                         <hr className="mt-3 mb-5 pb-3" style={{ borderColor: "#F4F5F6" }} />
@@ -411,7 +447,7 @@ export default function AddClass() {
                                             </div>
                                         </div>
                                     </>
-                                }                            
+                                }    */}                        
                                 <ValidationForm errorMessage={errorMessage} />
                             </div>
                             <div className="col-span-5 flex items-center justify-center" style={{ borderLeft: "1px solid #999999" }}>
@@ -484,7 +520,13 @@ export default function AddClass() {
                                     </div>
 
                                 </div>*/}
-                                <BikeView bikes={bikes} totalBikes={12} onUpdateBikes={onUpdateBikes} handleRemoveStudent={handleRemoveStudent} handleCheckin={handleCheckin} />
+                                <BikeView 
+                                    bikes={bikes} 
+                                    totalBikes={12} 
+                                    onUpdateBikes={onUpdateBikes} 
+                                    handleRemoveStudent={handleRemoveStudent} 
+                                    handleCheckin={handleCheckin}
+                                    handleAddStudent={handleAddStudent}  />
                             </div>
                         </div>
                     </Card>
