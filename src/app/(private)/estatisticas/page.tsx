@@ -313,6 +313,7 @@ export default function Estatisticas() {
     aulas: s.classCount ?? s.aulas ?? 0,
     presenca: s.attendanceRate ?? s.presenca ?? 0,
     last7: s.last7 ?? [],
+    periodData: s.periodData ?? [],
   }));
 
   const topProfessores = topTeachers.map((t: any) => ({
@@ -746,7 +747,9 @@ export default function Estatisticas() {
                   <th className="text-left py-2 px-2 font-medium w-10">#</th>
                   <th className="text-left py-2 px-2 font-medium">Aluno</th>
                   <th className="text-right py-2 px-2 font-medium">Aulas</th>
-                  <th className="text-right py-2 px-2 font-medium">Últimos 7 dias</th>
+                  <th className="text-right py-2 px-2 font-medium">
+                    {periodo === "mes" ? "Semanas do Mês" : periodo === "trimestre" ? "Últimos 3 Meses" : "Últimos 7 dias"}
+                  </th>
                   <th className="text-right py-2 px-2 font-medium">Presença</th>
                 </tr>
               </thead>
@@ -785,21 +788,34 @@ export default function Estatisticas() {
                           {aluno.aulas}
                         </td>
                         <td className="py-2.5 px-2">
-                          <div className="flex items-center justify-end gap-0.5">
-                            {aluno.last7.length > 0
-                              ? aluno.last7.map((status: string, i: number) => (
+                          <div className="flex items-center justify-end gap-1">
+                            {(periodo === "mes" || periodo === "trimestre") && aluno.periodData.length > 0
+                              ? aluno.periodData.map((p: { label: string; status: string }) => (
+                                  <div key={p.label} className="flex flex-col items-center gap-0.5">
+                                    <div
+                                      title={p.status === "attended" ? "Presente" : p.status === "missed" ? "Faltou" : "Sem aula"}
+                                      className={cn(
+                                        "w-5 h-5 rounded-sm",
+                                        p.status === "attended" && "bg-emerald-400",
+                                        p.status === "missed" && "bg-rose-400",
+                                        p.status === "no_class" && "bg-muted"
+                                      )}
+                                    />
+                                    <span className="text-[8px] text-muted-foreground">{p.label}</span>
+                                  </div>
+                                ))
+                              : aluno.last7.map((status: string, i: number) => (
                                   <div
-                                    key={i}
-                                    title={status === 'attended' ? 'Presente' : status === 'missed' ? 'Faltou' : 'Sem aula'}
+                                    key={`day-${i}`}
+                                    title={status === "attended" ? "Presente" : status === "missed" ? "Faltou" : "Sem aula"}
                                     className={cn(
                                       "w-3.5 h-3.5 rounded-sm",
-                                      status === 'attended' && "bg-emerald-400",
-                                      status === 'missed' && "bg-rose-400",
-                                      status === 'no_class' && "bg-muted"
+                                      status === "attended" && "bg-emerald-400",
+                                      status === "missed" && "bg-rose-400",
+                                      status === "no_class" && "bg-muted"
                                     )}
                                   />
                                 ))
-                              : <span className="text-[11px] text-muted-foreground">—</span>
                             }
                           </div>
                         </td>
