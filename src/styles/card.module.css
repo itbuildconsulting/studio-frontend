@@ -1,11 +1,11 @@
 .bg_card {
-    background-color: var(--backgroundColor);
+    background-color: hsl(var(--card));
     border-radius: 16px;
     padding: 1.5rem;
-    
 }
 
-.bg_card button {
+/* Only the "Adicionar" header button — not nested form controls */
+.header_button {
     height: 33px;
     width: 131px;
     align-items: center;

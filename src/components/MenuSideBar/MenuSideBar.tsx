@@ -1,9 +1,19 @@
 "use client";
+
 import Image from "next/image";
-import styles from "../../styles/menu.module.css";
 import {
-  IconAdmin, IconAdminFilter, IconClass, IconClose, IconDollar, IconFinance,
-  IconHome, IconInstallment, IconLeave, IconProducts, IconStudents, IconWorkers,
+  IconAdmin,
+  IconAdminFilter,
+  IconClass,
+  IconClose,
+  IconDollar,
+  IconFinance,
+  IconHome,
+  IconInstallment,
+  IconLeave,
+  IconProducts,
+  IconStudents,
+  IconWorkers,
 } from "../icons";
 import LogoShort from "../../../public/images/spingo.png";
 import MenuItem from "./MenuItem";
@@ -11,6 +21,7 @@ import useAuthData from "@/data/hooks/useAuthData";
 import { checkUserLevel } from "../../../core/CheckUserLevel";
 import { useEffect, useState } from "react";
 import SkeletonMenu from "./SkeletonMenu";
+import { cn } from "@/lib/utils";
 
 interface MenuSideBarProps {
   menuMobileOpen: boolean;
@@ -24,7 +35,6 @@ export default function MenuSideBar({ menuMobileOpen, handleMenuOpen }: MenuSide
   const [hasAccess, setHasAccess] = useState<boolean>(false);
 
   useEffect(() => {
-    // roda só no client, pode ler cookie/localStorage aqui
     try {
       setHasAccess(checkUserLevel("1"));
     } finally {
@@ -34,51 +44,71 @@ export default function MenuSideBar({ menuMobileOpen, handleMenuOpen }: MenuSide
 
   return (
     <>
-      <div className={`${styles.bg_menu} ${menuMobileOpen ? styles.bg_menu_mobile_open : ""}`}>
-        <div>
-          <div className="flex justify-center items-center w-100">
-            <Image src={LogoShort} alt="Logo Studio Raphael Oliveira"  width={150}/>
-            <button className={styles.close_menu} onClick={handleMenuOpen} aria-label="Fechar menu">
-              {IconClose("16", "16", "#003D58")}
-            </button>
-          </div>
+      {/* Overlay mobile */}
+      {menuMobileOpen && (
+        <div
+          className="fixed inset-0 z-30 bg-black/60 backdrop-blur-sm lg:hidden"
+          onClick={handleMenuOpen}
+        />
+      )}
 
-          <div aria-busy={!ready}>
-            {!ready ? (
-              <SkeletonMenu />
-            ) : !hasAccess ? (
-              <ul>
-                <MenuItem url="/aulas" text="Aulas" icon={IconClass} />
-              </ul>
-            ) : (
-              <ul>
-                <MenuItem url="/dashboard" text="Home" icon={IconHome} />
-                <MenuItem url="/aulas" text="Aulas" icon={IconClass} />
-                <MenuItem url="/alunos" text="Alunos" icon={IconStudents} />
-                <MenuItem url="/financeiro" text="Financeiro" icon={IconFinance} />
-                <MenuItem url="/funcionarios" text="Funcionários" icon={IconWorkers} />
-                <MenuItem url="/produtos" text="Produtos" icon={IconProducts} />
-                <MenuItem url="/creditos" text="Créditos" icon={IconDollar} />
-                <MenuItem url="/administrativo" text="Administrativo" icon={IconAdmin} />
-                <MenuItem url="/configuracoes" text="Configurações" icon={IconAdminFilter} />
-                <MenuItem url="/parcelamento" text="Parcelamento" icon={IconInstallment} />
-              </ul>
-            )}
-          </div>
+      {/* Sidebar */}
+      <aside
+        className={cn(
+          "fixed inset-y-0 left-0 z-40 flex w-64 flex-shrink-0 flex-col bg-sidebar text-sidebar-foreground border-r border-sidebar-border transition-transform duration-300 ease-in-out",
+          "lg:relative lg:translate-x-0",
+          menuMobileOpen ? "translate-x-0" : "-translate-x-full"
+        )}
+      >
+        {/* Header da sidebar */}
+        <div className="relative flex items-center justify-center px-4 py-5 border-b border-sidebar-border">
+          <Image
+            src={LogoShort}
+            alt="Logo Studio Raphael Oliveira"
+            width={120}
+          />
+          <button
+            className="lg:hidden absolute right-3 top-1/2 -translate-y-1/2 flex items-center justify-center h-8 w-8 rounded-md text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+            onClick={handleMenuOpen}
+            aria-label="Fechar menu"
+          >
+            {IconClose("16", "16", "currentColor")}
+          </button>
         </div>
 
-        <div>
-          <ul className="mb-4 pt-3" style={{ border: "1px solid #EFF4F6 " }}>
-            {!ready ? (
-              <li className="h-9 my-2 rounded-md bg-slate-200 animate-pulse" />
-            ) : (
-              <MenuItem text="Sair" icon={IconLeave} onClick={logout} />
-            )}
-          </ul>
-        </div>
-      </div>
+        {/* Navegação */}
+        <nav className="flex-1 overflow-y-auto py-4 px-3" aria-busy={!ready}>
+          {!ready ? (
+            <SkeletonMenu />
+          ) : !hasAccess ? (
+            <ul className="space-y-0.5">
+              <MenuItem url="/aulas" text="Aulas" icon={IconClass} />
+            </ul>
+          ) : (
+            <ul className="space-y-0.5">
+              <MenuItem url="/dashboard" text="Home" icon={IconHome} />
+              <MenuItem url="/aulas" text="Aulas" icon={IconClass} />
+              <MenuItem url="/alunos" text="Alunos" icon={IconStudents} />
+              <MenuItem url="/financeiro" text="Financeiro" icon={IconFinance} />
+              <MenuItem url="/funcionarios" text="Funcionários" icon={IconWorkers} />
+              <MenuItem url="/produtos" text="Produtos" icon={IconProducts} />
+              <MenuItem url="/creditos" text="Créditos" icon={IconDollar} />
+              <MenuItem url="/administrativo" text="Administrativo" icon={IconAdmin} />
+              <MenuItem url="/configuracoes" text="Configurações" icon={IconAdminFilter} />
+              <MenuItem url="/parcelamento" text="Parcelamento" icon={IconInstallment} />
+            </ul>
+          )}
+        </nav>
 
-      {menuMobileOpen && <div className={styles.shadow_menu} />}
+        {/* Footer — sair */}
+        <div className="px-3 py-4 border-t border-sidebar-border">
+          {!ready ? (
+            <div className="h-10 rounded-md bg-sidebar-accent animate-pulse" />
+          ) : (
+            <MenuItem text="Sair" icon={IconLeave} onClick={logout} />
+          )}
+        </div>
+      </aside>
     </>
   );
 }

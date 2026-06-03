@@ -210,4 +210,8 @@ export default class ClassRepository implements ClassRepository {
         return conectAPI(req, `/app/v2/classes/enterClass`, "POST");
     }
 
+    async getTodayCancellations(): Promise<any> {
+        return conectAPI(null, `/dashboard/cancellations/today`, "GET");
+    }
+
 }

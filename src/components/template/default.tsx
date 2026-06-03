@@ -1,49 +1,40 @@
-'use client'
+"use client";
 
 import { ReactNode, useEffect, useState } from "react";
 import Header from "../Header/Header";
 import MenuSideBar from "../MenuSideBar/MenuSideBar";
 import useWindowSize from "@/data/hooks/useWindowSize";
 
-type WindowSizeType = {
-    width?: number | undefined;
-};
-
-interface SizeProps {
-    title: string;
-    children: ReactNode;
+interface PageDefaultProps {
+  title?: string;
+  children: ReactNode;
 }
 
-export default function PageDefault(props: SizeProps) {
-    const [menuMobileOpen, setMenuMobileOpen] = useState<boolean>(false);
+export default function PageDefault({ title, children }: PageDefaultProps) {
+  const [menuMobileOpen, setMenuMobileOpen] = useState(false);
+  const { width } = useWindowSize();
 
-    const size: WindowSizeType = useWindowSize();
+  const handleMenuOpen = () => setMenuMobileOpen((prev) => !prev);
 
-    const handleMenuOpen = () => {
-        setMenuMobileOpen(!menuMobileOpen);
-    };
+  useEffect(() => {
+    if (width && width >= 1024) {
+      setMenuMobileOpen(false);
+    }
+  }, [width]);
 
-    useEffect(() => {
-        if (size.width && size.width < 1200) {
-            setMenuMobileOpen(false);
-        }
-    }, [size.width]);
+  return (
+    <div className="flex min-h-screen bg-background">
+      <MenuSideBar menuMobileOpen={menuMobileOpen} handleMenuOpen={handleMenuOpen} />
 
-    return (
-        <main>
-            <div className="flex">
-                <MenuSideBar menuMobileOpen={menuMobileOpen} handleMenuOpen={handleMenuOpen} />
-                <div className="w-full">
-                    <Header handleMenuOpen={handleMenuOpen} />
-                    <div className="container-content">
-                        <h3 style={{ marginBottom: "64px" }}>{props.title}</h3>
+      {/* Área de conteúdo */}
+      <div className="flex flex-col flex-1 min-w-0">
+        <Header handleMenuOpen={handleMenuOpen} />
 
-                        <div>
-                            {props.children}
-                        </div>
-                    </div>
-                </div>
-            </div>
+        <main className="flex-1 p-6 lg:p-8 animate-fade-in">
+          {title && <h3 className="mb-8 text-foreground">{title}</h3>}
+          {children}
         </main>
-    );
+      </div>
+    </div>
+  );
 }
