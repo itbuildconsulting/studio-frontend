@@ -1,0 +1,23 @@
+{
+  "light": {
+    "primary": "#f23238",
+    "background": "#f5f6fb",
+    "foreground": "#1a1f3a",
+    "card": "#ffffff",
+    "muted": "#eef0f8",
+    "mutedForeground": "#5d6b82",
+    "border": "#d5d9e8",
+    "sidebarBackground": "#ffffff"
+  },
+  "dark": {
+    "primary": "#f24e53",
+    "background": "#0f1117",
+    "foreground": "#e8eaf2",
+    "card": "#1a1d2e",
+    "muted": "#262e45",
+    "mutedForeground": "#8892a4",
+    "border": "#1e2740",
+    "sidebarBackground": "#1a1d2e"
+  },
+  "radius": "0.625rem"
+}

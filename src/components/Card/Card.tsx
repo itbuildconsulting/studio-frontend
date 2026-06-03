@@ -25,7 +25,7 @@ export default function Card({
             <div className='flex justify-between'>
                 {title && <h4 style={{ marginBottom: "32px" }}>{title}</h4>}
 
-                {hasButton && <button className="btn-outline-primary" onClick={() => setShowModal ? setShowModal(true) : router.push(`${url}`)}><p>Adicionar</p></button>}
+                {hasButton && <button className={`btn-outline-primary ${styles.header_button}`} onClick={() => setShowModal ? setShowModal(true) : router.push(`${url}`)}><p>Adicionar</p></button>}
             </div>
             {children}
             {

@@ -2,26 +2,17 @@
 
 import Link from "next/link";
 import { useEffect, useState, ReactElement } from "react";
+import { cn } from "@/lib/utils";
 
 type MenuItemProps = {
   url?: string;
   text: string;
-  icon: ReactElement;
-  /** classes fixas (não dinâmicas) */
-  baseClassName?: string;
+  icon: ReactElement | ((w: string, h: string, color: string) => ReactElement);
   onClick?: () => void;
 };
 
-export default function MenuItem({
-  url,
-  text,
-  icon,
-  baseClassName = "",
-  onClick,
-}: MenuItemProps) {
-  // Estado de hidratação
+export default function MenuItem({ url, text, icon, onClick }: MenuItemProps) {
   const [hydrated, setHydrated] = useState(false);
-  // Aplica "active" só depois da hidratação
   const [isActive, setIsActive] = useState(false);
 
   useEffect(() => {
@@ -31,14 +22,32 @@ export default function MenuItem({
     }
   }, [url]);
 
-  // IMPORTANTÍSSIMO: classe inicial é sempre a mesma no SSR e 1º render do client
-  const liClass = hydrated && isActive ? `${baseClassName} active`.trim() : baseClassName;
+  const iconElement =
+    typeof icon === "function" ? icon("18", "18", "currentColor") : icon;
+
+  const itemClass = cn(
+    "flex items-center gap-3 rounded-full px-3 py-2.5 text-sm font-medium transition-colors",
+    hydrated && isActive
+      ? "bg-sidebar-primary text-sidebar-primary-foreground shadow-sm"
+      : "text-[hsl(var(--nav-link-color))] hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+  );
+
+  if (!url) {
+    return (
+      <li>
+        <button className={cn(itemClass, "w-full")} onClick={onClick} suppressHydrationWarning>
+          <span className="flex-shrink-0">{iconElement}</span>
+          <span>{text}</span>
+        </button>
+      </li>
+    );
+  }
 
   return (
-    <li className={liClass} onClick={onClick} suppressHydrationWarning>
-      <Link href={url || "/"} className="">
-        {icon}
-        <span className="ml-3">{text}</span>
+    <li suppressHydrationWarning>
+      <Link href={url} className={itemClass}>
+        <span className="flex-shrink-0">{iconElement}</span>
+        <span>{text}</span>
       </Link>
     </li>
   );

@@ -170,4 +170,8 @@ export default class ClassRepository implements ClassRepository {
         return conectAPI(null, `/class/cancelClass/${id}`, "GET");
     }
 
+    async getTodayCancellations(): Promise<any> {
+        return conectAPI(null, `/dashboard/cancellations/today`, "GET");
+    }
+
 }

@@ -1,12 +1,10 @@
-// src/components/MenuSideBar/SkeletonMenu.tsx
 "use client";
 
 export default function SkeletonMenu() {
-  // mantém a mesma estrutura: ul > li
   return (
-    <ul className="py-2">
-      {Array.from({ length: 6 }).map((_, i) => (
-        <li key={i} className="h-9 my-2 rounded-md bg-slate-200 animate-pulse" />
+    <ul className="space-y-1">
+      {Array.from({ length: 7 }).map((_, i) => (
+        <li key={i} className="h-10 rounded-md bg-sidebar-accent/60 animate-pulse" />
       ))}
     </ul>
   );

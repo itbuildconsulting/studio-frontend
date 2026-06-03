@@ -1,12 +1,6 @@
-import Select, { MultiValue } from "react-select";
-import SelectType from "@/model/Select";
+import Select from "react-select";
+import { Label } from "@/components/ui/label";
 
-interface MultiProps {
-  label: string;
-  options: SelectType[]; // Alterado para SelectType[]
-  value: any;
-  changeValue: (e: any) => void;
-}
 interface Option {
   label: string;
   value: string;
@@ -14,17 +8,17 @@ interface Option {
 
 interface AuthSelectMultiProps {
   options: Option[];
-  value: string[]; // valores selecionados
+  value: string[];
   changeValue: (values: string[]) => void;
   label?: string;
 }
 
 const AuthSelectMulti = ({ options, value, changeValue, label }: AuthSelectMultiProps) => {
-  const selectedOptions = options.filter(option => value.includes(option.value));
+  const selectedOptions = options.filter((option) => value.includes(option.value));
 
   return (
-    <div>
-      {label && <label className="mb-2 block">{label}</label>}
+    <div className="flex flex-col mb-4">
+      {label && <Label>{label}</Label>}
       <Select
         isMulti
         classNamePrefix="select-multi"
@@ -32,7 +26,7 @@ const AuthSelectMulti = ({ options, value, changeValue, label }: AuthSelectMulti
         value={selectedOptions}
         onChange={(selected) => {
           const selectedArray = Array.isArray(selected)
-            ? selected.map(option => option.value)
+            ? selected.map((option) => option.value)
             : [];
           changeValue(selectedArray);
         }}
