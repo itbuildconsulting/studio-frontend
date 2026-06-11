@@ -182,4 +182,12 @@ export default class PersonsRepository implements PersonsRepository {
         };
         return conectAPI(req, `/persons/${id}/student-level`, "PUT");
     }
+
+    async getBirthdays(): Promise<any> {
+        return conectAPI(null, `/dashboard/birthdays`, "GET");
+    }
+
+    async getBirthdaysThisWeek(): Promise<any> {
+        return conectAPI(null, '/persons/birthdays/week', 'GET');
+    }
 }

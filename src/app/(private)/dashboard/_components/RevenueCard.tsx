@@ -4,7 +4,6 @@ import { useEffect, useMemo, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import TotalSalesRepository from "../../../../../core/TotalSales";
-import StatisticsRepository from "../../../../../core/Statistics";
 
 interface MonthlySale {
   month: number;
@@ -24,10 +23,8 @@ function fmtShort(v: number) {
 
 export default function RevenueCard() {
   const salesRepo = useMemo(() => new TotalSalesRepository(), []);
-  const statsRepo = useMemo(() => new StatisticsRepository(), []);
 
   const [sales, setSales] = useState<MonthlySale[]>([]);
-  const [comparison, setComparison] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
   const now = new Date();
@@ -36,12 +33,10 @@ export default function RevenueCard() {
   const prevMonth = currentMonth === 1 ? 12 : currentMonth - 1;
 
   useEffect(() => {
-    Promise.all([
-      salesRepo.consult(String(year)),
-      statsRepo.getMonthlyComparison(),
-    ]).then(([salesRes, compRes]) => {
-      if (!(salesRes instanceof Error)) setSales((salesRes as any)?.data ?? []);
-      if (!(compRes instanceof Error)) setComparison(compRes);
+    salesRepo.consult(String(year)).then((salesRes) => {
+      if (!(salesRes instanceof Error)) setSales(
+        ((salesRes as any)?.data ?? []).map((s: any) => ({ ...s, totalSales: s.totalSales / 100 }))
+      );
     }).finally(() => setLoading(false));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -53,25 +48,6 @@ export default function RevenueCard() {
   const changePct =
     prevSales > 0 ? Math.round(((currentSales - prevSales) / prevSales) * 100) : 0;
   const isPositive = changePct >= 0;
-
-  const mrr           = comparison?.mrr;
-  const delinquency   = comparison?.delinquencyRate;
-  const avgTicket     = comparison?.averageTicket;
-
-  const miniKpis = [
-    {
-      label: "MRR",
-      value: typeof mrr === "number" ? fmtShort(mrr) : "—",
-    },
-    {
-      label: "INADIMPL.",
-      value: typeof delinquency === "number" ? `${delinquency}%` : "—",
-    },
-    {
-      label: "TICKET MÉD.",
-      value: typeof avgTicket === "number" ? fmtShort(avgTicket) : "—",
-    },
-  ];
 
   return (
     <Card>
@@ -122,17 +98,6 @@ export default function RevenueCard() {
               />
             </div>
 
-            {/* Mini KPIs */}
-            <div className="grid grid-cols-3 gap-2 pt-1">
-              {miniKpis.map((k) => (
-                <div key={k.label} className="bg-muted rounded-lg p-2 text-center">
-                  <p className="text-[9px] font-semibold tracking-wider text-muted-foreground uppercase">
-                    {k.label}
-                  </p>
-                  <p className="text-xs font-bold mt-0.5">{k.value}</p>
-                </div>
-              ))}
-            </div>
           </>
         )}
       </CardContent>

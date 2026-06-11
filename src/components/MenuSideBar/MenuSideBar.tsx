@@ -6,12 +6,15 @@ import {
   IconAdminFilter,
   IconClass,
   IconClose,
+  IconCrm,
   IconDollar,
   IconFinance,
   IconHome,
   IconInstallment,
   IconLeave,
+  IconNps,
   IconProducts,
+  IconStats,
   IconStudents,
   IconWorkers,
 } from "../icons";
@@ -93,6 +96,9 @@ export default function MenuSideBar({ menuMobileOpen, handleMenuOpen }: MenuSide
               <MenuItem url="/funcionarios" text="Funcionários" icon={IconWorkers} />
               <MenuItem url="/produtos" text="Produtos" icon={IconProducts} />
               <MenuItem url="/creditos" text="Créditos" icon={IconDollar} />
+              <MenuItem url="/estatisticas" text="Estatísticas" icon={IconStats} />
+              <MenuItem url="/nps" text="NPS" icon={IconNps} />
+              <MenuItem url="/crm" text="CRM" icon={IconCrm} />
               <MenuItem url="/administrativo" text="Administrativo" icon={IconAdmin} />
               <MenuItem url="/configuracoes" text="Configurações" icon={IconAdminFilter} />
               <MenuItem url="/parcelamento" text="Parcelamento" icon={IconInstallment} />

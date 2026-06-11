@@ -41,20 +41,20 @@ const KPICard: React.FC<KPICardProps> = ({
     }
 
     return (
-        <div 
-            className="rounded-2xl p-6 shadow-sm border border-gray-100 hover:shadow-md transition-shadow duration-200"
+        <div
+            className="rounded-2xl p-4 shadow-sm border border-gray-100 hover:shadow-md transition-shadow duration-200"
             style={{ backgroundColor, minHeight }}
         >
-            <div className="flex items-start justify-between mb-4">
+            <div className="flex items-start justify-between mb-3">
                 <div className="flex-1">
-                    <p className="text-sm font-medium text-gray-600 mb-1">{title}</p>
-                    <h3 className="text-2xl md:text-3xl font-bold text-gray-900">
+                    <p className="text-xs font-semibold uppercase tracking-wider text-gray-500 mb-1">{title}</p>
+                    <h3 className="text-xl md:text-2xl font-bold text-gray-900">
                         {value}
                     </h3>
                 </div>
                 {icon && (
-                    <div 
-                        className="w-12 h-12 rounded-xl flex items-center justify-center"
+                    <div
+                        className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0"
                         style={{ backgroundColor: `${iconColor}15` }}
                     >
                         <div style={{ color: iconColor }}>
