@@ -200,4 +200,8 @@ export default class StatisticsRepository {
         const params = months ? `?productId=${productId}&months=${months}` : `?productId=${productId}`;
         return conectAPI(null, `/performance/product-buyers${params}`, "GET");
     }
+
+    async getTrialNoConversion(): Promise<any> {
+        return conectAPI(null, "/performance/trial-no-conversion", "GET");
+    }
 }

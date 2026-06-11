@@ -142,6 +142,7 @@ export default function Estatisticas() {
   const [dormantClients, setDormantClients] = useState<any[]>([]);
   const [dormantFilters, setDormantFilters] = useState<Set<string>>(new Set());
   const [birthdays, setBirthdays] = useState<any[]>([]);
+  const [trialNoConversion, setTrialNoConversion] = useState<any[]>([]);
 
   const loadData = useCallback(async () => {
     setLoading(true);
@@ -158,6 +159,7 @@ export default function Estatisticas() {
         trendsRes,
         dormantRes,
         birthdaysRes,
+        trialRes,
       ] = await Promise.all([
         repo.getOverviewMetrics(startDate, endDate),
         repo.getTopStudents(10, periodo),
@@ -169,6 +171,7 @@ export default function Estatisticas() {
         repo.getWeeklyTrends(startDate, endDate, periodo),
         repo.getDormantClients(),
         repoPersons.getBirthdaysThisWeek(),
+        repo.getTrialNoConversion(),
       ]);
 
       setOverview(toObject(overviewRes));
@@ -181,6 +184,7 @@ export default function Estatisticas() {
       setWeeklyTrends(toObject(trendsRes));
       setDormantClients(toArray(dormantRes));
       setBirthdays(toArray(birthdaysRes));
+      setTrialNoConversion(toArray(trialRes));
     } catch (e) {
       console.error("Erro ao carregar estatísticas:", e);
     } finally {
@@ -755,6 +759,49 @@ export default function Estatisticas() {
               </div>
             )}
           </div>
+        </div>
+      )}
+
+      {/* ── ABA: EXPERIMENTAL SEM CONVERSÃO ────────────────────── */}
+      {activeTab === 'alertas' && (
+        <div className="bg-card border border-border rounded-xl p-5 mt-6">
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-2">
+              <XCircle className="w-4 h-4 text-rose-500" />
+              <h3 className="text-sm font-bold text-foreground">
+                Aula Experimental sem Conversão
+              </h3>
+              <span className="text-[11px] font-bold px-2.5 py-1 rounded-full bg-muted text-muted-foreground">
+                {loading ? "—" : trialNoConversion.length}
+              </span>
+            </div>
+          </div>
+          {loading ? (
+            <div className="space-y-2">{Array.from({ length: 4 }).map((_, i) => <div key={i} className="h-10 bg-muted animate-pulse rounded-lg" />)}</div>
+          ) : trialNoConversion.length === 0 ? (
+            <p className="text-sm text-muted-foreground text-center py-6">Nenhum aluno encontrado</p>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="text-[10px] uppercase text-muted-foreground border-b border-border">
+                    <th className="text-left py-2 px-2 font-medium">Nome</th>
+                    <th className="text-left py-2 px-2 font-medium">Telefone</th>
+                    <th className="text-left py-2 px-2 font-medium">E-mail</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {trialNoConversion.map((p: any) => (
+                    <tr key={p.id} className="border-b border-border/50 hover:bg-muted/30 transition-colors">
+                      <td className="py-2.5 px-2 font-medium text-foreground">{p.name}</td>
+                      <td className="py-2.5 px-2 text-muted-foreground">{p.phone ?? "—"}</td>
+                      <td className="py-2.5 px-2 text-muted-foreground">{p.email ?? "—"}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
         </div>
       )}
 
