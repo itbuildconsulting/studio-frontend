@@ -30,26 +30,23 @@ jobs:
             NEXT_PUBLIC_JWT_SECRET_KEY=${{ secrets.NEXT_PUBLIC_JWT_SECRET_KEY }}
           EOF"
 
-      - name: Deploy to VPS
+      - name: Sincroniza código via rsync
+        run: |
+          rsync -avz --delete \
+            --exclude='.git' \
+            --exclude='node_modules' \
+            --exclude='.next' \
+            --exclude='.env*' \
+            -e "ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no" \
+            ./ root@212.85.2.8:/var/www/prod/spingo-admin/
+
+      - name: Instala, builda e reinicia
         run: |
           ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no root@212.85.2.8 << 'EOF'
             set -e
             cd /var/www/prod/spingo-admin
-
-            # Traz o estado mais recente do remote
-            git fetch origin
-
-            # Força o código local a ser idêntico ao origin/release
-            git reset --hard origin/release
-            git clean -fd
-
-            # Instala dependências
             npm install
-
-            # Build
             npm run build
-
-            # Reinicia PM2
             pm2 restart spingo-admin-prod || pm2 start npm --name spingo-admin-prod -- start
             pm2 save
           EOF
