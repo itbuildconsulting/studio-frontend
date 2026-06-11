@@ -41,7 +41,7 @@ export default function TodayClasses() {
     const offset = tab === "hoje" ? 0 : tab === "amanha" ? 1 : 0;
     const d = new Date();
     d.setDate(d.getDate() + offset);
-    const dateStr = d.toISOString().split("T")[0];
+    const dateStr = d.toISOString().split("T")[0].split("-").reverse().join("/"); // DD/MM/YYYY
 
     setLoading(true);
     classRepo.listClass(dateStr, "", "", "", 1).then((result: any) => {
@@ -50,8 +50,8 @@ export default function TodayClasses() {
           id: c.id,
           time: c.time?.slice(0, 5) ?? "--",
           name: c.productType ?? "Aula",
-          enrolled: c.enrolled ?? 0,
-          capacity: c.limit ?? 8,
+          enrolled: c.studentCount ?? c.enrolled ?? 0,
+          capacity: 12,
           waitlist: c.waitlist,
         }));
         setClasses(mapped);
@@ -129,6 +129,7 @@ export default function TodayClasses() {
 function ClassRow({ cls }: { cls: ClassItem }) {
   const pct = cls.capacity > 0 ? (cls.enrolled / cls.capacity) * 100 : 0;
   const isFull = cls.enrolled >= cls.capacity;
+  const barOpacity = 0.35 + (Math.min(pct, 100) / 100) * 0.65;
 
   return (
     <div className="flex items-center gap-3 p-2.5 rounded-lg hover:bg-muted/40 transition-colors">
@@ -148,11 +149,8 @@ function ClassRow({ cls }: { cls: ClassItem }) {
         <div className="flex items-center gap-2">
           <div className="flex-1 h-1.5 rounded-full bg-muted overflow-hidden">
             <div
-              className={cn(
-                "h-full rounded-full transition-all duration-500",
-                isFull ? "bg-primary" : "bg-muted-foreground/40"
-              )}
-              style={{ width: `${Math.min(pct, 100)}%` }}
+              className="h-full rounded-full transition-all duration-500 bg-primary"
+              style={{ width: `${Math.min(pct, 100)}%`, opacity: barOpacity }}
             />
           </div>
           <span className="text-xs text-muted-foreground shrink-0">

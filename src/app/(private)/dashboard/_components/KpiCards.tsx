@@ -30,16 +30,18 @@ export default function KpiCards() {
   });
 
   useEffect(() => {
-    const today = new Date().toISOString().split("T")[0];
+    const todayISO = new Date().toISOString().split("T")[0]; // YYYY-MM-DD (para financeiro)
+    const todayFmt = todayISO.split("-").reverse().join("/"); // DD/MM/YYYY (para listClass)
 
     // Aulas hoje
-    classRepo.listClass(today, "", "", "", 1).then((result: any) => {
+    classRepo.listClass(todayFmt, "", "", "", 1).then((result: any) => {
       if (!(result instanceof Error) && result?.data) {
         const classes = result.data as any[];
         const total = classes.length;
         const avgOccupancy = total > 0 ? Math.round(
           classes.reduce((sum: number, c: any) => {
-            if (c.enrolled != null && c.limit) return sum + (c.enrolled / c.limit) * 100;
+            const e = c.studentCount ?? c.enrolled;
+            if (e != null) return sum + (e / 12) * 100;
             return sum + 75;
           }, 0) / total
         ) : 0;
@@ -59,7 +61,7 @@ export default function KpiCards() {
     });
 
     // Recebido hoje
-    resultsRepo.getLatestTransactions(null, today, null, 1).then((result: any) => {
+    resultsRepo.getLatestTransactions(null, todayISO, null, 1).then((result: any) => {
       if (!(result instanceof Error) && Array.isArray(result?.data)) {
         const total = result.data
           .filter((t: any) => t.status === "paid")

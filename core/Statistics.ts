@@ -65,10 +65,6 @@ export default class StatisticsRepository {
         return conectAPI(null, "/performance/students-at-risk", "GET");
     }
 
-    async getDormantClients(): Promise<any> {
-        return conectAPI(null, "/performance/dormant-clients", "GET");
-    }
-
     async getFrequencyDropStudents(): Promise<any> {
         return conectAPI(null, "/performance/frequency-drop", "GET");
     }
@@ -167,8 +163,41 @@ export default class StatisticsRepository {
         return conectAPI(null, "/performance/monthly-comparison", "GET");
     }
 
+    async getTicketPerClass(): Promise<any> {
+        return conectAPI(null, "/performance/ticket-per-class", "GET");
+    }
+
+    async getPurchasesByWeekday(): Promise<any> {
+        return conectAPI(null, "/performance/purchases-by-weekday", "GET");
+    }
+
+    async getRepurchaseInterval(): Promise<any> {
+        return conectAPI(null, "/performance/repurchase-interval", "GET");
+    }
+
+    async getBoughtVsUsed(): Promise<any> {
+        return conectAPI(null, "/performance/bought-vs-used", "GET");
+    }
+
+    async getCumulativeRevenue(): Promise<any> {
+        return conectAPI(null, "/performance/cumulative-revenue", "GET");
+    }
+
+    async getMostPurchasedProducts(months: number = 6, showInactive = false): Promise<any> {
+        return conectAPI(null, `/performance/most-purchased-products?months=${months}&showInactive=${showInactive}`, "GET");
+    }
+
     async getWeeklyTrends(startDate?: string, endDate?: string, period?: string): Promise<any> {
         const req = { startDate, endDate, period };
         return conectAPI(req, "/performance/weekly-trends", "POST");
+    }
+
+    async getDormantClients(): Promise<any> {
+        return conectAPI(null, "/performance/dormant-clients", "GET");
+    }
+
+    async getProductBuyers(productId: number, months?: number): Promise<any> {
+        const params = months ? `?productId=${productId}&months=${months}` : `?productId=${productId}`;
+        return conectAPI(null, `/performance/product-buyers${params}`, "GET");
     }
 }

@@ -1,27 +1,66 @@
 'use client'
 
-import Card from "@/components/Card/Card";
 import Modal from "@/components/Modal/Modal";
-import Table from "@/components/Table/Table";
 import AuthInput from "@/components/auth/AuthInput";
 import PageDefault from "@/components/template/default";
-import { useEffect, useMemo, useState } from "react";
-
-import styles from '../../../styles/products.module.css';
+import { useEffect, useMemo, useRef, useState } from "react";
 import AuthSelect from "@/components/auth/AuthSelect";
-
 import ProductCollection from "../../../../core/Product";
 import DropDownsCollection from "../../../../core/DropDowns";
-import Loading from "@/components/loading/Loading";
-import DropDown from "@/components/dropdown/DropDown";
-import Link from "next/link";
 import { convertArray, convertArrayType } from "@/utils/convertArray";
 import { ValidationForm } from "@/components/formValidation/validation";
-
 import listValidate from '../../../json/validate.json';
 import { PaginationModel } from "@/types/pagination";
 import pageDefault from "@/utils/pageDetault";
 import ValidationFields from "@/validators/fields";
+import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Pagination } from "@/components/pagination/pagination";
+
+function ProductOptionsMenu({ id, onEdit, onDelete }: {
+    id: number;
+    onEdit: (id: number) => void;
+    onDelete: (id: number) => void;
+}) {
+    const [open, setOpen] = useState(false);
+    const ref = useRef<HTMLDivElement>(null);
+
+    useEffect(() => {
+        const handler = (e: MouseEvent) => {
+            if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+        };
+        document.addEventListener("mousedown", handler);
+        return () => document.removeEventListener("mousedown", handler);
+    }, []);
+
+    return (
+        <div className="relative" ref={ref}>
+            <button
+                onClick={() => setOpen(!open)}
+                className="h-8 w-8 rounded-full border border-border bg-background flex items-center justify-center text-muted-foreground hover:bg-muted transition-colors text-lg leading-none"
+            >
+                ···
+            </button>
+            {open && (
+                <div className="absolute right-0 z-50 mt-1 w-36 rounded-xl border border-border bg-popover shadow-md py-1">
+                    <button
+                        onClick={() => { onEdit(id); setOpen(false); }}
+                        className="w-full text-left px-3 py-2 text-sm hover:bg-accent hover:text-accent-foreground rounded-md mx-1"
+                    >
+                        Editar
+                    </button>
+                    <button
+                        onClick={() => { onDelete(id); setOpen(false); }}
+                        className="w-full text-left px-3 py-2 text-sm text-destructive hover:bg-destructive/10 rounded-md mx-1"
+                    >
+                        Excluir
+                    </button>
+                </div>
+            )}
+        </div>
+    );
+}
 
 export default function Products() {
     const repoDrop = useMemo(() => new DropDownsCollection(), []);
@@ -93,11 +132,7 @@ export default function Products() {
         return Number(cell).toLocaleString('pt-br', { style: 'currency', currency: 'BRL' })
     }
 
-    const convertStatus = (cell: any, row: any) => {
-        return cell === 1 ? "Ativo" : "Inativo"
-    }
-
-    const formatUsageRestriction = (cell: any, row: any) => {
+    const formatUsageRestriction = (row: any) => {
         if (row.usageRestrictionType === 'none' || !row.usageRestrictionLimit) {
             return 'Ilimitado';
         }
@@ -108,60 +143,6 @@ export default function Products() {
         };
         return `${row.usageRestrictionLimit}x${typeLabels[row.usageRestrictionType]}`;
     }
-
-    const actionButtonProduct = (cell: any, row: any) => {
-        return (
-            <DropDown style={'bg-white'}>
-                <>...</>
-                <Link href={"#"} onClick={() => detailsProduct(cell)}>
-                    Editar
-                </Link>
-                <Link href={'#'} onClick={() => deleteProduct(cell)}>
-                    Excluir
-                </Link>
-            </DropDown>
-        )
-    }
-
-    const columns = [
-        {
-            dataField: 'name',
-            text: `Produto`,
-        },
-        {
-            dataField: 'credit',
-            text: `Créditos`,
-        },
-        {
-            dataField: 'productType',
-            text: `Tipo`,
-            formatter: actionProductTypeName
-        },
-        {
-            dataField: 'productType',
-            text: `Local`,
-            formatter: actionLocaleName
-        },
-        {
-            dataField: 'value',
-            text: `Valor`,
-            formatter: convertValue
-        },
-        {
-            dataField: 'usageRestrictionType',
-            text: `Uso`,
-            formatter: formatUsageRestriction
-        },
-        {
-            dataField: 'active',
-            text: `Status`,
-            formatter: convertStatus
-        },
-        {
-            dataField: 'id',
-            formatter: actionButtonProduct
-        }
-    ];
 
     function onSubmitProductAdd() {
         setErrorMessage(null);
@@ -263,9 +244,8 @@ export default function Products() {
     const LoadingStatus = () => {
         return (
             <div className="flex flex-col items-center gap-4">
-                <Loading />
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900" />
                 <h5>Carregando...</h5>
-                <div style={{ height: "56px" }}></div>
             </div>
         )
     }
@@ -400,26 +380,98 @@ export default function Products() {
         }
     }, [modalProductAdd]);
 
+    const TABLE_COLS = ["PRODUTO", "CRÉDITOS", "TIPO", "LOCAL", "VALOR", "USO", "STATUS", "OPÇÕES"];
+
     return (
-        <PageDefault title={"Produtos"}>
-            <div className="grid grid-cols-12 gap-8">
-                <div className="col-span-12">
-                    <Card
-                        title="Meus Produtos"
-                        hasButton={true}
-                        setShowModal={setModalProductAdd}
-                    >
-                        <Table
-                            data={listProduct}
-                            columns={columns}
-                            class={styles.table_locale_adm}
-                            loading={loading}
-                            setPage={setPage}
-                            infoPage={infoPage}
-                        />
-                    </Card>
+        <PageDefault>
+            {/* ── Header ─────────────────────────────────────────── */}
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+                <div>
+                    <div className="flex items-center gap-2">
+                        <h3 className="text-foreground">Produtos</h3>
+                        {infoPage?.totalRecords > 0 && (
+                            <span className="flex h-6 min-w-6 items-center justify-center rounded-full bg-muted px-1.5 text-xs font-semibold text-muted-foreground">
+                                {infoPage.totalRecords}
+                            </span>
+                        )}
+                    </div>
+                    <p className="text-sm text-muted-foreground mt-0.5">Gerencie os produtos e pacotes de créditos</p>
                 </div>
+                <Button onClick={() => setModalProductAdd(true)}>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                    </svg>
+                    Novo Produto
+                </Button>
             </div>
+
+            {/* ── Tabela ─────────────────────────────────────────── */}
+            <Card>
+                <CardContent className="p-0">
+                    <div className="overflow-x-auto">
+                        <table className="w-full text-sm">
+                            <thead>
+                                <tr className="border-b border-border">
+                                    {TABLE_COLS.map((col) => (
+                                        <th key={col} className="px-4 py-3 text-left text-[11px] font-semibold uppercase tracking-wider text-muted-foreground whitespace-nowrap">
+                                            {col}
+                                        </th>
+                                    ))}
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {loading ? (
+                                    Array.from({ length: 5 }).map((_, i) => (
+                                        <tr key={i} className="border-b border-border last:border-0">
+                                            <td colSpan={8} className="px-4 py-3">
+                                                <div className="h-10 rounded-full bg-muted animate-pulse" />
+                                            </td>
+                                        </tr>
+                                    ))
+                                ) : listProduct.length === 0 ? (
+                                    <tr>
+                                        <td colSpan={8} className="px-4 py-10 text-center text-sm text-muted-foreground">
+                                            Nenhum produto encontrado.
+                                        </td>
+                                    </tr>
+                                ) : (
+                                    listProduct.map((product: any) => (
+                                        <tr key={product.id} className="border-b border-border last:border-0 hover:bg-muted/40 transition-colors">
+                                            <td className="px-4 py-3 font-medium text-foreground">{product.name}</td>
+                                            <td className="px-4 py-3 text-muted-foreground">{product.credit}</td>
+                                            <td className="px-4 py-3 text-muted-foreground">{product.productType?.name ?? "—"}</td>
+                                            <td className="px-4 py-3 text-muted-foreground">{product.productType?.place?.name ?? "—"}</td>
+                                            <td className="px-4 py-3 text-muted-foreground whitespace-nowrap">
+                                                {Number(product.value).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
+                                            </td>
+                                            <td className="px-4 py-3 text-muted-foreground whitespace-nowrap">
+                                                {formatUsageRestriction(product)}
+                                            </td>
+                                            <td className="px-4 py-3">
+                                                <Badge variant={product.active === 1 ? "success" : "destructive"}>
+                                                    {product.active === 1 ? "Ativo" : "Inativo"}
+                                                </Badge>
+                                            </td>
+                                            <td className="px-4 py-3" onClick={(e) => e.stopPropagation()}>
+                                                <ProductOptionsMenu
+                                                    id={product.id}
+                                                    onEdit={detailsProduct}
+                                                    onDelete={deleteProduct}
+                                                />
+                                            </td>
+                                        </tr>
+                                    ))
+                                )}
+                            </tbody>
+                        </table>
+                    </div>
+                    {infoPage?.totalPages > 1 && (
+                        <div className="px-4 py-3 border-t border-border">
+                            <Pagination infoPage={infoPage} setPage={setPage} />
+                        </div>
+                    )}
+                </CardContent>
+            </Card>
 
             <Modal
                 title={edit ? "Editar Produto" : "Adicionar Produto"}
