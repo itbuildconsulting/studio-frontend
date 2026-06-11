@@ -136,7 +136,7 @@ export default function Students() {
   const [infoPage, setInfoPage] = useState<PaginationModel>(pageDefault);
   const [loading, setLoading] = useState(false);
 
-  const total = infoPage?.total ?? 0;
+  const total = infoPage?.totalRecords ?? 0;
   // TODO: chamar endpoint com filtro active=1/0 quando disponível
   const activeCount = listPersons.filter((p) => p.active === 1).length;
   const pendingCount = listPersons.filter((p) => p.active !== 1).length;

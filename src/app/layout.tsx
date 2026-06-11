@@ -1,11 +1,8 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "@/data/context/AuthContext";
 import { generateThemeCss } from "@/lib/theme";
 import theme from "@/config/theme.json";
-
-const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: "Studio Raphael Oliveira",
@@ -28,7 +25,7 @@ export default function RootLayout({
         {/* Variáveis de tema geradas a partir de src/config/theme.json */}
         <style dangerouslySetInnerHTML={{ __html: themeCss }} />
       </head>
-      <body className={inter.className}>
+      <body>
         <AuthProvider>{children}</AuthProvider>
       </body>
     </html>

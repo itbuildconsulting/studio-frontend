@@ -124,7 +124,7 @@ export default function Class() {
   const [dropdownType, setDropdownType] = useState<any[]>([]);
   const [dropdownTeacher, setDropdownTeacher] = useState<any[]>([]);
 
-  const total = infoPage?.total ?? 0;
+  const total = infoPage?.totalRecords ?? 0;
   const activeClasses = classes.filter((c) => c.active !== false);
   const CAPACITY = 12;
 
