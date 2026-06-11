@@ -16,7 +16,7 @@ interface KpiData {
   loadingCancellations: boolean;
 }
 
-export default function KpiCards() {
+export default function KpiCards({ showFinancial = true }: Readonly<{ showFinancial?: boolean }>) {
   const classRepo = useMemo(() => new ClassRepository(), []);
   const resultsRepo = useMemo(() => new ResultsRepository(), []);
   const [kpi, setKpi] = useState<KpiData>({
@@ -78,7 +78,7 @@ export default function KpiCards() {
     v.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+    <div className={`grid grid-cols-1 gap-4 ${showFinancial ? "md:grid-cols-3" : "md:grid-cols-2"}`}>
       {/* Aulas hoje */}
       <KpiCard
         title="AULAS HOJE"
@@ -95,13 +95,15 @@ export default function KpiCards() {
         icon={<CalendarKpiIcon />}
       />
 
-      {/* Recebido hoje */}
-      <KpiCard
-        title="RECEBIDO HOJE"
-        loading={kpi.loadingFinancial}
-        value={fmtCurrency(kpi.receivedToday)}
-        icon={<DollarKpiIcon />}
-      />
+      {/* Recebido hoje — visível apenas para admins */}
+      {showFinancial && (
+        <KpiCard
+          title="RECEBIDO HOJE"
+          loading={kpi.loadingFinancial}
+          value={fmtCurrency(kpi.receivedToday)}
+          icon={<DollarKpiIcon />}
+        />
+      )}
 
       {/* Cancelamentos hoje */}
       <KpiCard
