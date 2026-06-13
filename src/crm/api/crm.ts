@@ -44,6 +44,7 @@ export async function createRule(data: {
   delay_unit?: string;
   push_title?: string | null;
   push_body?: string | null;
+  push_url?: string | null;
 }): Promise<{ success: boolean; data: AutomationRule; message: string }> {
   return conectAPI('/crm/rules', 'POST', data);
 }
@@ -61,6 +62,7 @@ export async function updateRule(
     active: boolean;
     push_title: string | null;
     push_body: string | null;
+    push_url: string | null;
   }>,
 ): Promise<{ success: boolean; data: AutomationRule; message: string }> {
   return conectAPI(`/crm/rules/${id}`, 'PUT', data);
@@ -117,6 +119,62 @@ export async function sendManualPush(data: {
   personIds: number[];
   title: string;
   body: string;
+  url?: string | null;
 }): Promise<{ success: boolean; data: { sent: number; disabled: number } }> {
   return conectAPI('/crm/push/send', 'POST', data);
+}
+
+// ─── Push Templates ───────────────────────────────────────────────────────────
+
+export interface PushTemplate {
+  id: number;
+  name: string;
+  title: string;
+  body: string;
+  url: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export async function listPushTemplates(): Promise<{ success: boolean; data: PushTemplate[] }> {
+  return conectAPI('/crm/push/templates', 'GET');
+}
+
+export async function createPushTemplate(data: {
+  name: string; title: string; body: string; url?: string | null;
+}): Promise<{ success: boolean; data: PushTemplate; message: string }> {
+  return conectAPI('/crm/push/templates', 'POST', data);
+}
+
+export async function updatePushTemplate(id: number, data: {
+  name?: string; title?: string; body?: string; url?: string | null;
+}): Promise<{ success: boolean; data: PushTemplate; message: string }> {
+  return conectAPI(`/crm/push/templates/${id}`, 'PUT', data);
+}
+
+export async function deletePushTemplate(id: number): Promise<{ success: boolean; message: string }> {
+  return conectAPI(`/crm/push/templates/${id}`, 'DELETE');
+}
+
+export interface PushLog {
+  id: number;
+  title: string;
+  body: string;
+  recipient_count: number;
+  sent_count: number;
+  disabled_count: number;
+  status: 'sent' | 'partial' | 'failed';
+  sent_at: string;
+  createdAt: string;
+}
+
+export async function listPushLogs(params: { limit?: number; offset?: number } = {}): Promise<{
+  success: boolean;
+  data: PushLog[];
+  meta: { total: number };
+}> {
+  const p = new URLSearchParams();
+  p.set('limit',  String(params.limit  ?? 20));
+  p.set('offset', String(params.offset ?? 0));
+  return conectAPI(`/crm/push/logs?${p}`, 'GET');
 }

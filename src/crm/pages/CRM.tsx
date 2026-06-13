@@ -5,7 +5,6 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
@@ -20,8 +19,9 @@ import LogDetailDialog from "../components/LogDetailDialog";
 import PushPanel from "../components/PushPanel";
 import { toast } from "../config";
 import {
-  listTemplates, listRules, listLogs, getLogStats, runEngine,
+  listTemplates, listRules, listLogs, getLogStats, runEngine, listPushTemplates,
 } from "../api/crm";
+import type { PushTemplate } from "../api/crm";
 import {
   EmailTemplate, AutomationRule, EmailLog, LogStats,
   logStatusConfig, formatDateTimeBR,
@@ -62,16 +62,18 @@ const CRM = ({ Layout = DefaultLayout, StatCard: StatCardComp = DefaultStatCard 
 
   const [stats, setStats]               = useState<LogStats | null>(null);
   const [templates, setTemplates]       = useState<EmailTemplate[]>([]);
+  const [pushTemplates, setPushTemplates] = useState<PushTemplate[]>([]);
   const [rules, setRules]               = useState<AutomationRule[]>([]);
   const [logs, setLogs]                 = useState<EmailLog[]>([]);
   const [logsTotal, setLogsTotal]       = useState(0);
   const [logOffset, setLogOffset]       = useState(0);
 
-  const [loadingStats, setLoadingStats]         = useState(true);
-  const [loadingTemplates, setLoadingTemplates] = useState(true);
-  const [loadingRules, setLoadingRules]         = useState(true);
-  const [loadingLogs, setLoadingLogs]           = useState(false);
-  const [engineRunning, setEngineRunning]       = useState(false);
+  const [loadingStats, setLoadingStats]               = useState(true);
+  const [loadingTemplates, setLoadingTemplates]       = useState(true);
+  const [loadingPushTemplates, setLoadingPushTemplates] = useState(true);
+  const [loadingRules, setLoadingRules]               = useState(true);
+  const [loadingLogs, setLoadingLogs]                 = useState(false);
+  const [engineRunning, setEngineRunning]             = useState(false);
 
   const [logStatus, setLogStatus] = useState("all");
   const [logSearch, setLogSearch] = useState("");
@@ -99,6 +101,18 @@ const CRM = ({ Layout = DefaultLayout, StatCard: StatCardComp = DefaultStatCard 
       toast({ title: err instanceof Error ? err.message : "Erro ao carregar templates", variant: "destructive" });
     } finally {
       setLoadingTemplates(false);
+    }
+  }, []);
+
+  const fetchPushTemplates = useCallback(async () => {
+    setLoadingPushTemplates(true);
+    try {
+      const res = await listPushTemplates();
+      setPushTemplates(res.data);
+    } catch (err: unknown) {
+      toast({ title: err instanceof Error ? err.message : "Erro ao carregar templates de push", variant: "destructive" });
+    } finally {
+      setLoadingPushTemplates(false);
     }
   }, []);
 
@@ -135,8 +149,9 @@ const CRM = ({ Layout = DefaultLayout, StatCard: StatCardComp = DefaultStatCard 
   useEffect(() => {
     fetchStats();
     fetchTemplates();
+    fetchPushTemplates();
     fetchRules();
-  }, [fetchStats, fetchTemplates, fetchRules]);
+  }, [fetchStats, fetchTemplates, fetchPushTemplates, fetchRules]);
 
   useEffect(() => {
     if (activeTab === "logs") fetchLogs(0);
@@ -174,8 +189,8 @@ const CRM = ({ Layout = DefaultLayout, StatCard: StatCardComp = DefaultStatCard 
 
   return (
     <Layout>
-      {/* Header */}
-      <header className="sticky top-0 z-40 bg-background/60 backdrop-blur-xl border-b border-border px-6 lg:px-8 py-4">
+      <div className="space-y-6">
+        {/* Título + botão */}
         <div className="flex items-center justify-between">
           <div>
             <div className="flex items-center gap-2">
@@ -195,9 +210,6 @@ const CRM = ({ Layout = DefaultLayout, StatCard: StatCardComp = DefaultStatCard 
             {engineRunning ? "Executando..." : "Executar Engine"}
           </Button>
         </div>
-      </header>
-
-      <div className="px-6 lg:px-8 py-6 space-y-6">
         {/* Stats */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
           <StatCardComp
@@ -253,6 +265,9 @@ const CRM = ({ Layout = DefaultLayout, StatCard: StatCardComp = DefaultStatCard 
               templates={templates}
               loading={loadingTemplates}
               onRefresh={fetchTemplates}
+              pushTemplates={pushTemplates}
+              loadingPushTemplates={loadingPushTemplates}
+              onRefreshPush={fetchPushTemplates}
             />
           </TabsContent>
 
@@ -268,7 +283,7 @@ const CRM = ({ Layout = DefaultLayout, StatCard: StatCardComp = DefaultStatCard 
 
           {/* Push Manual */}
           <TabsContent value="push" className="mt-4">
-            <PushPanel active={activeTab === "push"} />
+            <PushPanel active={activeTab === "push"} pushTemplates={pushTemplates} />
           </TabsContent>
 
           {/* Logs */}
@@ -277,13 +292,13 @@ const CRM = ({ Layout = DefaultLayout, StatCard: StatCardComp = DefaultStatCard 
             <Card>
               <CardContent className="p-4">
                 <div className="flex flex-col sm:flex-row gap-3">
-                  <div className="relative flex-1">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                    <Input
+                  <div className="flex items-center flex-1 border border-input rounded-full px-3 h-10 gap-2 focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2 focus-within:ring-offset-background">
+                    <Search className="h-4 w-4 text-muted-foreground shrink-0" />
+                    <input
+                      className="bg-transparent text-sm flex-1 outline-none text-foreground placeholder:text-muted-foreground min-w-0"
                       placeholder="Buscar por e-mail ou assunto..."
                       value={logSearch}
                       onChange={(e) => setLogSearch(e.target.value)}
-                      className="pl-9"
                     />
                   </div>
                   <Select
@@ -320,13 +335,13 @@ const CRM = ({ Layout = DefaultLayout, StatCard: StatCardComp = DefaultStatCard 
                   <TableBody>
                     {loadingLogs ? (
                       <TableRow>
-                        <TableCell colSpan={5} className="text-center py-8 text-muted-foreground">
+                        <TableCell colSpan={5} className="text-center py-12 text-muted-foreground">
                           Carregando...
                         </TableCell>
                       </TableRow>
                     ) : filteredLogs.length === 0 ? (
                       <TableRow>
-                        <TableCell colSpan={5} className="text-center py-8 text-muted-foreground">
+                        <TableCell colSpan={5} className="text-center py-12 text-muted-foreground">
                           Nenhum log encontrado.
                         </TableCell>
                       </TableRow>

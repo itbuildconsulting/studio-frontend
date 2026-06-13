@@ -37,6 +37,7 @@ export interface AutomationRule {
   active: boolean;
   push_title?: string | null;
   push_body?: string | null;
+  push_url?: string | null;
   createdAt: string;
   updatedAt: string;
   template?: Pick<EmailTemplate, 'id' | 'name' | 'subject' | 'category'> | null;

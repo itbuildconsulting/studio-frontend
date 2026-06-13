@@ -43,13 +43,14 @@ type FormState = {
   push_enabled: boolean;
   push_title: string;
   push_body: string;
+  push_url: string;
 };
 
 const EMPTY: FormState = {
   name: "", description: "", trigger_type: "welcome", template_id: "",
   delay_value: 1, delay_unit: "hours", active: true,
   cfg_days: 7, cfg_threshold: 2, cfg_min_days: 14, cfg_days_after_expiry: 30,
-  push_enabled: false, push_title: "", push_body: "",
+  push_enabled: false, push_title: "", push_body: "", push_url: "",
 };
 
 function buildTriggerConfig(trigger: TriggerType, form: FormState): Record<string, unknown> | null {
@@ -83,6 +84,7 @@ const RuleFormDialog = ({ open, onOpenChange, rule, templates, onSaved }: Props)
         push_enabled: !!rule.push_title,
         push_title:   rule.push_title ?? "",
         push_body:    rule.push_body  ?? "",
+        push_url:     (rule as any).push_url ?? "",
       });
     } else {
       setForm(EMPTY);
@@ -101,6 +103,7 @@ const RuleFormDialog = ({ open, onOpenChange, rule, templates, onSaved }: Props)
     try {
       const pushTitle = form.push_enabled && form.push_title.trim() ? form.push_title.trim() : null;
       const pushBody  = form.push_enabled && form.push_body.trim()  ? form.push_body.trim()  : null;
+      const pushUrl   = form.push_enabled && form.push_url.trim()   ? form.push_url.trim()   : null;
 
       const payload = {
         name:           form.name,
@@ -112,6 +115,7 @@ const RuleFormDialog = ({ open, onOpenChange, rule, templates, onSaved }: Props)
         delay_unit:     form.trigger_type === "post_class" ? form.delay_unit  : "hours",
         push_title:     pushTitle,
         push_body:      pushBody,
+        push_url:       pushUrl,
         ...(rule ? { active: form.active } : {}),
       };
 
@@ -296,6 +300,19 @@ const RuleFormDialog = ({ open, onOpenChange, rule, templates, onSaved }: Props)
                   <p className="text-[11px] text-muted-foreground text-right">
                     {form.push_body.length}/250
                   </p>
+                </div>
+                <p className="text-[11px] text-muted-foreground">
+                  Variáveis: <code className="bg-muted px-1 rounded">{"{{nome}}"}</code> <code className="bg-muted px-1 rounded">{"{{email}}"}</code> — substituídas por aluno no disparo
+                </p>
+                <div className="space-y-1.5">
+                  <Label>Link ao tocar (opcional)</Label>
+                  <Input
+                    placeholder="ex: meuapp://tela/renovar"
+                    value={form.push_url}
+                    onChange={(e) => set("push_url", e.target.value)}
+                    maxLength={500}
+                  />
+                  <p className="text-[11px] text-muted-foreground">Deep link para abrir uma tela do app ao tocar</p>
                 </div>
               </div>
             )}

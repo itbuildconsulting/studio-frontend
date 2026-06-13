@@ -103,11 +103,11 @@ const RegrasPanel = ({ rules, templates, loading, onRefresh }: Props) => {
           </div>
         ) : rules.length === 0 ? (
           <Card>
-            <CardContent className="p-8 text-center text-muted-foreground">
+            <div className="p-8 text-center text-muted-foreground">
               <Zap className="h-10 w-10 mx-auto mb-3 opacity-30" />
               <p className="font-medium">Nenhuma regra cadastrada</p>
               <p className="text-sm mt-1">Crie regras para automatizar os e-mails aos alunos</p>
-            </CardContent>
+            </div>
           </Card>
         ) : (
           <div className="space-y-3">
