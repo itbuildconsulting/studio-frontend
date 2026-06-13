@@ -1,4 +1,4 @@
-import { ReactNode } from 'react';
+import React, { ReactNode } from 'react';
 import styles from '../../styles/modal.module.css';
 
 interface ModalProps {
@@ -15,7 +15,7 @@ interface ModalProps {
     customButtonText?: string[] | null;
     btnClose?: boolean,
     hrefClose?: string,
-    customStyle?: object,
+    customStyle?: React.CSSProperties,
 }
 
 export default function Modal({

@@ -1,17 +1,40 @@
 'use client'
 
+import { useEffect } from "react";
+import Cookies from "js-cookie";
+import { toast } from "sonner";
+import { configureCrmApi, configureCrmToast } from "@/crm/config";
+import CRMPage from "@/crm/pages/CRM";
 import PageDefault from "@/components/template/default";
 
+configureCrmToast(({ title, description, variant }) => {
+    if (variant === "destructive") {
+        toast.error(title, { description });
+    } else {
+        toast.success(title, { description });
+    }
+});
+
 export default function CrmPage() {
+    useEffect(() => {
+        const token = Cookies.get("admin-user-sci-auth");
+        configureCrmApi(async (path, method, body) => {
+            const res = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL_API}${path}`, {
+                method,
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`,
+                },
+                ...(body ? { body: JSON.stringify(body) } : {}),
+            });
+            if (!res.ok) throw new Error(await res.text());
+            return res.json();
+        });
+    }, []);
+
     return (
-        <PageDefault>
-            <div className="flex flex-col items-center justify-center py-20 text-muted-foreground">
-                <svg className="w-16 h-16 mb-4 opacity-20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
-                </svg>
-                <h3 className="text-lg font-semibold text-foreground mb-1">CRM</h3>
-                <p className="text-sm">Em breve</p>
-            </div>
+        <PageDefault title="">
+            <CRMPage />
         </PageDefault>
     );
 }
