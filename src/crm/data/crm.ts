@@ -21,7 +21,8 @@ export type TriggerType =
   | 'student_inactive'
   | 'birthday'
   | 'post_class'
-  | 'win_back';
+  | 'win_back'
+  | 'periodic';
 
 export type DelayUnit = 'minutes' | 'hours' | 'days';
 
@@ -88,6 +89,7 @@ export const triggerConfig: Record<TriggerType, { label: string; emoji: string; 
   birthday:         { label: 'Aniversário',     emoji: '🎂', description: 'No dia do aniversário do aluno' },
   post_class:       { label: 'Pós-aula',        emoji: '✅', description: 'Após o check-in de uma aula' },
   win_back:         { label: 'Reengajamento',   emoji: '🏆', description: 'Crédito expirado há X dias e sem crédito ativo' },
+  periodic:         { label: 'Envio periódico', emoji: '📅', description: 'Envia para todos os alunos ativos em uma frequência definida (semanal, mensal ou intervalo)' },
 };
 
 export const logStatusConfig: Record<

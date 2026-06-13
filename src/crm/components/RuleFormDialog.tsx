@@ -26,6 +26,8 @@ interface Props {
   onSaved: () => void;
 }
 
+type PeriodicFrequency = "weekly" | "monthly" | "interval";
+
 type FormState = {
   name: string;
   description: string;
@@ -39,6 +41,11 @@ type FormState = {
   cfg_threshold: number;
   cfg_min_days: number;
   cfg_days_after_expiry: number;
+  // periodic
+  cfg_frequency: PeriodicFrequency;
+  cfg_day_of_week: number;
+  cfg_day_of_month: number;
+  cfg_every_n_days: number;
   // push notification
   push_enabled: boolean;
   push_title: string;
@@ -50,6 +57,7 @@ const EMPTY: FormState = {
   name: "", description: "", trigger_type: "welcome", template_id: "",
   delay_value: 1, delay_unit: "hours", active: true,
   cfg_days: 7, cfg_threshold: 2, cfg_min_days: 14, cfg_days_after_expiry: 30,
+  cfg_frequency: "weekly", cfg_day_of_week: 1, cfg_day_of_month: 1, cfg_every_n_days: 7,
   push_enabled: false, push_title: "", push_body: "", push_url: "",
 };
 
@@ -58,6 +66,11 @@ function buildTriggerConfig(trigger: TriggerType, form: FormState): Record<strin
   if (trigger === "credits_low")      return { threshold: form.cfg_threshold };
   if (trigger === "student_inactive") return { min_days: form.cfg_min_days };
   if (trigger === "win_back")         return { days_after_expiry: form.cfg_days_after_expiry };
+  if (trigger === "periodic") {
+    if (form.cfg_frequency === "weekly")   return { frequency: "weekly",   day_of_week: form.cfg_day_of_week };
+    if (form.cfg_frequency === "monthly")  return { frequency: "monthly",  day_of_month: form.cfg_day_of_month };
+    if (form.cfg_frequency === "interval") return { frequency: "interval", every_n_days: form.cfg_every_n_days };
+  }
   return null;
 }
 
@@ -81,6 +94,10 @@ const RuleFormDialog = ({ open, onOpenChange, rule, templates, onSaved }: Props)
         cfg_threshold:         Number(cfg.threshold)         || 2,
         cfg_min_days:          Number(cfg.min_days)          || 14,
         cfg_days_after_expiry: Number(cfg.days_after_expiry) || 30,
+        cfg_frequency:    (cfg.frequency as PeriodicFrequency) || "weekly",
+        cfg_day_of_week:  Number(cfg.day_of_week)  || 1,
+        cfg_day_of_month: Number(cfg.day_of_month) || 1,
+        cfg_every_n_days: Number(cfg.every_n_days) || 7,
         push_enabled: !!rule.push_title,
         push_title:   rule.push_title ?? "",
         push_body:    rule.push_body  ?? "",
@@ -209,6 +226,56 @@ const RuleFormDialog = ({ open, onOpenChange, rule, templates, onSaved }: Props)
                 <Label>Dias após expiração do crédito</Label>
                 <Input type="number" min={1} value={form.cfg_days_after_expiry}
                   onChange={(e) => set("cfg_days_after_expiry", Number.parseInt(e.target.value) || 1)} className="w-24" />
+              </div>
+            )}
+            {form.trigger_type === "periodic" && (
+              <div className="space-y-3">
+                <div className="space-y-1.5">
+                  <Label>Frequência</Label>
+                  <Select value={form.cfg_frequency} onValueChange={(v) => set("cfg_frequency", v as PeriodicFrequency)}>
+                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="weekly">Semanal — 1× por semana</SelectItem>
+                      <SelectItem value="monthly">Mensal — 1× por mês</SelectItem>
+                      <SelectItem value="interval">Intervalo — a cada N dias</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                {form.cfg_frequency === "weekly" && (
+                  <div className="space-y-1.5">
+                    <Label>Dia da semana</Label>
+                    <Select value={String(form.cfg_day_of_week)} onValueChange={(v) => set("cfg_day_of_week", Number(v))}>
+                      <SelectTrigger><SelectValue /></SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="0">Domingo</SelectItem>
+                        <SelectItem value="1">Segunda-feira</SelectItem>
+                        <SelectItem value="2">Terça-feira</SelectItem>
+                        <SelectItem value="3">Quarta-feira</SelectItem>
+                        <SelectItem value="4">Quinta-feira</SelectItem>
+                        <SelectItem value="5">Sexta-feira</SelectItem>
+                        <SelectItem value="6">Sábado</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                )}
+                {form.cfg_frequency === "monthly" && (
+                  <div className="space-y-1.5">
+                    <Label>Dia do mês</Label>
+                    <Input type="number" min={1} max={28} value={form.cfg_day_of_month}
+                      onChange={(e) => set("cfg_day_of_month", Math.min(28, Number.parseInt(e.target.value) || 1))} className="w-24" />
+                    <p className="text-[11px] text-muted-foreground">Use 1–28 para funcionar em todos os meses</p>
+                  </div>
+                )}
+                {form.cfg_frequency === "interval" && (
+                  <div className="space-y-1.5">
+                    <Label>Enviar a cada</Label>
+                    <div className="flex items-center gap-2">
+                      <Input type="number" min={1} value={form.cfg_every_n_days}
+                        onChange={(e) => set("cfg_every_n_days", Number.parseInt(e.target.value) || 1)} className="w-24" />
+                      <span className="text-sm text-muted-foreground">dias</span>
+                    </div>
+                  </div>
+                )}
               </div>
             )}
             {form.trigger_type === "post_class" && (

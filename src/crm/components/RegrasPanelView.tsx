@@ -31,6 +31,13 @@ function configSummary(rule: AutomationRule): string | null {
   if (rule.trigger_type === "student_inactive") return `Sem atividade por ${Number(cfg.min_days)    || 14} dias`;
   if (rule.trigger_type === "win_back")         return `${Number(cfg.days_after_expiry) || 30} dias após vencimento`;
   if (rule.trigger_type === "post_class")       return `${rule.delay_value} ${delayUnitLabel[rule.delay_unit]} após a aula`;
+  if (rule.trigger_type === "periodic") {
+    const freq = cfg.frequency as string;
+    const dayNames = ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado'];
+    if (freq === "weekly")   return `Toda ${dayNames[Number(cfg.day_of_week) || 1]}`;
+    if (freq === "monthly")  return `Todo dia ${Number(cfg.day_of_month) || 1} do mês`;
+    if (freq === "interval") return `A cada ${Number(cfg.every_n_days) || 7} dias`;
+  }
   return null;
 }
 
