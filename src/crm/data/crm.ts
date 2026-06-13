@@ -32,16 +32,16 @@ export interface AutomationRule {
   description?: string | null;
   trigger_type: TriggerType;
   trigger_config?: string | null;
-  template_id: number;
+  channel: 'email' | 'push';
+  template_id?: number | null;
+  push_template_id?: number | null;
   delay_value: number;
   delay_unit: DelayUnit;
   active: boolean;
-  push_title?: string | null;
-  push_body?: string | null;
-  push_url?: string | null;
   createdAt: string;
   updatedAt: string;
   template?: Pick<EmailTemplate, 'id' | 'name' | 'subject' | 'category'> | null;
+  pushTemplate?: { id: number; name: string; title: string; body: string } | null;
 }
 
 export type EmailLogStatus = 'pending' | 'sent' | 'failed' | 'opened';

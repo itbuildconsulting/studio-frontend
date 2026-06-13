@@ -39,12 +39,11 @@ export async function createRule(data: {
   description?: string;
   trigger_type: string;
   trigger_config?: Record<string, unknown> | null;
-  template_id: number;
+  channel: 'email' | 'push';
+  template_id?: number | null;
+  push_template_id?: number | null;
   delay_value?: number;
   delay_unit?: string;
-  push_title?: string | null;
-  push_body?: string | null;
-  push_url?: string | null;
 }): Promise<{ success: boolean; data: AutomationRule; message: string }> {
   return conectAPI('/crm/rules', 'POST', data);
 }
@@ -56,13 +55,12 @@ export async function updateRule(
     description: string;
     trigger_type: string;
     trigger_config: Record<string, unknown> | null;
-    template_id: number;
+    channel: 'email' | 'push';
+    template_id: number | null;
+    push_template_id: number | null;
     delay_value: number;
     delay_unit: string;
     active: boolean;
-    push_title: string | null;
-    push_body: string | null;
-    push_url: string | null;
   }>,
 ): Promise<{ success: boolean; data: AutomationRule; message: string }> {
   return conectAPI(`/crm/rules/${id}`, 'PUT', data);

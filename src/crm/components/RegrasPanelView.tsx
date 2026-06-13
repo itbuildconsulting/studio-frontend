@@ -10,7 +10,7 @@ import {
   AlertDialogHeader, AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { toast } from "../config";
-import { toggleRule, deleteRule } from "../api/crm";
+import { toggleRule, deleteRule, PushTemplate } from "../api/crm";
 import {
   AutomationRule, EmailTemplate,
   triggerConfig, categoryConfig, delayUnitLabel, parseTriggerConfig,
@@ -20,6 +20,7 @@ import RuleFormDialog from "./RuleFormDialog";
 interface Props {
   rules: AutomationRule[];
   templates: EmailTemplate[];
+  pushTemplates: PushTemplate[];
   loading: boolean;
   onRefresh: () => void;
 }
@@ -41,7 +42,7 @@ function configSummary(rule: AutomationRule): string | null {
   return null;
 }
 
-const RegrasPanel = ({ rules, templates, loading, onRefresh }: Props) => {
+const RegrasPanel = ({ rules, templates, pushTemplates, loading, onRefresh }: Props) => {
   const [formOpen, setFormOpen]   = useState(false);
   const [editing, setEditing]     = useState<AutomationRule | null>(null);
   const [deleting, setDeleting]   = useState<AutomationRule | null>(null);
@@ -102,13 +103,14 @@ const RegrasPanel = ({ rules, templates, loading, onRefresh }: Props) => {
         </Card>
 
         {/* List */}
-        {loading ? (
+        {loading && (
           <div className="space-y-3">
             {[1, 2, 3].map((i) => (
               <Card key={i}><CardContent className="p-4 h-24 animate-pulse bg-muted/30" /></Card>
             ))}
           </div>
-        ) : rules.length === 0 ? (
+        )}
+        {!loading && rules.length === 0 && (
           <Card>
             <div className="p-8 text-center text-muted-foreground">
               <Zap className="h-10 w-10 mx-auto mb-3 opacity-30" />
@@ -116,16 +118,19 @@ const RegrasPanel = ({ rules, templates, loading, onRefresh }: Props) => {
               <p className="text-sm mt-1">Crie regras para automatizar os e-mails aos alunos</p>
             </div>
           </Card>
-        ) : (
+        )}
+        {!loading && rules.length > 0 && (
           <div className="space-y-3">
             {rules.map((rule) => {
-              const trigger  = triggerConfig[rule.trigger_type];
-              const tmpl     = rule.template;
-              const summary  = configSummary(rule);
-              const cat      = tmpl ? categoryConfig[tmpl.category] : null;
+              const trigger   = triggerConfig[rule.trigger_type];
+              const channel   = rule.channel ?? "email";
+              const tmpl      = rule.template;
+              const pushTpl   = rule.pushTemplate;
+              const summary   = configSummary(rule);
+              const cat       = tmpl ? categoryConfig[tmpl.category] : null;
 
               return (
-                <Card key={rule.id} className={`transition-opacity ${!rule.active ? "opacity-55" : ""}`}>
+                <Card key={rule.id} className={`transition-opacity ${rule.active ? "" : "opacity-55"}`}>
                   <CardContent className="p-4">
                     <div className="flex items-start gap-3">
                       <div className="text-2xl mt-0.5 shrink-0">{trigger.emoji}</div>
@@ -145,13 +150,23 @@ const RegrasPanel = ({ rules, templates, loading, onRefresh }: Props) => {
                         {summary && (
                           <p className="text-xs text-muted-foreground mb-1">⏱️ {summary}</p>
                         )}
-                        {tmpl && (
+                        {channel === "email" && tmpl && (
                           <div className="mt-2 rounded bg-muted/50 border border-border px-2 py-1.5">
                             <p className="text-[11px] text-muted-foreground">
-                              {cat?.emoji} Template:{" "}
+                              📧 {cat?.emoji} Template:{" "}
                               <span className="font-semibold text-foreground">{tmpl.name}</span>
                               {" — "}
                               <span className="italic">{tmpl.subject}</span>
+                            </p>
+                          </div>
+                        )}
+                        {channel === "push" && pushTpl && (
+                          <div className="mt-2 rounded bg-muted/50 border border-border px-2 py-1.5">
+                            <p className="text-[11px] text-muted-foreground">
+                              📱 Push:{" "}
+                              <span className="font-semibold text-foreground">{pushTpl.name}</span>
+                              {" — "}
+                              <span className="italic">{pushTpl.title}</span>
                             </p>
                           </div>
                         )}
@@ -187,6 +202,7 @@ const RegrasPanel = ({ rules, templates, loading, onRefresh }: Props) => {
         onOpenChange={setFormOpen}
         rule={editing}
         templates={templates}
+        pushTemplates={pushTemplates}
         onSaved={onRefresh}
       />
 

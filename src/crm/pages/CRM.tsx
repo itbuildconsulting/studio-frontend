@@ -276,6 +276,7 @@ const CRM = ({ Layout = DefaultLayout, StatCard: StatCardComp = DefaultStatCard 
             <RegrasPanel
               rules={rules}
               templates={templates}
+              pushTemplates={pushTemplates}
               loading={loadingRules}
               onRefresh={fetchRules}
             />
