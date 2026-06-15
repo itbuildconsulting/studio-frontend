@@ -190,4 +190,8 @@ export default class PersonsRepository implements PersonsRepository {
     async getBirthdaysThisWeek(): Promise<any> {
         return conectAPI(null, '/persons/birthdays/week', 'GET');
     }
+
+    async extrato(studentId: number): Promise<any> {
+        return conectAPI(null, `/app/v2/extrato/${studentId}`, 'GET');
+    }
 }
