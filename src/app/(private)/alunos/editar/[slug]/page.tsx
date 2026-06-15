@@ -454,7 +454,7 @@ export default function EditStudents() {
     return (
         <PageDefault title={"Editar Aluno"}>
             <button 
-                className="btn-primary px-4 "
+                className="btn-primary p-3 mb-4 "
                 onClick={() => setModalLevelShow(true)}
             >
                 Atualizar Nível

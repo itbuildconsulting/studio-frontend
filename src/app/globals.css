@@ -77,7 +77,6 @@
   color: hsl(var(--primary-foreground));
   font-size: 0.875rem;
   font-weight: 600;
-  padding: 0 1.25rem;
   cursor: pointer;
   transition: opacity 0.15s;
   border: none;
