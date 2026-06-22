@@ -80,6 +80,10 @@ export default class ProductRepository implements ProductRepository {
         return conectAPI(null, `/products?page=${page}`, "GET");
     }
 
+    async listAll(): Promise<[]> {
+        return conectAPI(null, `/products?page=1&pageSize=500`, "GET");
+    }
+
     async listFiltered(page: number, productTypeId: string | null): Promise<[]> {
         return conectAPI(null, `/products/filtered?page=${page}&pageSize=10&productTypeId=${productTypeId}`, "GET");
     }

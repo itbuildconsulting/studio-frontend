@@ -192,6 +192,10 @@ export default class StatisticsRepository {
         return conectAPI(req, "/performance/weekly-trends", "POST");
     }
 
+    async getClassesAndStudentsByMonth(months: number = 12): Promise<any> {
+        return conectAPI(null, `/performance/classes-students-by-month?months=${months}`, "GET");
+    }
+
     async getDormantClients(): Promise<any> {
         return conectAPI(null, "/performance/dormant-clients", "GET");
     }
@@ -201,7 +205,10 @@ export default class StatisticsRepository {
         return conectAPI(null, `/performance/product-buyers${params}`, "GET");
     }
 
-    async getTrialNoConversion(): Promise<any> {
-        return conectAPI(null, "/performance/trial-no-conversion", "GET");
+    async getTrialNoConversion(productIds?: (string | number)[]): Promise<any> {
+        const params = productIds && productIds.length > 0
+            ? `?productIds=${productIds.join(",")}`
+            : "";
+        return conectAPI(null, `/performance/trial-no-conversion${params}`, "GET");
     }
 }

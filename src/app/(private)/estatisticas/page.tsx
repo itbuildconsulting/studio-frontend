@@ -31,6 +31,8 @@ import {
 } from "recharts";
 import StatisticsRepository from "../../../../core/Statistics";
 import PersonsRepository from "../../../../core/Persons";
+import ProductRepository from "../../../../core/Product";
+import AuthSelectMulti from "@/components/auth/AuthSelectMulti";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
@@ -127,6 +129,7 @@ function BarTooltip({ active, payload, label }: any) {
 export default function Estatisticas() {
   const repo = useMemo(() => new StatisticsRepository(), []);
   const repoPersons = useMemo(() => new PersonsRepository(), []);
+  const repoProducts = useMemo(() => new ProductRepository(), []);
   const [periodo, setPeriodo] = useState<Periodo>("mes");
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<'visao-geral' | 'alunos' | 'alertas' | 'aulas'>('visao-geral');
@@ -142,7 +145,23 @@ export default function Estatisticas() {
   const [dormantClients, setDormantClients] = useState<any[]>([]);
   const [dormantFilters, setDormantFilters] = useState<Set<string>>(new Set());
   const [birthdays, setBirthdays] = useState<any[]>([]);
-  const [trialNoConversion, setTrialNoConversion] = useState<any[]>([]);
+
+  // ── Relatório dinâmico: clientes exclusivos de produto(s) ────────
+  const [allProducts, setAllProducts] = useState<any[]>([]);
+  const [selectedProductIds, setSelectedProductIds] = useState<string[] | null>(null);
+  const [exclusiveBuyers, setExclusiveBuyers] = useState<any[]>([]);
+  const [loadingExclusiveBuyers, setLoadingExclusiveBuyers] = useState(false);
+
+  // ── Relatório: aulas e alunos por mês ────────────────────────────
+  const [classesStudentsByMonth, setClassesStudentsByMonth] = useState<any[]>([]);
+  const [loadingByMonth, setLoadingByMonth] = useState(false);
+
+  useEffect(() => {
+    setLoadingByMonth(true);
+    repo.getClassesAndStudentsByMonth(12)
+      .then((res: any) => setClassesStudentsByMonth(toArray(res)))
+      .finally(() => setLoadingByMonth(false));
+  }, [repo]);
 
   const loadData = useCallback(async () => {
     setLoading(true);
@@ -159,7 +178,6 @@ export default function Estatisticas() {
         trendsRes,
         dormantRes,
         birthdaysRes,
-        trialRes,
       ] = await Promise.all([
         repo.getOverviewMetrics(startDate, endDate),
         repo.getTopStudents(10, periodo),
@@ -171,7 +189,6 @@ export default function Estatisticas() {
         repo.getWeeklyTrends(startDate, endDate, periodo),
         repo.getDormantClients(),
         repoPersons.getBirthdaysThisWeek(),
-        repo.getTrialNoConversion(),
       ]);
 
       setOverview(toObject(overviewRes));
@@ -184,17 +201,50 @@ export default function Estatisticas() {
       setWeeklyTrends(toObject(trendsRes));
       setDormantClients(toArray(dormantRes));
       setBirthdays(toArray(birthdaysRes));
-      setTrialNoConversion(toArray(trialRes));
     } catch (e) {
       console.error("Erro ao carregar estatísticas:", e);
     } finally {
       setLoading(false);
     }
-  }, [periodo, repo]);
+  }, [periodo, repo, repoPersons]);
 
   useEffect(() => {
     loadData();
   }, [loadData]);
+
+  // Carrega a lista de produtos uma vez, e pré-seleciona o(s) que tiverem
+  // "experimental" no nome (comportamento padrão atual do relatório).
+  useEffect(() => {
+    repoProducts.listAll().then((res: any) => {
+      const products = toArray(res);
+      setAllProducts(products);
+      const defaultIds = products
+        .filter((p: any) => String(p.name ?? "").toLowerCase().includes("experimental"))
+        .map((p: any) => String(p.id));
+      setSelectedProductIds(defaultIds);
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Refaz o relatório de "compradores exclusivos" sempre que o filtro de
+  // produto(s) mudar — é o que torna o relatório dinâmico (hoje é a aula
+  // experimental, amanhã pode ser outro produto qualquer).
+  useEffect(() => {
+    if (selectedProductIds === null) return;
+    if (selectedProductIds.length === 0) {
+      setExclusiveBuyers([]);
+      return;
+    }
+    setLoadingExclusiveBuyers(true);
+    repo.getTrialNoConversion(selectedProductIds)
+      .then((res: any) => setExclusiveBuyers(toArray(res)))
+      .finally(() => setLoadingExclusiveBuyers(false));
+  }, [selectedProductIds, repo]);
+
+  const productOptions = useMemo(
+    () => allProducts.map((p: any) => ({ label: p.name, value: String(p.id) })),
+    [allProducts]
+  );
 
   // ── Mapeamento para UI ──────────────────────────────────────────
 
@@ -322,6 +372,7 @@ export default function Estatisticas() {
   }));
 
   const alunosInativos = inactiveStudents.map((a: any) => ({
+    id: a.studentId ?? a.id ?? a.name ?? a.nome,
     nome: a.name ?? a.nome ?? "",
     ultimaAula: a.lastClassDate
       ? new Date(a.lastClassDate).toLocaleDateString("pt-BR")
@@ -708,7 +759,7 @@ export default function Estatisticas() {
                   )) : alunosInativos.length === 0 ? (
                     <tr><td colSpan={5} className="py-10 text-center text-sm text-muted-foreground">Nenhum aluno inativo</td></tr>
                   ) : alunosInativos.map((aluno) => (
-                    <tr key={aluno.nome} className="border-b border-border/50 hover:bg-muted/40 transition-colors">
+                    <tr key={aluno.id} className="border-b border-border/50 hover:bg-muted/40 transition-colors">
                       <td className="py-3 px-2 font-semibold text-foreground text-[13px]">{aluno.nome}</td>
                       <td className="py-3 px-2 text-muted-foreground text-[13px]">{aluno.ultimaAula}</td>
                       <td className="py-3 px-2 text-right">
@@ -762,23 +813,38 @@ export default function Estatisticas() {
         </div>
       )}
 
-      {/* ── ABA: EXPERIMENTAL SEM CONVERSÃO ────────────────────── */}
+      {/* ── ABA: CLIENTES EXCLUSIVOS DE PRODUTO(S) ─────────────── */}
       {activeTab === 'alertas' && (
         <div className="bg-card border border-border rounded-xl p-5 mt-6">
-          <div className="flex items-center justify-between mb-4">
+          <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-3 mb-4">
             <div className="flex items-center gap-2">
               <XCircle className="w-4 h-4 text-rose-500" />
-              <h3 className="text-sm font-bold text-foreground">
-                Aula Experimental sem Conversão
-              </h3>
+              <div>
+                <h3 className="text-sm font-bold text-foreground">
+                  Clientes Exclusivos de Produto
+                </h3>
+                <p className="text-[11px] text-muted-foreground">
+                  Compraram apenas o(s) produto(s) selecionado(s) e nada além disso
+                </p>
+              </div>
               <span className="text-[11px] font-bold px-2.5 py-1 rounded-full bg-muted text-muted-foreground">
-                {loading ? "—" : trialNoConversion.length}
+                {loadingExclusiveBuyers ? "—" : exclusiveBuyers.length}
               </span>
             </div>
+            <div className="w-full sm:w-72">
+              <AuthSelectMulti
+                label="Produto(s)"
+                options={productOptions}
+                value={selectedProductIds ?? []}
+                changeValue={setSelectedProductIds}
+              />
+            </div>
           </div>
-          {loading ? (
+          {loadingExclusiveBuyers ? (
             <div className="space-y-2">{Array.from({ length: 4 }).map((_, i) => <div key={i} className="h-10 bg-muted animate-pulse rounded-lg" />)}</div>
-          ) : trialNoConversion.length === 0 ? (
+          ) : selectedProductIds !== null && selectedProductIds.length === 0 ? (
+            <p className="text-sm text-muted-foreground text-center py-6">Selecione ao menos um produto para gerar o relatório</p>
+          ) : exclusiveBuyers.length === 0 ? (
             <p className="text-sm text-muted-foreground text-center py-6">Nenhum aluno encontrado</p>
           ) : (
             <div className="overflow-x-auto">
@@ -791,7 +857,7 @@ export default function Estatisticas() {
                   </tr>
                 </thead>
                 <tbody>
-                  {trialNoConversion.map((p: any) => (
+                  {exclusiveBuyers.map((p: any) => (
                     <tr key={p.id} className="border-b border-border/50 hover:bg-muted/30 transition-colors">
                       <td className="py-2.5 px-2 font-medium text-foreground">{p.name}</td>
                       <td className="py-2.5 px-2 text-muted-foreground">{p.phone ?? "—"}</td>
@@ -808,6 +874,42 @@ export default function Estatisticas() {
       {/* ── ABA: AULAS ─────────────────────────────────────────── */}
       {activeTab === 'aulas' && (
         <div className="space-y-6">
+          {/* Aulas e Alunos por Mês */}
+          <div className="bg-card border border-border rounded-xl p-5">
+            <div className="mb-4">
+              <h3 className="text-sm font-bold text-foreground">Aulas e Alunos por Mês</h3>
+              <p className="text-[11px] text-muted-foreground">
+                Aulas ativas (sem canceladas) e alunos únicos (sem matrículas/aulas canceladas) — últimos 12 meses
+              </p>
+            </div>
+            {loadingByMonth ? (
+              <div className="space-y-2">{Array.from({ length: 5 }).map((_, i) => <div key={i} className="h-9 bg-muted animate-pulse rounded-lg" />)}</div>
+            ) : classesStudentsByMonth.length === 0 ? (
+              <p className="text-sm text-muted-foreground text-center py-6">Sem dados disponíveis</p>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="text-[10px] uppercase text-muted-foreground border-b border-border">
+                      <th className="text-left py-2 px-2 font-medium">Mês</th>
+                      <th className="text-right py-2 px-2 font-medium">Nº de Aulas</th>
+                      <th className="text-right py-2 px-2 font-medium">Nº de Alunos</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {classesStudentsByMonth.map((m: any) => (
+                      <tr key={m.month} className="border-b border-border/50 hover:bg-muted/40 transition-colors">
+                        <td className="py-2.5 px-2 font-medium text-foreground">{m.label}</td>
+                        <td className="py-2.5 px-2 text-right tabular-nums">{m.classCount}</td>
+                        <td className="py-2.5 px-2 text-right tabular-nums font-semibold text-emerald-600">{m.studentCount}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
+
           {/* Top Professores */}
           <div className="bg-card border border-border rounded-xl p-5">
             <div className="flex items-center gap-2 mb-5">
