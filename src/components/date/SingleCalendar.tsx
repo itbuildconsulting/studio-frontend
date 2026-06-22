@@ -3,7 +3,7 @@ import DatePicker from "react-multi-date-picker";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
 
-const CustomMultipleInput = ({ openCalendar, date, setValue, label }: any) => {
+const CustomMultipleInput = ({ openCalendar, date, setValue, label, disabled }: any) => {
   const handleChange = (e: any) => {
     if (e.target.value.length <= 10) setValue(e.target.value);
   };
@@ -17,14 +17,15 @@ const CustomMultipleInput = ({ openCalendar, date, setValue, label }: any) => {
           value={date ?? ''}
           placeholder="dd/mm/aaaa"
           autoComplete="off"
-          onClick={openCalendar}
-          onChange={handleChange}
+          disabled={disabled}
+          onClick={disabled ? undefined : openCalendar}
+          onChange={disabled ? undefined : handleChange}
           onKeyPress={(e) => !/[0-9/]/.test(e.key) && e.preventDefault()}
           className={cn(
             "flex h-10 w-full rounded-full border border-input bg-background px-3 py-2 pr-10 text-sm text-foreground",
             "placeholder:text-muted-foreground",
             "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
-            "cursor-pointer"
+            disabled ? "cursor-not-allowed opacity-50" : "cursor-pointer"
           )}
         />
         {/* Calendar icon */}
@@ -46,6 +47,7 @@ const SingleCalendar = ({
   disableFutureDates = false,
   disablePastDates = false,
   label = false,
+  disabled = false,
 }: any) => {
   const maxDate: any = new Date();
   const weekDays = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sab"];
@@ -59,6 +61,7 @@ const SingleCalendar = ({
       calendarPosition="bottom"
       maxDate={disableFutureDates ? maxDate : undefined}
       minDate={disablePastDates ? maxDate : undefined}
+      disabled={disabled}
       render={
         <CustomMultipleInput
           date={date}
@@ -66,6 +69,7 @@ const SingleCalendar = ({
           errors={errors}
           label={label}
           startTimeLocal={startTimeLocal}
+          disabled={disabled}
         />
       }
       onChange={(e: any) =>

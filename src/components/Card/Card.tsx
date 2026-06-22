@@ -33,7 +33,7 @@ export default function Card({
                 <div className={`${styles.footer_card}`}>
                     {
                         eventsButton.map((btn: any) => {
-                            if(loading && (btn.name === "Cadastrar" || btn.name === "Editar")) {
+                            if(loading && (btn.name === "Cadastrar" || btn.name === "Editar" || btn.name === "Salvar")) {
                                 return (
                                     <button key={btn.name} className={btn.class} onClick={() => btn.function()}>
                                         <div className='load'/>
