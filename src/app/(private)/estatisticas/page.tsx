@@ -879,7 +879,7 @@ export default function Estatisticas() {
             <div className="mb-4">
               <h3 className="text-sm font-bold text-foreground">Aulas e Alunos por Mês</h3>
               <p className="text-[11px] text-muted-foreground">
-                Aulas ativas (sem canceladas) e alunos únicos (sem matrículas/aulas canceladas) — últimos 12 meses
+                Aulas ativas (sem canceladas) e total de presenças (sem matrículas/aulas canceladas) — últimos 12 meses
               </p>
             </div>
             {loadingByMonth ? (
@@ -893,7 +893,7 @@ export default function Estatisticas() {
                     <tr className="text-[10px] uppercase text-muted-foreground border-b border-border">
                       <th className="text-left py-2 px-2 font-medium">Mês</th>
                       <th className="text-right py-2 px-2 font-medium">Nº de Aulas</th>
-                      <th className="text-right py-2 px-2 font-medium">Nº de Alunos</th>
+                      <th className="text-right py-2 px-2 font-medium">Total de Alunos</th>
                     </tr>
                   </thead>
                   <tbody>
