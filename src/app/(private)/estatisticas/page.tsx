@@ -28,6 +28,7 @@ import {
   YAxis,
   CartesianGrid,
   Tooltip as RTooltip,
+  Legend,
 } from "recharts";
 import StatisticsRepository from "../../../../core/Statistics";
 import PersonsRepository from "../../../../core/Persons";
@@ -121,6 +122,26 @@ function BarTooltip({ active, payload, label }: any) {
           {payload[0].value}
         </span>
         <span className="text-muted-foreground">{payload[0].name}</span>
+      </div>
+    </div>
+  );
+}
+
+function MultiBarTooltip({ active, payload, label }: any) {
+  if (!active || !payload?.length) return null;
+  return (
+    <div className="rounded-xl border border-border/40 bg-white/90 px-4 py-3 shadow-xl text-xs min-w-[140px]">
+      <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wide mb-2">
+        {label}
+      </p>
+      <div className="flex flex-col gap-1.5">
+        {payload.map((p: any) => (
+          <div key={p.dataKey} className="flex items-center gap-2">
+            <span className="w-2 h-2 rounded-full flex-shrink-0" style={{ backgroundColor: p.color }} />
+            <span className="text-sm font-bold text-foreground tabular-nums">{p.value}</span>
+            <span className="text-muted-foreground">{p.name}</span>
+          </div>
+        ))}
       </div>
     </div>
   );
@@ -879,34 +900,54 @@ export default function Estatisticas() {
             <div className="mb-4">
               <h3 className="text-sm font-bold text-foreground">Aulas e Alunos por Mês</h3>
               <p className="text-[11px] text-muted-foreground">
-                Aulas ativas (sem canceladas) e total de presenças (sem matrículas/aulas canceladas) — últimos 12 meses
+                Aulas ativas, total de presenças e alunos únicos (sem canceladas/canceladas) — últimos 12 meses
               </p>
             </div>
             {loadingByMonth ? (
-              <div className="space-y-2">{Array.from({ length: 5 }).map((_, i) => <div key={i} className="h-9 bg-muted animate-pulse rounded-lg" />)}</div>
+              <div className="h-72 bg-muted animate-pulse rounded-lg" />
             ) : classesStudentsByMonth.length === 0 ? (
               <p className="text-sm text-muted-foreground text-center py-6">Sem dados disponíveis</p>
             ) : (
-              <div className="overflow-x-auto">
-                <table className="w-full text-sm">
-                  <thead>
-                    <tr className="text-[10px] uppercase text-muted-foreground border-b border-border">
-                      <th className="text-left py-2 px-2 font-medium">Mês</th>
-                      <th className="text-right py-2 px-2 font-medium">Nº de Aulas</th>
-                      <th className="text-right py-2 px-2 font-medium">Total de Alunos</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {classesStudentsByMonth.map((m: any) => (
-                      <tr key={m.month} className="border-b border-border/50 hover:bg-muted/40 transition-colors">
-                        <td className="py-2.5 px-2 font-medium text-foreground">{m.label}</td>
-                        <td className="py-2.5 px-2 text-right tabular-nums">{m.classCount}</td>
-                        <td className="py-2.5 px-2 text-right tabular-nums font-semibold text-emerald-600">{m.studentCount}</td>
+              <>
+                <div className="h-72">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart data={classesStudentsByMonth} margin={{ top: 5, right: 5, left: -10, bottom: 0 }}>
+                      <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" vertical={false} />
+                      <XAxis dataKey="label" tick={{ fontSize: 10, fill: "hsl(var(--muted-foreground))" }} axisLine={false} tickLine={false} />
+                      <YAxis yAxisId="left" tick={{ fontSize: 10, fill: "hsl(var(--muted-foreground))" }} axisLine={false} tickLine={false} />
+                      <YAxis yAxisId="right" orientation="right" tick={{ fontSize: 10, fill: "hsl(var(--muted-foreground))" }} axisLine={false} tickLine={false} />
+                      <RTooltip cursor={{ fill: "rgba(0,0,0,0.06)" }} content={<MultiBarTooltip />} />
+                      <Legend wrapperStyle={{ fontSize: 11 }} />
+                      <Bar yAxisId="left" dataKey="classCount" name="Aulas" fill="hsl(var(--primary))" radius={[6, 6, 0, 0]} />
+                      <Bar yAxisId="left" dataKey="uniqueStudentCount" name="Alunos Únicos" fill="#8b5cf6" radius={[6, 6, 0, 0]} />
+                      <Bar yAxisId="right" dataKey="studentCount" name="Total de Presenças" fill="#10b981" radius={[6, 6, 0, 0]} />
+                    </BarChart>
+                  </ResponsiveContainer>
+                </div>
+
+                <div className="overflow-x-auto mt-4">
+                  <table className="w-full text-sm">
+                    <thead>
+                      <tr className="text-[10px] uppercase text-muted-foreground border-b border-border">
+                        <th className="text-left py-2 px-2 font-medium">Mês</th>
+                        <th className="text-right py-2 px-2 font-medium">Nº de Aulas</th>
+                        <th className="text-right py-2 px-2 font-medium">Alunos Únicos</th>
+                        <th className="text-right py-2 px-2 font-medium">Total de Presenças</th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+                    </thead>
+                    <tbody>
+                      {classesStudentsByMonth.map((m: any) => (
+                        <tr key={m.month} className="border-b border-border/50 hover:bg-muted/40 transition-colors">
+                          <td className="py-2.5 px-2 font-medium text-foreground">{m.label}</td>
+                          <td className="py-2.5 px-2 text-right tabular-nums">{m.classCount}</td>
+                          <td className="py-2.5 px-2 text-right tabular-nums font-semibold text-violet-600">{m.uniqueStudentCount}</td>
+                          <td className="py-2.5 px-2 text-right tabular-nums font-semibold text-emerald-600">{m.studentCount}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </>
             )}
           </div>
 
