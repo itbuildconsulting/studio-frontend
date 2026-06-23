@@ -192,8 +192,9 @@ export default class StatisticsRepository {
         return conectAPI(req, "/performance/weekly-trends", "POST");
     }
 
-    async getClassesAndStudentsByMonth(months: number = 12): Promise<any> {
-        return conectAPI(null, `/performance/classes-students-by-month?months=${months}`, "GET");
+    async getClassesAndStudentsByMonth(months?: number): Promise<any> {
+        const qs = months ? `?months=${months}` : "";
+        return conectAPI(null, `/performance/classes-students-by-month${qs}`, "GET");
     }
 
     async getDormantClients(): Promise<any> {

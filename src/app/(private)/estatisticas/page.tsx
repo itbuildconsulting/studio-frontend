@@ -179,7 +179,7 @@ export default function Estatisticas() {
 
   useEffect(() => {
     setLoadingByMonth(true);
-    repo.getClassesAndStudentsByMonth(12)
+    repo.getClassesAndStudentsByMonth()
       .then((res: any) => setClassesStudentsByMonth(toArray(res)))
       .finally(() => setLoadingByMonth(false));
   }, [repo]);
@@ -900,7 +900,7 @@ export default function Estatisticas() {
             <div className="mb-4">
               <h3 className="text-sm font-bold text-foreground">Aulas e Alunos por Mês</h3>
               <p className="text-[11px] text-muted-foreground">
-                Aulas ativas, total de presenças e alunos únicos (sem canceladas/canceladas) — últimos 12 meses
+                Aulas ativas, total de presenças e alunos únicos (sem canceladas) — desde março
               </p>
             </div>
             {loadingByMonth ? (
