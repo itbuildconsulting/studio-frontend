@@ -194,4 +194,12 @@ export default class PersonsRepository implements PersonsRepository {
     async extrato(studentId: number): Promise<any> {
         return conectAPI(null, `/app/v2/extrato/${studentId}`, 'GET');
     }
+
+    async activities(studentId: number): Promise<any> {
+        return conectAPI(null, `/app/v2/activities/${studentId}`, 'GET');
+    }
+
+    async sessionReadings(sessionId: number): Promise<any> {
+        return conectAPI(null, `/app/v2/activities/session/${sessionId}/readings`, 'GET');
+    }
 }

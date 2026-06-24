@@ -23,6 +23,37 @@ import ValidationFields from "@/validators/fields";
 import listStates from '../../../../../json/states.json';
 import listCountry from '../../../../../json/country.json';
 
+import {
+    ResponsiveContainer,
+    LineChart,
+    Line,
+    XAxis,
+    YAxis,
+    CartesianGrid,
+    Tooltip as RTooltip,
+    Legend,
+} from "recharts";
+
+function ReadingsTooltip({ active, payload, label }: any) {
+    if (!active || !payload?.length) return null;
+    return (
+        <div className="rounded-xl border border-border/40 bg-white/90 px-4 py-3 shadow-xl text-xs min-w-[140px]">
+            <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wide mb-2">
+                {formatDuration(label)}
+            </p>
+            <div className="flex flex-col gap-1.5">
+                {payload.map((p: any) => (
+                    <div key={p.dataKey} className="flex items-center gap-2">
+                        <span className="w-2 h-2 rounded-full flex-shrink-0" style={{ backgroundColor: p.color }} />
+                        <span className="text-sm font-bold text-foreground tabular-nums">{p.value}</span>
+                        <span className="text-muted-foreground">{p.name}</span>
+                    </div>
+                ))}
+            </div>
+        </div>
+    );
+}
+
 function StudentKpiCard({
     value, label, iconBg, icon,
 }: {
@@ -85,6 +116,13 @@ export default function EditStudents() {
     const [extrato, setExtrato] = useState<any>(null);
     const [loadingExtrato, setLoadingExtrato] = useState(false);
 
+    const [activities, setActivities] = useState<any[]>([]);
+    const [loadingActivities, setLoadingActivities] = useState(false);
+    const [selectedActivity, setSelectedActivity] = useState<any>(null);
+    const [modalActivityShow, setModalActivityShow] = useState(false);
+    const [sessionReadings, setSessionReadings] = useState<any[]>([]);
+    const [loadingReadings, setLoadingReadings] = useState(false);
+
     const creditosDisponiveis = useMemo(() => {
         return (extrato?.creditos ?? [])
             .filter((c: any) => c.status === "valid")
@@ -104,6 +142,90 @@ export default function EditStudents() {
     const aulasRealizadas = useMemo(() => {
         return (extrato?.aulas ?? []).filter((a: any) => a.checkin).length;
     }, [extrato]);
+
+    const lifetimeStats = useMemo(() => {
+        return activities.reduce((acc: any, a: any) => ({
+            totalKm: acc.totalKm + (Number(a.distanceKm) || 0),
+            totalCalories: acc.totalCalories + (Number(a.caloriesKcal) || 0),
+            totalSessions: acc.totalSessions + 1,
+            totalMovingTimeS: acc.totalMovingTimeS + (Number(a.movingTimeS) || 0),
+        }), { totalKm: 0, totalCalories: 0, totalSessions: 0, totalMovingTimeS: 0 });
+    }, [activities]);
+
+    const currentWeekStats = useMemo(() => {
+        const weekStart = getWeekStart(new Date());
+        const weekEnd = new Date(weekStart);
+        weekEnd.setDate(weekEnd.getDate() + 7);
+
+        const sessionsThisWeek = activities.filter((a: any) => {
+            if (!a.date) return false;
+            const d = new Date(`${a.date}T00:00:00`);
+            return d >= weekStart && d < weekEnd;
+        });
+
+        return sessionsThisWeek.reduce((acc: any, a: any) => ({
+            totalMovingTimeS: acc.totalMovingTimeS + (Number(a.movingTimeS) || 0),
+            totalKm: acc.totalKm + (Number(a.distanceKm) || 0),
+            totalCalories: acc.totalCalories + (Number(a.caloriesKcal) || 0),
+            totalSessions: acc.totalSessions + 1,
+        }), { totalMovingTimeS: 0, totalKm: 0, totalCalories: 0, totalSessions: 0 });
+    }, [activities]);
+
+    const last12WeeksData = useMemo(() => {
+        const currentWeekStart = getWeekStart(new Date());
+        const weeks: { label: string; distanceKm: number }[] = [];
+
+        for (let i = 11; i >= 0; i--) {
+            const start = new Date(currentWeekStart);
+            start.setDate(start.getDate() - i * 7);
+            const end = new Date(start);
+            end.setDate(end.getDate() + 7);
+
+            const distanceKm = activities
+                .filter((a: any) => {
+                    if (!a.date) return false;
+                    const d = new Date(`${a.date}T00:00:00`);
+                    return d >= start && d < end;
+                })
+                .reduce((sum: number, a: any) => sum + (Number(a.distanceKm) || 0), 0);
+
+            weeks.push({
+                label: `${String(start.getDate()).padStart(2, '0')}/${String(start.getMonth() + 1).padStart(2, '0')}`,
+                distanceKm: Math.round(distanceKm * 100) / 100,
+            });
+        }
+
+        return weeks;
+    }, [activities]);
+
+    // activities esta em ordem DESC (mais recente primeiro). Recorde pessoal =
+    // o maximo da sessao selecionada supera o maximo de todas as sessoes
+    // anteriores (mais antigas que ela).
+    const personalRecords = useMemo(() => {
+        if (!selectedActivity) return null;
+        const idx = activities.findIndex((a: any) => a.id === selectedActivity.id);
+        if (idx === -1) return null;
+        const priorSessions = activities.slice(idx + 1);
+        if (!priorSessions.length) return null;
+
+        const priorBest = (field: string) =>
+            Math.max(...priorSessions.map((a: any) => Number(a[field]) || 0));
+
+        return {
+            speed: (Number(selectedActivity.maxSpeedKmh) || 0) > priorBest('maxSpeedKmh'),
+            cadence: (Number(selectedActivity.maxCadenceRpm) || 0) > priorBest('maxCadenceRpm'),
+            power: (Number(selectedActivity.maxPowerW) || 0) > priorBest('maxPowerW'),
+            distance: (Number(selectedActivity.distanceKm) || 0) > priorBest('distanceKm'),
+        };
+    }, [activities, selectedActivity]);
+
+    const readingsChartData = useMemo(() => {
+        return sessionReadings.map((r: any) => ({
+            elapsedS: Number(r.elapsedS) || 0,
+            speedKmh: Number(r.speedKmh) || 0,
+            cadenceRpm: Number(r.cadenceRpm) || 0,
+        }));
+    }, [sessionReadings]);
 
     const [modalLevelShow, setModalLevelShow] = useState(false);
     const [selectedLevel, setSelectedLevel] = useState<any>(0);
@@ -424,9 +546,27 @@ export default function EditStudents() {
             setLoadingExtrato(false);
         });
 
+        setLoadingActivities(true);
+        repo.activities(Number(searchParams.slug)).then((result: any) => {
+            if (result?.data) setActivities(result.data);
+            setLoadingActivities(false);
+        });
+
         fetchStudentDetails();
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [repo, searchParams?.slug])
+
+    useEffect(() => {
+        if (!selectedActivity) {
+            setSessionReadings([]);
+            return;
+        }
+        setLoadingReadings(true);
+        repo.sessionReadings(selectedActivity.id).then((result: any) => {
+            if (result?.data) setSessionReadings(result.data);
+            setLoadingReadings(false);
+        });
+    }, [repo, selectedActivity]);
 
     const onSubmit = () => {
         setLoading(true);
@@ -865,6 +1005,7 @@ export default function EditStudents() {
                                             </table>
                                         </div>
                                     </TabsContent>
+
                                 </Tabs>
                             )}
 
@@ -894,6 +1035,117 @@ export default function EditStudents() {
                                                         </td>
                                                     </tr>
                                                 ))}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </>
+                            )}
+                        </UiCardContent>
+                    </UiCard>
+                </div>
+            </div>
+
+            <div className="grid grid-cols-12 mt-6">
+                <div className="col-span-12">
+                    <UiCard>
+                        <UiCardContent className="p-6">
+                            <h2 className="text-2xl font-semibold mb-4">Atividades</h2>
+
+                            {loadingActivities ? (
+                                <div className="h-32 rounded-lg bg-muted animate-pulse" />
+                            ) : (
+                                <>
+                                    <h3 className="text-sm font-bold text-foreground mb-3">Resumo da semana</h3>
+                                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
+                                        <div className="bg-card border border-border rounded-xl p-4">
+                                            <p className="text-[11px] text-muted-foreground">Tempo total</p>
+                                            <p className="text-xl font-bold">{formatDuration(currentWeekStats.totalMovingTimeS)}</p>
+                                        </div>
+                                        <div className="bg-card border border-border rounded-xl p-4">
+                                            <p className="text-[11px] text-muted-foreground">Distância total</p>
+                                            <p className="text-xl font-bold">{currentWeekStats.totalKm.toFixed(1)} km</p>
+                                        </div>
+                                        <div className="bg-card border border-border rounded-xl p-4">
+                                            <p className="text-[11px] text-muted-foreground">Calorias totais</p>
+                                            <p className="text-xl font-bold">{Math.round(currentWeekStats.totalCalories)} kcal</p>
+                                        </div>
+                                    </div>
+
+                                    <div className="bg-card border border-border rounded-xl p-5 mb-6">
+                                        <h3 className="text-sm font-bold text-foreground mb-1">Distância nas últimas 12 semanas</h3>
+                                        <p className="text-[11px] text-muted-foreground mb-3">Total percorrido por semana</p>
+                                        <div className="h-52">
+                                            <ResponsiveContainer width="100%" height="100%">
+                                                <LineChart data={last12WeeksData} margin={{ top: 5, right: 5, left: -10, bottom: 0 }}>
+                                                    <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" vertical={false} />
+                                                    <XAxis dataKey="label" tick={{ fontSize: 10, fill: "hsl(var(--muted-foreground))" }} axisLine={false} tickLine={false} />
+                                                    <YAxis tick={{ fontSize: 10, fill: "hsl(var(--muted-foreground))" }} axisLine={false} tickLine={false} />
+                                                    <RTooltip
+                                                        formatter={(value: any) => [`${value} km`, 'Distância']}
+                                                        labelFormatter={(label: any) => `Semana de ${label}`}
+                                                    />
+                                                    <Line type="monotone" dataKey="distanceKm" name="Distância (km)" stroke="#f97316" strokeWidth={2} dot={{ r: 3 }} />
+                                                </LineChart>
+                                            </ResponsiveContainer>
+                                        </div>
+                                    </div>
+
+                                    <h3 className="text-sm font-bold text-foreground mb-3">Total geral</h3>
+                                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                                        <div className="bg-card border border-border rounded-xl p-4">
+                                            <p className="text-[11px] text-muted-foreground">Total pedalado</p>
+                                            <p className="text-xl font-bold">{lifetimeStats.totalKm.toFixed(1)} km</p>
+                                        </div>
+                                        <div className="bg-card border border-border rounded-xl p-4">
+                                            <p className="text-[11px] text-muted-foreground">Total de calorias</p>
+                                            <p className="text-xl font-bold">{Math.round(lifetimeStats.totalCalories)} kcal</p>
+                                        </div>
+                                        <div className="bg-card border border-border rounded-xl p-4">
+                                            <p className="text-[11px] text-muted-foreground">Aulas registradas</p>
+                                            <p className="text-xl font-bold">{lifetimeStats.totalSessions}</p>
+                                        </div>
+                                        <div className="bg-card border border-border rounded-xl p-4">
+                                            <p className="text-[11px] text-muted-foreground">Tempo em movimento</p>
+                                            <p className="text-xl font-bold">{formatDuration(lifetimeStats.totalMovingTimeS)}</p>
+                                        </div>
+                                    </div>
+
+                                    <div className="overflow-x-auto">
+                                        <table className="w-full text-sm text-left border-collapse">
+                                            <thead>
+                                                <tr className="bg-gray-100">
+                                                    <th className="px-3 py-2 border">Data</th>
+                                                    <th className="px-3 py-2 border">Horário</th>
+                                                    <th className="px-3 py-2 border">Bike</th>
+                                                    <th className="px-3 py-2 border">Distância</th>
+                                                    <th className="px-3 py-2 border">Vel. média</th>
+                                                    <th className="px-3 py-2 border">Vel. máx</th>
+                                                    <th className="px-3 py-2 border">Cadência média</th>
+                                                    <th className="px-3 py-2 border">Potência média</th>
+                                                    <th className="px-3 py-2 border">Calorias</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {activities?.map((a: any) => (
+                                                    <tr
+                                                        key={a.id}
+                                                        className="border-b cursor-pointer hover:bg-gray-50"
+                                                        onClick={() => { setSelectedActivity(a); setModalActivityShow(true); }}
+                                                    >
+                                                        <td className="px-3 py-2 border">{a.date?.split('-').reverse().join('/')}</td>
+                                                        <td className="px-3 py-2 border">{a.startTime} - {a.endTime ?? '—'}</td>
+                                                        <td className="px-3 py-2 border">{a.bikeNumber}</td>
+                                                        <td className="px-3 py-2 border">{a.distanceKm} km</td>
+                                                        <td className="px-3 py-2 border">{a.avgSpeedKmh} km/h</td>
+                                                        <td className="px-3 py-2 border">{a.maxSpeedKmh} km/h</td>
+                                                        <td className="px-3 py-2 border">{a.avgCadenceRpm} rpm</td>
+                                                        <td className="px-3 py-2 border">{a.avgPowerW} W</td>
+                                                        <td className="px-3 py-2 border">{a.caloriesKcal} kcal</td>
+                                                    </tr>
+                                                ))}
+                                                {!activities?.length && (
+                                                    <tr><td colSpan={9} className="px-3 py-4 text-center text-gray-400">Nenhuma atividade encontrada</td></tr>
+                                                )}
                                             </tbody>
                                         </table>
                                     </div>
@@ -950,6 +1202,130 @@ export default function EditStudents() {
                     )}
                 </div>
             </Modal>
+
+            <Modal
+                title="Detalhes da Atividade"
+                btnClose={true}
+                setShowModal={setModalActivityShow}
+                showModal={modalActivityShow}
+            >
+                {selectedActivity && (
+                    <div className="grid grid-cols-2 gap-4 min-w-[320px] py-2">
+                        <div>
+                            <span className="text-xs text-gray-500">Data</span>
+                            <p className="font-medium">{selectedActivity.date?.split('-').reverse().join('/')}</p>
+                        </div>
+                        <div>
+                            <span className="text-xs text-gray-500">Horário</span>
+                            <p className="font-medium">{selectedActivity.startTime} - {selectedActivity.endTime ?? '—'}</p>
+                        </div>
+                        <div>
+                            <span className="text-xs text-gray-500">Bike</span>
+                            <p className="font-medium">{selectedActivity.bikeNumber}</p>
+                        </div>
+                        <div>
+                            <span className="text-xs text-gray-500">Aula</span>
+                            <p className="font-medium">#{selectedActivity.classId}</p>
+                        </div>
+                        <div>
+                            <span className="text-xs text-gray-500">Distância</span>
+                            <p className="font-medium">{selectedActivity.distanceKm} km</p>
+                        </div>
+                        <div>
+                            <span className="text-xs text-gray-500">Calorias</span>
+                            <p className="font-medium">{selectedActivity.caloriesKcal} kcal</p>
+                        </div>
+                        <div>
+                            <span className="text-xs text-gray-500">Tempo total</span>
+                            <p className="font-medium">{formatDuration(selectedActivity.elapsedS)}</p>
+                        </div>
+                        <div>
+                            <span className="text-xs text-gray-500">Tempo em movimento</span>
+                            <p className="font-medium">{formatDuration(selectedActivity.movingTimeS)}</p>
+                        </div>
+                        <div>
+                            <span className="text-xs text-gray-500">Velocidade média / máx</span>
+                            <p className="font-medium">{selectedActivity.avgSpeedKmh} / {selectedActivity.maxSpeedKmh} km/h</p>
+                        </div>
+                        <div>
+                            <span className="text-xs text-gray-500">Cadência média / máx</span>
+                            <p className="font-medium">{selectedActivity.avgCadenceRpm} / {selectedActivity.maxCadenceRpm} rpm</p>
+                        </div>
+                        <div>
+                            <span className="text-xs text-gray-500">Potência média / máx</span>
+                            <p className="font-medium">{selectedActivity.avgPowerW} / {selectedActivity.maxPowerW} W</p>
+                        </div>
+                        <div className="col-span-2 border-t pt-3 mt-1">
+                            <span className="text-xs text-gray-500">Dados do aluno na sessão</span>
+                            <p className="font-medium">
+                                {selectedActivity.riderWeightKg} kg · {selectedActivity.riderHeightCm} cm · {selectedActivity.riderAge} anos
+                            </p>
+                        </div>
+
+                        <div className="col-span-2 border-t pt-3 mt-1">
+                            <span className="text-xs text-gray-500">Velocidade e cadência durante a aula</span>
+                            {loadingReadings ? (
+                                <div className="h-40 mt-2 rounded-lg bg-muted animate-pulse" />
+                            ) : readingsChartData.length > 1 ? (
+                                <div className="h-40 mt-2">
+                                    <ResponsiveContainer width="100%" height="100%">
+                                        <LineChart data={readingsChartData} margin={{ top: 5, right: 5, left: -10, bottom: 0 }}>
+                                            <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" vertical={false} />
+                                            <XAxis
+                                                dataKey="elapsedS"
+                                                type="number"
+                                                tickFormatter={(v) => formatDuration(v)}
+                                                tick={{ fontSize: 10, fill: "hsl(var(--muted-foreground))" }}
+                                                axisLine={false}
+                                                tickLine={false}
+                                            />
+                                            <YAxis tick={{ fontSize: 10, fill: "hsl(var(--muted-foreground))" }} axisLine={false} tickLine={false} />
+                                            <RTooltip content={<ReadingsTooltip />} />
+                                            <Legend wrapperStyle={{ fontSize: 11 }} />
+                                            <Line type="monotone" dataKey="speedKmh" name="Velocidade (km/h)" stroke="#3b82f6" strokeWidth={2} dot={false} isAnimationActive={false} />
+                                            <Line type="monotone" dataKey="cadenceRpm" name="Cadência (rpm)" stroke="#10b981" strokeWidth={2} dot={false} isAnimationActive={false} />
+                                        </LineChart>
+                                    </ResponsiveContainer>
+                                </div>
+                            ) : (
+                                <p className="text-xs text-gray-400 mt-2">Sem dados detalhados para esta aula (gravada antes desse recurso).</p>
+                            )}
+                        </div>
+
+                        {personalRecords && Object.values(personalRecords).some(Boolean) && (
+                            <div className="col-span-2 border-t pt-3 mt-1">
+                                <span className="text-xs text-gray-500">Recordes pessoais nesta aula</span>
+                                <div className="flex flex-wrap gap-2 mt-2">
+                                    {personalRecords.speed && <Badge variant="success">🏆 Velocidade máxima</Badge>}
+                                    {personalRecords.cadence && <Badge variant="success">🏆 Cadência máxima</Badge>}
+                                    {personalRecords.power && <Badge variant="success">🏆 Potência máxima</Badge>}
+                                    {personalRecords.distance && <Badge variant="success">🏆 Maior distância</Badge>}
+                                </div>
+                            </div>
+                        )}
+                    </div>
+                )}
+            </Modal>
         </PageDefault>
     )
 }
+
+function formatDuration(totalSeconds: number | string | null | undefined): string {
+    const seconds = Math.max(0, Math.round(Number(totalSeconds) || 0));
+    const h = Math.floor(seconds / 3600);
+    const m = Math.floor((seconds % 3600) / 60);
+    const s = seconds % 60;
+    const pad = (n: number) => String(n).padStart(2, '0');
+    return h > 0 ? `${h}:${pad(m)}:${pad(s)}` : `${m}:${pad(s)}`;
+}
+
+// Retorna a segunda-feira (00:00) da semana da data informada.
+function getWeekStart(date: Date): Date {
+    const d = new Date(date);
+    d.setHours(0, 0, 0, 0);
+    const day = d.getDay();
+    const diff = (day === 0 ? -6 : 1) - day;
+    d.setDate(d.getDate() + diff);
+    return d;
+}
+
