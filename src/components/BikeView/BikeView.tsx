@@ -7,6 +7,7 @@ import DropDownsCollection from "../../../core/DropDowns";
 import DropdownType from "@/model/Dropdown";
 import AuthInput from '../auth/AuthInput';
 import AuthSelect from '../auth/AuthSelect';
+import AuthSelectSearch from '../auth/AuthSelectSearch';
 import { convertArray } from '@/utils/convertArray';
 import { useParams } from 'next/navigation';
 import { isBirthday } from '@/utils/checkBirthday';
@@ -37,7 +38,7 @@ const BikeView: React.FC<BikeStatusProps> = ({ bikes, totalBikes, onUpdateBikes,
     const [selectedBike, setSelectedBike] = useState<number | null>(null);
     const [studentName, setStudentName] = useState('');
     const [bikeStatus, setBikeStatus] = useState('');
-    const [students, setStudents] = useState<string[] | null>(null);
+    const [students, setStudents] = useState<string | number | null>(null);
 
     const [dropdownStudent, setDropdownStudent] = useState<DropdownType[]>([]);
 
@@ -205,12 +206,12 @@ const BikeView: React.FC<BikeStatusProps> = ({ bikes, totalBikes, onUpdateBikes,
                     }}
                     loading={false}
                 >
-                    <AuthSelect
+                    <AuthSelectSearch
                         label='Alunos'
                         value={students}
                         options={convertArray(dropdownStudent)}
                         changeValue={setStudents}
-                        edit={edit}
+                        placeholder="Buscar aluno..."
                         required
                     />
                 </Modal>
