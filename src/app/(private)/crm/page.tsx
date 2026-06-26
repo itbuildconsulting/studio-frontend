@@ -3,8 +3,8 @@
 import { useEffect } from "react";
 import Cookies from "js-cookie";
 import { toast } from "sonner";
-import { configureCrmApi, configureCrmToast } from "@/crm/config";
-import CRMPage from "@/crm/pages/CRM";
+import { MemoryRouter, Routes, Route } from "react-router-dom";
+import { configureCrmApi, configureCrmToast, CRMPage, TemplateEditorPage } from "@avera/crm-frontend";
 import PageDefault from "@/components/template/default";
 
 configureCrmToast(({ title, description, variant }) => {
@@ -34,7 +34,13 @@ export default function CrmPage() {
 
     return (
         <PageDefault title="">
-            <CRMPage />
+            <MemoryRouter initialEntries={["/"]}>
+                <Routes>
+                    <Route path="/" element={<CRMPage />} />
+                    <Route path="/templates/new" element={<TemplateEditorPage />} />
+                    <Route path="/templates/:templateId" element={<TemplateEditorPage />} />
+                </Routes>
+            </MemoryRouter>
         </PageDefault>
     );
 }
