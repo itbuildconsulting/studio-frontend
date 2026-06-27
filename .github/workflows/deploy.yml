@@ -46,7 +46,8 @@ jobs:
             git fetch origin
             GIT_SSH_COMMAND='ssh -i ~/.ssh/id_rsa' git pull origin main
 
-            npm install
+            git config --global url."https://${{ secrets.GH_PAT }}@github.com/".insteadOf "https://github.com/"
+            npm install --legacy-peer-deps
             npm run build
             PORT=3030 pm2 restart studio-frontend || PORT=3030 pm2 start npm --name studio-frontend -- start
             pm2 save
