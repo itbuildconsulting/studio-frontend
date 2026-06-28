@@ -4,7 +4,7 @@ import { useEffect } from "react";
 import Cookies from "js-cookie";
 import { toast } from "sonner";
 import { MemoryRouter, Routes, Route } from "react-router-dom";
-import { configureCrmApi, configureCrmToast, CRMPage, TemplateEditorPage } from "@avera/crm-frontend";
+import { configureCrmApi, configureCrmToast, configureCrmTenant, CRMPage, TemplateEditorPage } from "@avera/crm-frontend";
 import PageDefault from "@/components/template/default";
 
 configureCrmToast(({ title, description, variant }) => {
@@ -17,6 +17,12 @@ configureCrmToast(({ title, description, variant }) => {
 
 export default function CrmPage() {
     useEffect(() => {
+        configureCrmTenant({
+            name: "Studio Raphael Oliveira",
+            logo: `${window.location.origin}/images/spingo.png`,
+            primaryColor: "#f23238",
+        });
+
         const token = Cookies.get("admin-user-sci-auth");
         configureCrmApi(async (path, method, body) => {
             const res = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL_API}${path}`, {
