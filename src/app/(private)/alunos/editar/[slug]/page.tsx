@@ -9,7 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { cn } from "@/lib/utils";
 import { useRouter, useParams } from "next/navigation";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 import PersonsCollecion from "../../../../../../core/Persons";
 import DropDownsCollection from "../../../../../../core/DropDowns";
@@ -19,6 +19,12 @@ import Modal from "@/components/Modal/Modal";
 import { EventBtn } from "@/types/btn";
 import { ValidationForm } from "@/components/formValidation/validation";
 import ValidationFields from "@/validators/fields";
+import { formatDuration } from "@/utils/formatDuration";
+import { exportNodeAsPng } from "@/utils/exportPng";
+import ActivityShareCard from "@/components/share/ActivityShareCard";
+import WeekSummaryShareCard from "@/components/share/WeekSummaryShareCard";
+import CardVariantPicker from "@/components/share/CardVariantPicker";
+import { CardVariant } from "@/components/share/ShareCardKit";
 
 import listStates from '../../../../../json/states.json';
 import listCountry from '../../../../../json/country.json';
@@ -123,6 +129,15 @@ export default function EditStudents() {
     const [sessionReadings, setSessionReadings] = useState<any[]>([]);
     const [loadingReadings, setLoadingReadings] = useState(false);
 
+    const activityCardDarkRef = useRef<HTMLDivElement>(null);
+    const activityCardLightRef = useRef<HTMLDivElement>(null);
+    const weekCardDarkRef = useRef<HTMLDivElement>(null);
+    const weekCardLightRef = useRef<HTMLDivElement>(null);
+    const [activityCardVariant, setActivityCardVariant] = useState<CardVariant>("dark");
+    const [weekCardVariant, setWeekCardVariant] = useState<CardVariant>("dark");
+    const [downloadingActivity, setDownloadingActivity] = useState(false);
+    const [downloadingWeek, setDownloadingWeek] = useState(false);
+
     const creditosDisponiveis = useMemo(() => {
         return (extrato?.creditos ?? [])
             .filter((c: any) => c.status === "valid")
@@ -152,24 +167,30 @@ export default function EditStudents() {
         }), { totalKm: 0, totalCalories: 0, totalSessions: 0, totalMovingTimeS: 0 });
     }, [activities]);
 
-    const currentWeekStats = useMemo(() => {
+    const weekRange = useMemo(() => {
         const weekStart = getWeekStart(new Date());
         const weekEnd = new Date(weekStart);
         weekEnd.setDate(weekEnd.getDate() + 7);
+        return { weekStart, weekEnd };
+    }, []);
 
-        const sessionsThisWeek = activities.filter((a: any) => {
+    const sessionsThisWeek = useMemo(() => {
+        const { weekStart, weekEnd } = weekRange;
+        return activities.filter((a: any) => {
             if (!a.date) return false;
             const d = new Date(`${a.date}T00:00:00`);
             return d >= weekStart && d < weekEnd;
         });
+    }, [activities, weekRange]);
 
+    const currentWeekStats = useMemo(() => {
         return sessionsThisWeek.reduce((acc: any, a: any) => ({
             totalMovingTimeS: acc.totalMovingTimeS + (Number(a.movingTimeS) || 0),
             totalKm: acc.totalKm + (Number(a.distanceKm) || 0),
             totalCalories: acc.totalCalories + (Number(a.caloriesKcal) || 0),
             totalSessions: acc.totalSessions + 1,
         }), { totalMovingTimeS: 0, totalKm: 0, totalCalories: 0, totalSessions: 0 });
-    }, [activities]);
+    }, [sessionsThisWeek]);
 
     const last12WeeksData = useMemo(() => {
         const currentWeekStart = getWeekStart(new Date());
@@ -226,6 +247,29 @@ export default function EditStudents() {
             cadenceRpm: Number(r.cadenceRpm) || 0,
         }));
     }, [sessionReadings]);
+
+    const handleDownloadActivity = async () => {
+        const ref = activityCardVariant === "dark" ? activityCardDarkRef : activityCardLightRef;
+        if (!ref.current || !selectedActivity) return;
+        setDownloadingActivity(true);
+        try {
+            await exportNodeAsPng(ref.current, `atividade-${selectedActivity.date ?? "aula"}.png`);
+        } finally {
+            setDownloadingActivity(false);
+        }
+    };
+
+    const handleDownloadWeek = async () => {
+        const ref = weekCardVariant === "dark" ? weekCardDarkRef : weekCardLightRef;
+        if (!ref.current) return;
+        setDownloadingWeek(true);
+        try {
+            const label = weekRange.weekStart.toISOString().split("T")[0];
+            await exportNodeAsPng(ref.current, `resumo-semana-${label}.png`);
+        } finally {
+            setDownloadingWeek(false);
+        }
+    };
 
     const [modalLevelShow, setModalLevelShow] = useState(false);
     const [selectedLevel, setSelectedLevel] = useState<any>(0);
@@ -1055,7 +1099,34 @@ export default function EditStudents() {
                                 <div className="h-32 rounded-lg bg-muted animate-pulse" />
                             ) : (
                                 <>
-                                    <h3 className="text-sm font-bold text-foreground mb-3">Resumo da semana</h3>
+                                    <div className="flex items-start justify-between mb-6 gap-4 flex-wrap">
+                                        <h3 className="text-sm font-bold text-foreground">Resumo da semana</h3>
+                                        <div className="flex items-end gap-4">
+                                            <CardVariantPicker
+                                                selected={weekCardVariant}
+                                                onSelect={setWeekCardVariant}
+                                                darkRef={weekCardDarkRef}
+                                                lightRef={weekCardLightRef}
+                                                renderCard={(variant, ref) => (
+                                                    <WeekSummaryShareCard
+                                                        ref={ref}
+                                                        variant={variant}
+                                                        weekStart={weekRange.weekStart}
+                                                        weekEnd={weekRange.weekEnd}
+                                                        stats={currentWeekStats}
+                                                        sessions={sessionsThisWeek}
+                                                    />
+                                                )}
+                                            />
+                                            <button
+                                                className="btn-outline-primary text-xs px-3 py-1.5 disabled:opacity-60"
+                                                onClick={handleDownloadWeek}
+                                                disabled={downloadingWeek}
+                                            >
+                                                {downloadingWeek ? "Gerando..." : "Baixar PNG"}
+                                            </button>
+                                        </div>
+                                    </div>
                                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
                                         <div className="bg-card border border-border rounded-xl p-4">
                                             <p className="text-[11px] text-muted-foreground">Tempo total</p>
@@ -1211,6 +1282,29 @@ export default function EditStudents() {
             >
                 {selectedActivity && (
                     <div className="grid grid-cols-2 gap-4 min-w-[320px] py-2">
+                        <div className="col-span-2 flex items-end justify-end gap-4 flex-wrap">
+                            <CardVariantPicker
+                                selected={activityCardVariant}
+                                onSelect={setActivityCardVariant}
+                                darkRef={activityCardDarkRef}
+                                lightRef={activityCardLightRef}
+                                renderCard={(variant, ref) => (
+                                    <ActivityShareCard
+                                        ref={ref}
+                                        variant={variant}
+                                        activity={selectedActivity}
+                                        personalRecords={personalRecords}
+                                    />
+                                )}
+                            />
+                            <button
+                                className="btn-outline-primary text-xs px-3 py-1.5 disabled:opacity-60"
+                                onClick={handleDownloadActivity}
+                                disabled={downloadingActivity}
+                            >
+                                {downloadingActivity ? "Gerando..." : "Baixar PNG"}
+                            </button>
+                        </div>
                         <div>
                             <span className="text-xs text-gray-500">Data</span>
                             <p className="font-medium">{selectedActivity.date?.split('-').reverse().join('/')}</p>
@@ -1308,15 +1402,6 @@ export default function EditStudents() {
             </Modal>
         </PageDefault>
     )
-}
-
-function formatDuration(totalSeconds: number | string | null | undefined): string {
-    const seconds = Math.max(0, Math.round(Number(totalSeconds) || 0));
-    const h = Math.floor(seconds / 3600);
-    const m = Math.floor((seconds % 3600) / 60);
-    const s = seconds % 60;
-    const pad = (n: number) => String(n).padStart(2, '0');
-    return h > 0 ? `${h}:${pad(m)}:${pad(s)}` : `${m}:${pad(s)}`;
 }
 
 // Retorna a segunda-feira (00:00) da semana da data informada.
