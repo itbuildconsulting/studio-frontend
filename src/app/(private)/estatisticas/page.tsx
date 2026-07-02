@@ -395,6 +395,7 @@ export default function Estatisticas() {
   const alunosInativos = inactiveStudents.map((a: any) => ({
     id: a.studentId ?? a.id ?? a.name ?? a.nome,
     nome: a.name ?? a.nome ?? "",
+    phone: a.phone ?? null,
     ultimaAula: a.lastClassDate
       ? new Date(a.lastClassDate).toLocaleDateString("pt-BR")
       : (a.ultimaAula ?? ""),
@@ -735,6 +736,7 @@ export default function Estatisticas() {
                         <div className="flex-1 min-w-0">
                           <p className="text-[12px] font-semibold text-foreground truncate">{client.name}</p>
                           <p className="text-[10px] text-muted-foreground truncate">{client.email}</p>
+                          {client.phone && <p className="text-[10px] text-muted-foreground truncate">{client.phone}</p>}
                         </div>
                         <div className="flex flex-col gap-0.5 items-end shrink-0">
                           {client.hasNoClass && <span className="text-[9px] font-semibold px-1.5 py-0.5 rounded bg-rose-50 text-rose-600">Sem aula</span>}
@@ -781,7 +783,10 @@ export default function Estatisticas() {
                     <tr><td colSpan={5} className="py-10 text-center text-sm text-muted-foreground">Nenhum aluno inativo</td></tr>
                   ) : alunosInativos.map((aluno) => (
                     <tr key={aluno.id} className="border-b border-border/50 hover:bg-muted/40 transition-colors">
-                      <td className="py-3 px-2 font-semibold text-foreground text-[13px]">{aluno.nome}</td>
+                      <td className="py-3 px-2">
+                        <p className="font-semibold text-foreground text-[13px]">{aluno.nome}</p>
+                        {aluno.phone && <p className="text-[11px] text-muted-foreground">{aluno.phone}</p>}
+                      </td>
                       <td className="py-3 px-2 text-muted-foreground text-[13px]">{aluno.ultimaAula}</td>
                       <td className="py-3 px-2 text-right">
                         <span className="inline-flex items-center px-2 py-0.5 rounded-full bg-rose-50 text-rose-700 text-[11px] font-bold tabular-nums">{aluno.diasInativo} dias</span>
