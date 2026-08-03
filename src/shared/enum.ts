@@ -1,7 +1,8 @@
 export enum CookiesAuth {
     USERLOGADO = "admin-template-sci-auth",
     USERTOKEN = "admin-user-sci-auth",
-    USERNAME = "admin-name-sci-auth"
+    USERNAME = "admin-name-sci-auth",
+    REMEMBEREMAIL = "admin-remember-email-sci-auth"
 }
 
 export enum PaymentStatus {
