@@ -2,20 +2,38 @@
 
 import AuthInput from "@/components/auth/AuthInput";
 import styles from '../styles/login.module.css';
-import { useState, Key, FormEvent } from "react";
+import { useState, useEffect, Key, FormEvent } from "react";
 import Link from "next/link";
+import Cookies from "js-cookie";
 import useAuthData from '../data/hooks/useAuthData';
 import AuthDefault from "@/components/template/auth";
+import { CookiesAuth } from "@/shared/enum";
 
 export default function Auth() {
   const { login, loginError, msgError, load } = useAuthData();
 
   const [username, setUsername] = useState<string>('');
   const [password, setPassword] = useState<string>('');
+  const [rememberEmail, setRememberEmail] = useState<boolean>(false);
+
+  useEffect(() => {
+    const savedEmail = Cookies.get(CookiesAuth.REMEMBEREMAIL);
+
+    if (savedEmail) {
+      setUsername(savedEmail);
+      setRememberEmail(true);
+    }
+  }, []);
 
   async function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault(); // Previne o reload da página
-    
+
+    if (rememberEmail) {
+      Cookies.set(CookiesAuth.REMEMBEREMAIL, username, { expires: 30 });
+    } else {
+      Cookies.remove(CookiesAuth.REMEMBEREMAIL);
+    }
+
     if (login) {
       await login(username, password);
     }
@@ -50,6 +68,18 @@ export default function Auth() {
                 changeValue={setPassword}
                 required
               />
+            </div>
+            <div className="flex items-center gap-2 mb-4">
+              <input
+                id="rememberEmail"
+                type="checkbox"
+                checked={rememberEmail}
+                onChange={(e) => setRememberEmail(e.target.checked)}
+                className="h-4 w-4 rounded border-input"
+              />
+              <label htmlFor="rememberEmail" className="text-sm cursor-pointer select-none">
+                Lembrar meu e-mail
+              </label>
             </div>
             <div>
               {load ? (

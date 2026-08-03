@@ -751,6 +751,7 @@ export default function Estatisticas() {
                     <div className="flex-1 min-w-0">
                       <p className="font-semibold text-[13px] text-foreground truncate">{s.name ?? s.nome}</p>
                       <p className="text-[11px] text-muted-foreground">{s.reason ?? s.motivo ?? "Frequência abaixo do esperado"}</p>
+                      {s.phone && <p className="text-[11px] text-muted-foreground">{s.phone}</p>}
                     </div>
                     <span className="text-[11px] font-bold px-2 py-0.5 rounded-full bg-rose-50 text-rose-700 shrink-0">
                       {s.attendanceRate ?? s.presenca ?? 0}% presença
