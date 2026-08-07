@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import { MemoryRouter, Routes, Route } from "react-router-dom";
 import { configureCrmApi, configureCrmToast, configureCrmTenant, CRMPage, TemplateEditorPage } from "@avera/crm-frontend";
 import PageDefault from "@/components/template/default";
+import { CookiesAuth } from "@/shared/enum";
 
 configureCrmToast(({ title, description, variant }) => {
     if (variant === "destructive") {
@@ -15,26 +16,26 @@ configureCrmToast(({ title, description, variant }) => {
     }
 });
 
+configureCrmApi(async (path, method, body) => {
+    const token = Cookies.get(CookiesAuth.USERTOKEN);
+    const res = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL_API}${path}`, {
+        method,
+        headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+        },
+        ...(body ? { body: JSON.stringify(body) } : {}),
+    });
+    if (!res.ok) throw new Error(await res.text());
+    return res.json();
+});
+
 export default function CrmPage() {
     useEffect(() => {
         configureCrmTenant({
             name: "Studio Raphael Oliveira",
             logo: `${window.location.origin}/images/spingo.png`,
             primaryColor: "#f23238",
-        });
-
-        const token = Cookies.get("admin-user-sci-auth");
-        configureCrmApi(async (path, method, body) => {
-            const res = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL_API}${path}`, {
-                method,
-                headers: {
-                    "Content-Type": "application/json",
-                    Authorization: `Bearer ${token}`,
-                },
-                ...(body ? { body: JSON.stringify(body) } : {}),
-            });
-            if (!res.ok) throw new Error(await res.text());
-            return res.json();
         });
     }, []);
 
