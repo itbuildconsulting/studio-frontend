@@ -3,7 +3,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import PageDefault from '@/components/template/default';
 import { Card, CardContent } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
 import { Bar } from 'react-chartjs-2';
 import {
     Chart as ChartJS, CategoryScale, LinearScale,
@@ -135,12 +134,18 @@ export default function NpsPage() {
             ) : (
                 <>
                     {/* ── KPIs ────────────────────────────────────────── */}
-                    <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+                    <div className="grid grid-cols-1 md:grid-cols-5 gap-4 mb-6">
                         <KpiCard
                             label="NPS Score"
                             value={data?.npsScore ?? '—'}
                             sub={npsLabel(data?.npsScore)}
                             color={npsColor(data?.npsScore)}
+                        />
+                        <KpiCard
+                            label="Nota Média"
+                            value={data?.averageScore ?? '—'}
+                            sub={`de 10 · ${data?.total ?? 0} respostas`}
+                            color="#6366f1"
                         />
                         <KpiCard
                             label="Promotores (9–10)"
