@@ -6,6 +6,7 @@ import {
   IconAdminFilter,
   IconClass,
   IconClose,
+  IconCoupon,
   IconCrm,
   IconDollar,
   IconFinance,
@@ -102,6 +103,7 @@ export default function MenuSideBar({ menuMobileOpen, handleMenuOpen }: MenuSide
               <MenuItem url="/administrativo" text="Administrativo" icon={IconAdmin} />
               <MenuItem url="/configuracoes" text="Configurações" icon={IconAdminFilter} />
               <MenuItem url="/parcelamento" text="Parcelamento" icon={IconInstallment} />
+              <MenuItem url="/cupons" text="Cupons" icon={IconCoupon} />
             </ul>
           )}
         </nav>
