@@ -242,7 +242,7 @@ export default function NpsPage() {
                                 <table className="w-full text-sm">
                                     <thead>
                                         <tr className="border-b border-border">
-                                            {['NOTA', 'ALUNO', 'AULA', 'DATA', 'COMENTÁRIO'].map(col => (
+                                            {['NOTA', 'ALUNO', 'DATA / HORA', 'COMENTÁRIO'].map(col => (
                                                 <th key={col} className="px-4 py-3 text-left text-[11px] font-semibold uppercase tracking-wider text-muted-foreground whitespace-nowrap">
                                                     {col}
                                                 </th>
@@ -262,8 +262,10 @@ export default function NpsPage() {
                                                     <ScoreBadge score={fb.score} />
                                                 </td>
                                                 <td className="px-4 py-3 font-medium text-foreground">{fb.studentName}</td>
-                                                <td className="px-4 py-3 text-muted-foreground">{fb.className}</td>
-                                                <td className="px-4 py-3 text-muted-foreground whitespace-nowrap">{fmtDate(fb.classDate)}</td>
+                                                <td className="px-4 py-3 text-muted-foreground whitespace-nowrap">
+                                                    {fmtDate(fb.classDate)}
+                                                    {fb.classTime && <span className="ml-1 text-xs opacity-70">{fb.classTime.slice(0, 5)}</span>}
+                                                </td>
                                                 <td className="px-4 py-3 text-muted-foreground max-w-xs truncate">
                                                     {fb.comment ?? <span className="italic opacity-50">—</span>}
                                                 </td>
