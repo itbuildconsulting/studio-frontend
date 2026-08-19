@@ -416,13 +416,12 @@ export default function CuponsPage() {
 
                     {hasExpiry && (
                         <div className="col-span-6">
-                            <AuthInput
-                                label="Data limite*"
-                                value={expiresAt}
+                            <label className="block text-sm font-medium text-gray-700 mb-1">Data limite*</label>
+                            <input
                                 type="date"
-                                changeValue={setExpiresAt}
-                                edit={edit}
-                                required
+                                value={expiresAt ?? ''}
+                                onChange={(e) => setExpiresAt(e.target.value || null)}
+                                className="w-full h-10 px-3 border border-input rounded-md text-sm bg-background focus:outline-none focus:ring-2 focus:ring-primary"
                             />
                         </div>
                     )}
