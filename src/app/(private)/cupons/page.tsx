@@ -93,10 +93,9 @@ export default function CuponsPage() {
     const [code, setCode] = useState<string | null>(null)
     const [type, setType] = useState<'percent' | 'fixed'>('percent')
     const [value, setValue] = useState<number | null>(null)
-    const [hasExpiry, setHasExpiry] = useState(false)
     const [expiresAt, setExpiresAt] = useState<string | null>(null)
-    const [maxUses, setMaxUses] = useState<number>(0)
-    const [maxUsesPerStudent, setMaxUsesPerStudent] = useState<number>(1)
+    const [limitType, setLimitType] = useState<'geral' | 'por_aluno'>('geral')
+    const [limitValue, setLimitValue] = useState<number>(1)
     const [activeStatus, setActiveStatus] = useState<number>(1)
 
     const loadCoupons = () => {
@@ -119,10 +118,9 @@ export default function CuponsPage() {
             setCode(null)
             setType('percent')
             setValue(null)
-            setHasExpiry(false)
             setExpiresAt(null)
-            setMaxUses(0)
-            setMaxUsesPerStudent(1)
+            setLimitType('geral')
+            setLimitValue(1)
             setActiveStatus(1)
             setErrorMessage(null)
         }
@@ -134,29 +132,25 @@ export default function CuponsPage() {
             'Código do cupom': code,
             'Tipo': type,
             'Valor': `${value}`,
+            'Validade': expiresAt,
         })
         if (validationError) {
             setErrorMessage(validationError)
             return
         }
 
-        if (maxUses > 0 && maxUsesPerStudent > maxUses) {
-            setErrorMessage('O limite por aluno não pode ser maior que o total de usos do cupom.')
-            return
-        }
-
-        if (hasExpiry && !expiresAt) {
-            setErrorMessage('Informe a data de validade do cupom.')
+        if (!limitValue || limitValue < 1) {
+            setErrorMessage('Informe um limite de uso válido (mínimo 1).')
             return
         }
 
         setLoading(true)
-        const finalMaxUses = maxUses === 0 ? null : maxUses
-        const finalExpiresAt = expiresAt && expiresAt.trim() !== '' ? expiresAt : null
+        const finalMaxUses      = limitType === 'geral'     ? limitValue : null
+        const finalMaxPerStudent = limitType === 'por_aluno' ? limitValue : 1
 
         const promise = edit
-            ? repo.edit(id!, code!, type, Number(value), finalExpiresAt, finalMaxUses, maxUsesPerStudent, activeStatus === 1)
-            : repo.create(code!, type, Number(value), finalExpiresAt, finalMaxUses, maxUsesPerStudent)
+            ? repo.edit(id!, code!, type, Number(value), expiresAt, finalMaxUses, finalMaxPerStudent, activeStatus === 1)
+            : repo.create(code!, type, Number(value), expiresAt, finalMaxUses, finalMaxPerStudent)
 
         promise.then((result: any) => {
             if (result instanceof Error) {
@@ -189,10 +183,14 @@ export default function CuponsPage() {
                 setCode(c.code)
                 setType(c.type)
                 setValue(Number(c.value))
-                setHasExpiry(!!c.expiresAt)
                 setExpiresAt(c.expiresAt ? c.expiresAt.substring(0, 10) : null)
-                setMaxUses(c.maxUses ?? 0)
-                setMaxUsesPerStudent(c.maxUsesPerStudent ?? 1)
+                if (c.maxUses) {
+                    setLimitType('geral')
+                    setLimitValue(c.maxUses)
+                } else {
+                    setLimitType('por_aluno')
+                    setLimitValue(c.maxUsesPerStudent ?? 1)
+                }
                 setActiveStatus(c.active ? 1 : 0)
             }
         })
@@ -385,7 +383,7 @@ export default function CuponsPage() {
                         />
                     </div>
 
-                    {/* Valor */}
+                    {/* Valor + Validade */}
                     <div className="col-span-6">
                         <AuthInput
                             label={type === 'percent' ? 'Desconto (%)*' : 'Valor do desconto (R$)*'}
@@ -396,66 +394,37 @@ export default function CuponsPage() {
                             required
                         />
                     </div>
-
-                    {/* Validade */}
                     <div className="col-span-6">
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Validade</label>
-                        <select
-                            value={hasExpiry ? '1' : '0'}
-                            onChange={(e) => {
-                                const v = e.target.value === '1'
-                                setHasExpiry(v)
-                                if (!v) setExpiresAt(null)
-                            }}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary bg-white"
-                        >
-                            <option value="0">Sem validade</option>
-                            <option value="1">Definir data limite</option>
-                        </select>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Validade*</label>
+                        <input
+                            type="date"
+                            value={expiresAt ?? ''}
+                            onChange={(e) => setExpiresAt(e.target.value || null)}
+                            className="w-full h-10 px-3 border border-input rounded-md text-sm bg-background focus:outline-none focus:ring-2 focus:ring-primary mb-4"
+                        />
                     </div>
 
-                    {hasExpiry && (
-                        <div className="col-span-6">
-                            <label className="block text-sm font-medium text-gray-700 mb-1">Data limite*</label>
-                            <input
-                                type="date"
-                                value={expiresAt ?? ''}
-                                onChange={(e) => setExpiresAt(e.target.value || null)}
-                                className="w-full h-10 px-3 border border-input rounded-md text-sm bg-background focus:outline-none focus:ring-2 focus:ring-primary"
-                            />
-                        </div>
-                    )}
-
-                    {/* Limites de uso */}
-                    <div className="col-span-12 mt-2">
-                        <p className="text-xs font-semibold uppercase tracking-wide text-gray-500 mb-3">Limites de uso</p>
-                        <div className="grid grid-cols-2 gap-x-6">
-                            <div>
-                                <AuthInput
-                                    label="Total de usos do cupom"
-                                    value={maxUses}
-                                    type="number"
-                                    changeValue={(v: any) => setMaxUses(Number(v) || 0)}
-                                    edit={edit}
-                                />
-                                <p className="text-xs text-gray-400 -mt-2 mb-3">0 = ilimitado</p>
-                            </div>
-                            <div>
-                                <AuthInput
-                                    label="Usos por aluno"
-                                    value={maxUsesPerStudent}
-                                    type="number"
-                                    changeValue={(v: any) => setMaxUsesPerStudent(Number(v) || 1)}
-                                    edit={edit}
-                                />
-                                <p className="text-xs text-gray-400 -mt-2 mb-3">
-                                    {maxUses > 0 && maxUsesPerStudent > maxUses
-                                        ? <span className="text-red-500">Não pode ser maior que o total ({maxUses})</span>
-                                        : 'Quantas vezes cada aluno pode usar'
-                                    }
-                                </p>
-                            </div>
-                        </div>
+                    {/* Limite de uso */}
+                    <div className="col-span-6">
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Tipo de limite*</label>
+                        <select
+                            value={limitType}
+                            onChange={(e) => setLimitType(e.target.value as 'geral' | 'por_aluno')}
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary bg-white mb-4"
+                        >
+                            <option value="geral">Geral (total de usos)</option>
+                            <option value="por_aluno">Por aluno (usos por pessoa)</option>
+                        </select>
+                    </div>
+                    <div className="col-span-6">
+                        <AuthInput
+                            label={limitType === 'geral' ? 'Total de usos*' : 'Usos por aluno*'}
+                            value={limitValue}
+                            type="number"
+                            changeValue={(v: any) => setLimitValue(Number(v) || 1)}
+                            edit={edit}
+                            required
+                        />
                     </div>
 
                     {edit && (
