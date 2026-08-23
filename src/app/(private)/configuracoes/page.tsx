@@ -58,6 +58,7 @@ const KEY_CHECKIN = "checkinSpinGo";
 const KEY_APP_PRODUCTS = "appProductsSpinGo";
 const KEY_CANCEL_CLASS = 'cancelClassSpinGo';
 const KEY_CANCEL_PURCHASE = 'cancelPurchaseSpinGo';
+const KEY_ACTIVITY_RECORDING = 'activityRecordingSpinGo';
 
 // opções fixas em horas
 const HOURS = [1, 2, 4, 8, 12, 24, 48, 72, 96, 120];
@@ -148,7 +149,15 @@ export default function Configuracao() {
         if (!next[KEY_CANCEL_CLASS]) {
             next[KEY_CANCEL_CLASS] = {
                 configKey: KEY_CANCEL_CLASS,
-                configValue: '',   // string (ex.: "2h" ou "120" etc.)
+                configValue: '',
+                description: '',
+                active: 0,
+            };
+        }
+        if (!next[KEY_ACTIVITY_RECORDING]) {
+            next[KEY_ACTIVITY_RECORDING] = {
+                configKey: KEY_ACTIVITY_RECORDING,
+                configValue: '',
                 description: '',
                 active: 0,
             };
@@ -270,6 +279,7 @@ export default function Configuracao() {
   const isCheckinEnabled = configs[KEY_CHECKIN]?.active === 1;
   const isAppProductsEnabled = configs[KEY_APP_PRODUCTS]?.active === 1;
   const appProductsValues: number[] = configs[KEY_APP_PRODUCTS]?.configValue ?? [];
+  const isActivityRecordingEnabled = configs[KEY_ACTIVITY_RECORDING]?.active === 1;
 
   return (
     <PageDefault title={"Configurações"}>
@@ -321,6 +331,12 @@ export default function Configuracao() {
                     handleFieldChange(KEY_CANCEL_CLASS, 'configValue', val as number)
                 }
                 placeholder="Valor"
+            />
+
+            <ConfigSection
+                label="Habilitar Registro de Atividades"
+                isEnabled={isActivityRecordingEnabled}
+                onToggleChange={(_: boolean) => handleToggle(KEY_ACTIVITY_RECORDING)}
             />
 
             {/* Cancelamento de compra: toggle + select (single) */}
