@@ -214,4 +214,26 @@ export default class ClassRepository implements ClassRepository {
         return conectAPI(null, `/dashboard/cancellations/today`, "GET");
     }
 
+    async bulkCancelPreview(filters: {
+        time?: string | null;
+        dayOfWeek?: number | null;
+        teacherId?: string | null;
+        productTypeId?: string | null;
+        dateFrom?: string | null;
+        dateTo?: string | null;
+    }): Promise<any> {
+        return conectAPI(filters, `/class/bulk-cancel/preview`, "POST");
+    }
+
+    async bulkCancel(filters: {
+        time?: string | null;
+        dayOfWeek?: number | null;
+        teacherId?: string | null;
+        productTypeId?: string | null;
+        dateFrom?: string | null;
+        dateTo?: string | null;
+    }): Promise<any> {
+        return conectAPI(filters, `/class/bulk-cancel`, "POST");
+    }
+
 }

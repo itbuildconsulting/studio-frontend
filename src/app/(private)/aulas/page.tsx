@@ -124,6 +124,19 @@ export default function Class() {
   const [dropdownType, setDropdownType] = useState<any[]>([]);
   const [dropdownTeacher, setDropdownTeacher] = useState<any[]>([]);
 
+  // ── Cancelamento em lote ──────────────────────────────────────────────────
+  const [bulkOpen, setBulkOpen] = useState(false);
+  const [bulkStep, setBulkStep] = useState<"form" | "preview" | "done" | "error">("form");
+  const [bulkLoading, setBulkLoading] = useState(false);
+  const [bulkPreview, setBulkPreview] = useState<any[]>([]);
+  const [bulkResultMsg, setBulkResultMsg] = useState("");
+  const [bulkTime, setBulkTime] = useState("");
+  const [bulkDay, setBulkDay] = useState("");
+  const [bulkTeacher, setBulkTeacher] = useState("");
+  const [bulkType, setBulkType] = useState("");
+  const [bulkDateFrom, setBulkDateFrom] = useState("");
+  const [bulkDateTo, setBulkDateTo] = useState("");
+
   const total = infoPage?.totalRecords ?? 0;
   const activeClasses = classes.filter((c) => c.active !== false);
   const CAPACITY = 12;
@@ -168,6 +181,51 @@ export default function Class() {
     });
   };
 
+  const bulkFilters = () => ({
+    time: bulkTime || null,
+    dayOfWeek: bulkDay !== "" ? Number(bulkDay) : null,
+    teacherId: bulkTeacher || null,
+    productTypeId: bulkType || null,
+    dateFrom: bulkDateFrom || null,
+    dateTo: bulkDateTo || null,
+  });
+
+  const handleBulkPreview = () => {
+    setBulkLoading(true);
+    repo.bulkCancelPreview(bulkFilters()).then((result: any) => {
+      if (result instanceof Error || !result?.success) {
+        setBulkResultMsg("Erro ao buscar prévia.");
+        setBulkStep("error");
+      } else {
+        setBulkPreview(result.classes || []);
+        setBulkStep("preview");
+      }
+    }).finally(() => setBulkLoading(false));
+  };
+
+  const handleBulkConfirm = () => {
+    setBulkLoading(true);
+    repo.bulkCancel(bulkFilters()).then((result: any) => {
+      if (result instanceof Error || !result?.success) {
+        setBulkResultMsg("Erro ao cancelar aulas.");
+        setBulkStep("error");
+      } else {
+        setBulkResultMsg(result.message || "Aulas canceladas com sucesso.");
+        setBulkStep("done");
+        listClass(date, time, teacherId, type, page);
+      }
+    }).finally(() => setBulkLoading(false));
+  };
+
+  const resetBulkModal = () => {
+    setBulkOpen(false);
+    setBulkStep("form");
+    setBulkPreview([]);
+    setBulkResultMsg("");
+    setBulkTime(""); setBulkDay(""); setBulkTeacher(""); setBulkType("");
+    setBulkDateFrom(""); setBulkDateTo("");
+  };
+
   useEffect(() => {
     listClass(date, time, teacherId, type, page);
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -204,6 +262,12 @@ export default function Class() {
           <p className="text-sm text-muted-foreground mt-0.5">Gerencie as aulas do CT</p>
         </div>
         <div className="flex gap-2">
+          <Button variant="outline" onClick={() => { setBulkOpen(true); setBulkStep("form"); }}>
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" />
+            </svg>
+            Cancelar em Lote
+          </Button>
           <Button variant="outline" onClick={() => router.push("/aulas/editar-nomes")}>
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10" />
@@ -391,6 +455,135 @@ export default function Class() {
           )}
         </CardContent>
       </Card>
+
+      {/* ── Modal Cancelar em Lote ──────────────────────────── */}
+      {bulkOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+          <div className="bg-background rounded-2xl shadow-xl w-full max-w-lg max-h-[90vh] flex flex-col">
+            {/* Header */}
+            <div className="flex items-center justify-between px-6 py-4 border-b border-border">
+              <h4 className="font-semibold text-foreground">Cancelar Aulas em Lote</h4>
+              <button onClick={resetBulkModal} className="h-8 w-8 rounded-full flex items-center justify-center text-muted-foreground hover:bg-muted transition-colors text-lg">
+                ×
+              </button>
+            </div>
+
+            <div className="flex-1 overflow-y-auto px-6 py-4">
+
+              {/* STEP: form */}
+              {bulkStep === "form" && (
+                <div className="space-y-3">
+                  <p className="text-sm text-muted-foreground mb-4">
+                    Selecione os filtros para encontrar as aulas futuras a cancelar. Todos os campos são opcionais.
+                  </p>
+                  <div className="grid grid-cols-2 gap-3">
+                    <AuthSelect label="Horário" value={bulkTime} options={listTimes?.time} changeValue={setBulkTime} />
+                    <AuthSelect
+                      label="Dia da semana"
+                      value={bulkDay}
+                      options={[
+                        { value: 0, label: "Domingo" },
+                        { value: 1, label: "Segunda" },
+                        { value: 2, label: "Terça" },
+                        { value: 3, label: "Quarta" },
+                        { value: 4, label: "Quinta" },
+                        { value: 5, label: "Sexta" },
+                        { value: 6, label: "Sábado" },
+                      ]}
+                      changeValue={setBulkDay}
+                    />
+                    <AuthSelect label="Professor" value={bulkTeacher} options={convertArray(dropdownTeacher)} changeValue={setBulkTeacher} />
+                    <AuthSelect label="Tipo de Produto" value={bulkType} options={convertArrayType(dropdownType)} changeValue={setBulkType} />
+                    <SingleCalendar label="A partir de" date={bulkDateFrom} setValue={setBulkDateFrom} />
+                    <SingleCalendar label="Até" date={bulkDateTo} setValue={setBulkDateTo} />
+                  </div>
+                </div>
+              )}
+
+              {/* STEP: preview */}
+              {bulkStep === "preview" && (
+                <div>
+                  <p className="text-sm mb-3">
+                    Foram encontradas{" "}
+                    <span className="font-bold text-destructive">{bulkPreview.length} aula(s)</span>{" "}
+                    que serão canceladas:
+                  </p>
+                  <div className="rounded-lg border border-border overflow-hidden max-h-64 overflow-y-auto">
+                    <table className="w-full text-sm">
+                      <thead className="sticky top-0 bg-muted">
+                        <tr>
+                          <th className="px-3 py-2 text-left text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Data</th>
+                          <th className="px-3 py-2 text-left text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Hora</th>
+                          <th className="px-3 py-2 text-left text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Professor</th>
+                          <th className="px-3 py-2 text-left text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Alunos</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {bulkPreview.map((c: any) => (
+                          <tr key={c.id} className="border-t border-border">
+                            <td className="px-3 py-2">{fmtDate(c.date)}</td>
+                            <td className="px-3 py-2">{c.time?.slice(0, 5)}</td>
+                            <td className="px-3 py-2 text-muted-foreground">{c.teacher}</td>
+                            <td className="px-3 py-2 text-muted-foreground">{c.enrolled}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                  {bulkPreview.some((c: any) => c.enrolled > 0) && (
+                    <p className="text-xs text-amber-600 mt-2">
+                      ⚠ Alunos inscritos terão seus créditos devolvidos automaticamente.
+                    </p>
+                  )}
+                </div>
+              )}
+
+              {/* STEP: done / error */}
+              {(bulkStep === "done" || bulkStep === "error") && (
+                <div className="flex flex-col items-center gap-4 py-4">
+                  {bulkStep === "done" ? (
+                    <svg width="80" height="80" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1} stroke="var(--primary)">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                  ) : (
+                    <svg width="80" height="80" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1} stroke="var(--primary)">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                    </svg>
+                  )}
+                  <p className="text-center text-sm text-foreground">{bulkResultMsg}</p>
+                </div>
+              )}
+            </div>
+
+            {/* Footer */}
+            <div className="flex justify-end gap-2 px-6 py-4 border-t border-border">
+              {bulkStep === "form" && (
+                <>
+                  <Button variant="outline" onClick={resetBulkModal}>Cancelar</Button>
+                  <Button onClick={handleBulkPreview} disabled={bulkLoading}>
+                    {bulkLoading ? "Buscando..." : "Ver Prévia"}
+                  </Button>
+                </>
+              )}
+              {bulkStep === "preview" && (
+                <>
+                  <Button variant="outline" onClick={() => setBulkStep("form")}>Voltar</Button>
+                  <Button
+                    className="bg-destructive hover:bg-destructive/90 text-white"
+                    onClick={handleBulkConfirm}
+                    disabled={bulkLoading || bulkPreview.length === 0}
+                  >
+                    {bulkLoading ? "Cancelando..." : `Confirmar (${bulkPreview.length})`}
+                  </Button>
+                </>
+              )}
+              {(bulkStep === "done" || bulkStep === "error") && (
+                <Button onClick={resetBulkModal}>Fechar</Button>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </PageDefault>
   );
 }
