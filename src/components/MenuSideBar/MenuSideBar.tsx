@@ -92,6 +92,7 @@ export default function MenuSideBar({ menuMobileOpen, handleMenuOpen }: MenuSide
             <ul className="space-y-0.5">
               <MenuItem url="/dashboard" text="Home" icon={IconHome} />
               <MenuItem url="/aulas" text="Aulas" icon={IconClass} />
+              <MenuItem url="/turmas" text="Turmas" icon={IconClass} />
               <MenuItem url="/alunos" text="Alunos" icon={IconStudents} />
               <MenuItem url="/financeiro" text="Financeiro" icon={IconFinance} />
               <MenuItem url="/funcionarios" text="Funcionários" icon={IconWorkers} />
