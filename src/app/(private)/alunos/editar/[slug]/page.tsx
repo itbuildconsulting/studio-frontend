@@ -165,7 +165,12 @@ export default function EditStudents() {
     }, [extrato]);
 
     const aulasRealizadas = useMemo(() => {
-        return (extrato?.aulas ?? []).filter((a: any) => a.checkin).length;
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        return (extrato?.aulas ?? []).filter((a: any) => {
+            if (!(a.status === 1 || a.status === true)) return false;
+            return new Date(a.date) < today;
+        }).length;
     }, [extrato]);
 
     const lifetimeStats = useMemo(() => {
