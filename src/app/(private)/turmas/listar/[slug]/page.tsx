@@ -143,7 +143,7 @@ export default function DetalhesTurma() {
                 {!turma.classes || turma.classes.length === 0 ? (
                   <tr>
                     <td colSpan={4} className="px-4 py-10 text-center text-sm text-muted-foreground">
-                      Nenhuma aula gerada ainda. Clique em "Gerar Aulas" para criar as próximas aulas.
+                      Nenhuma aula gerada ainda. Clique em &ldquo;Gerar Aulas&rdquo; para criar as próximas aulas.
                     </td>
                   </tr>
                 ) : (
