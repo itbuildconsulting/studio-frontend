@@ -11,6 +11,7 @@ import { Button } from '@/components/ui/button'
 import { ValidationForm } from '@/components/formValidation/validation'
 import ValidationFields from '@/validators/fields'
 import CouponRepository from '../../../../core/Coupon'
+import ProductRepository from '../../../../core/ProductRepository'
 
 function CouponOptionsMenu({ id, active, onEdit, onToggle, onDelete }: {
     id: number;
@@ -76,6 +77,7 @@ const activeOptions = [
 
 export default function CuponsPage() {
     const repo = useMemo(() => new CouponRepository(), [])
+    const productRepo = useMemo(() => new ProductRepository(), [])
 
     const [modalOpen, setModalOpen] = useState(false)
     const [edit, setEdit] = useState(false)
@@ -87,6 +89,7 @@ export default function CuponsPage() {
     const [errorMessage, setErrorMessage] = useState<string | null>(null)
 
     const [coupons, setCoupons] = useState<any[]>([])
+    const [products, setProducts] = useState<any[]>([])
 
     // Form state
     const [id, setId] = useState<number | null>(null)
@@ -97,6 +100,8 @@ export default function CuponsPage() {
     const [limitType, setLimitType] = useState<'geral' | 'por_aluno'>('geral')
     const [limitValue, setLimitValue] = useState<number>(1)
     const [activeStatus, setActiveStatus] = useState<number>(1)
+    const [selectedProductId, setSelectedProductId] = useState<number | null>(null)
+    const [exclusiveProduct, setExclusiveProduct] = useState<boolean>(false)
 
     const loadCoupons = () => {
         setListLoading(true)
@@ -109,6 +114,11 @@ export default function CuponsPage() {
 
     useEffect(() => {
         loadCoupons()
+        productRepo.listAll().then((result: any) => {
+            if (!(result instanceof Error) && result?.data) {
+                setProducts(result.data.filter((p: any) => p.active))
+            }
+        })
     }, [])
 
     useEffect(() => {
@@ -122,6 +132,8 @@ export default function CuponsPage() {
             setLimitType('geral')
             setLimitValue(1)
             setActiveStatus(1)
+            setSelectedProductId(null)
+            setExclusiveProduct(false)
             setErrorMessage(null)
         }
     }, [modalOpen])
@@ -149,8 +161,8 @@ export default function CuponsPage() {
         const finalMaxPerStudent = limitType === 'por_aluno' ? limitValue : 1
 
         const promise = edit
-            ? repo.edit(id!, code!, type, Number(value), expiresAt, finalMaxUses, finalMaxPerStudent, activeStatus === 1)
-            : repo.create(code!, type, Number(value), expiresAt, finalMaxUses, finalMaxPerStudent)
+            ? repo.edit(id!, { code: code!, type, value: Number(value), expiresAt, maxUses: finalMaxUses, maxUsesPerStudent: finalMaxPerStudent, active: activeStatus === 1, productId: selectedProductId, exclusiveProduct })
+            : repo.create({ code: code!, type, value: Number(value), expiresAt, maxUses: finalMaxUses, maxUsesPerStudent: finalMaxPerStudent, productId: selectedProductId, exclusiveProduct })
 
         promise.then((result: any) => {
             if (result instanceof Error) {
@@ -192,6 +204,9 @@ export default function CuponsPage() {
                     setLimitValue(c.maxUsesPerStudent ?? 1)
                 }
                 setActiveStatus(c.active ? 1 : 0)
+                const parsedProductIds = c.productIds ? JSON.parse(c.productIds) : null
+                setSelectedProductId(parsedProductIds?.[0] ?? null)
+                setExclusiveProduct(c.exclusiveProduct ?? false)
             }
         })
     }
@@ -425,6 +440,38 @@ export default function CuponsPage() {
                             edit={edit}
                             required
                         />
+                    </div>
+
+                    {/* Produto específico */}
+                    <div className="col-span-12">
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Produto específico</label>
+                        <select
+                            value={selectedProductId ?? ''}
+                            onChange={(e) => {
+                                const val = e.target.value ? Number(e.target.value) : null
+                                setSelectedProductId(val)
+                                if (!val) setExclusiveProduct(false)
+                            }}
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary bg-white mb-2"
+                        >
+                            <option value="">Nenhum (válido para todos os produtos)</option>
+                            {products.map((p: any) => (
+                                <option key={p.id} value={p.id}>{p.name}</option>
+                            ))}
+                        </select>
+                        {selectedProductId && (
+                            <label className="flex items-center gap-2 cursor-pointer select-none mb-4">
+                                <input
+                                    type="checkbox"
+                                    checked={exclusiveProduct}
+                                    onChange={(e) => setExclusiveProduct(e.target.checked)}
+                                    className="h-4 w-4 rounded border-gray-300 accent-primary"
+                                />
+                                <span className="text-sm text-gray-700">
+                                    Produto exclusivo — cupom só se aplica se o carrinho tiver apenas este produto
+                                </span>
+                            </label>
+                        )}
                     </div>
 
                     {edit && (

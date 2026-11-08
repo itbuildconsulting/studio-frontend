@@ -37,28 +37,35 @@ export default class CouponRepository {
         return conectAPI(null, `/coupons/${id}`, 'GET');
     }
 
-    async create(
-        code: string,
-        type: 'percent' | 'fixed',
-        value: number,
-        expiresAt: string | null,
-        maxUses: number | null,
-        maxUsesPerStudent: number,
-    ): Promise<any> {
-        return conectAPI({ code, type, value, expiresAt, maxUses, maxUsesPerStudent }, '/coupons', 'POST');
+    async create(options: {
+        code: string;
+        type: 'percent' | 'fixed';
+        value: number;
+        expiresAt: string | null;
+        maxUses: number | null;
+        maxUsesPerStudent: number;
+        productId?: number | null;
+        exclusiveProduct?: boolean;
+    }): Promise<any> {
+        const { productId, exclusiveProduct, ...rest } = options;
+        const productIds = productId ? [productId] : null;
+        return conectAPI({ ...rest, productIds, exclusiveProduct: exclusiveProduct ?? false }, '/coupons', 'POST');
     }
 
-    async edit(
-        id: number,
-        code: string,
-        type: 'percent' | 'fixed',
-        value: number,
-        expiresAt: string | null,
-        maxUses: number | null,
-        maxUsesPerStudent: number,
-        active: boolean,
-    ): Promise<any> {
-        return conectAPI({ code, type, value, expiresAt, maxUses, maxUsesPerStudent, active }, `/coupons/${id}`, 'PUT');
+    async edit(id: number, options: {
+        code: string;
+        type: 'percent' | 'fixed';
+        value: number;
+        expiresAt: string | null;
+        maxUses: number | null;
+        maxUsesPerStudent: number;
+        active: boolean;
+        productId?: number | null;
+        exclusiveProduct?: boolean;
+    }): Promise<any> {
+        const { productId, exclusiveProduct, ...rest } = options;
+        const productIds = productId ? [productId] : null;
+        return conectAPI({ ...rest, productIds, exclusiveProduct: exclusiveProduct ?? false }, `/coupons/${id}`, 'PUT');
     }
 
     async toggleActive(id: number, active: boolean): Promise<any> {
