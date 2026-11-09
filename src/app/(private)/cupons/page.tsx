@@ -11,7 +11,7 @@ import { Button } from '@/components/ui/button'
 import { ValidationForm } from '@/components/formValidation/validation'
 import ValidationFields from '@/validators/fields'
 import CouponRepository from '../../../../core/Coupon'
-import ProductRepository from '../../../../core/ProductRepository'
+import ProductRepository from '../../../../core/Product'
 
 function CouponOptionsMenu({ id, active, onEdit, onToggle, onDelete }: {
     id: number;
